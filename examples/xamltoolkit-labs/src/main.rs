@@ -28,7 +28,7 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
 };
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::HsvColor;
 use xamltoolkit_winui_converters::XamlToolkit::WinUI::Converters::BoolNegationConverter;
-use xamltoolkit_winui_helpers::XamlToolkit::WinUI::Helpers::DesignTimeHelpers;
+use xamltoolkit_winui_helpers::XamlToolkit::WinUI::Helpers::{ColorHelper, DesignTimeHelpers};
 
 fn main() {
     eprintln!("xamltoolkit-labs: starting");
@@ -42,7 +42,7 @@ fn app(_cx: &mut RenderCx) -> Element {
     eprintln!("xamltoolkit-labs: rendering app");
 
     let controls_status = verify_layout_controls();
-    let helpers_status = verify_design_time_helpers();
+    let helpers_status = verify_helpers();
     let converters_status = verify_bool_negation_converter();
 
     vstack((
@@ -1272,6 +1272,36 @@ fn verify_suggestion_chosen_event_args() -> String {
     }
 }
 
+fn verify_helpers() -> String {
+    format!(
+        "{}; {}",
+        verify_design_time_helpers(),
+        verify_color_helper()
+    )
+}
+
+fn verify_color_helper() -> String {
+    eprintln!("xamltoolkit-labs: before ColorHelper statics");
+    match ColorHelper::ToColor(&HSTRING::from("#336699")) {
+        Ok(color) => {
+            let hex = ColorHelper::ToHex(color).map(|value| format!("{value:?}"));
+            let hsl = ColorHelper::ToHsl(color);
+            let hsv = ColorHelper::ToHsv(color);
+            let from_hsl = ColorHelper::FromHsl(210.0, 0.5, 0.4, 1.0);
+            let from_hsv = ColorHelper::FromHsv(210.0, 0.66, 0.6, 1.0);
+            eprintln!(
+                "xamltoolkit-labs: ColorHelper color={color:?}, ToHex={hex:?}, ToHsl={hsl:?}, ToHsv={hsv:?}, FromHsl={from_hsl:?}, FromHsv={from_hsv:?}"
+            );
+            format!(
+                "ColorHelper OK (color={color:?}, hex={hex:?}, hsl={hsl:?}, hsv={hsv:?}, from_hsl={from_hsl:?}, from_hsv={from_hsv:?})"
+            )
+        }
+        Err(error) => {
+            eprintln!("xamltoolkit-labs: ColorHelper::ToColor failed: {error:?}");
+            format!("ColorHelper failed: {error:?}")
+        }
+    }
+}
 fn verify_design_time_helpers() -> String {
     eprintln!("xamltoolkit-labs: before DesignTimeHelpers statics");
     let runtime = DesignTimeHelpers::IsRunningInApplicationRuntimeMode();

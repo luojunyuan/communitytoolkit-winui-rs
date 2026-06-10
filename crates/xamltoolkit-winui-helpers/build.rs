@@ -28,7 +28,15 @@ fn main() {
 
     let filters = env::var("XAMLTOOLKIT_WINUI_HELPERS_FILTERS")
         .map(|value| split_filters(&value))
-        .unwrap_or_else(|_| vec!["XamlToolkit.WinUI.Helpers.DesignTimeHelpers".to_string()]);
+        .unwrap_or_else(|_| {
+            vec![
+                "Windows.UI.Color".to_string(),
+                "XamlToolkit.WinUI.HslColor".to_string(),
+                "XamlToolkit.WinUI.HsvColor".to_string(),
+                "XamlToolkit.WinUI.Helpers.ColorHelper".to_string(),
+                "XamlToolkit.WinUI.Helpers.DesignTimeHelpers".to_string(),
+            ]
+        });
 
     generate_bindings(&helpers_winmd, &deps, filters, "xamltoolkit-winui-helpers");
 }

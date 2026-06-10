@@ -29,6 +29,8 @@ The first major scope is `xamltoolkit-winui-controls`.
 
 The controls crate currently projects and smoke-tests a broad Controls subset, including layout panels, basic controls, range/sizer controls, headered/segmented/settings controls, ColorPicker, RadialGauge, TabbedCommandBar, TokenizingTextBox, RichSuggestBox activation, ImageCropper, and a minimal CameraPreview surface.
 
+Helpers currently cover `DesignTimeHelpers` and `ColorHelper`; converters currently cover `BoolNegationConverter`.
+
 Known deeper gaps remain: real Labs pages are not yet ported, `CameraHelper` / true camera preview is not enabled by default, and some collection/event-heavy controls still only have light smoke tests.
 
 ## Validate
@@ -55,3 +57,4 @@ Runtime activation requires the Toolkit DLL/PRI assets to be deployed next to th
 2. Port the corresponding original Labs pages into `examples/xamltoolkit-labs` for projected controls.
 3. Add or expand sibling binding crates for other native Toolkit projects when needed, for example helpers, converters, media, behaviors, animations, and interactivity.
 4. Commit after each verified module or coherent documentation/update step.
+
