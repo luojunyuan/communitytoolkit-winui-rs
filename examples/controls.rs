@@ -219,7 +219,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 10] {
+fn all_visual_samples() -> [VisualSample; 12] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -232,6 +232,14 @@ fn all_visual_samples() -> [VisualSample; 10] {
         VisualSample {
             name: "UniformGrid",
             create: create_uniform_grid_sample,
+        },
+        VisualSample {
+            name: "EqualPanel",
+            create: create_equal_panel_sample,
+        },
+        VisualSample {
+            name: "StaggeredPanel",
+            create: create_staggered_panel_sample,
         },
         VisualSample {
             name: "RangeSelector",
@@ -312,6 +320,44 @@ fn create_uniform_grid_sample(
             .Append(&sample_button(label, 96.0, 44.0)?)?;
     }
     Ok(grid.cast()?)
+}
+
+fn create_equal_panel_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let panel = EqualPanel::new()?;
+    panel.SetWidth(320.0)?;
+    panel.SetHeight(96.0)?;
+    panel.SetOrientation(Orientation::Horizontal)?;
+    panel.SetSpacing(8.0)?;
+    for label in ["One", "Two", "Three"] {
+        panel
+            .Children()?
+            .Append(&sample_button(label, 88.0, 40.0)?)?;
+    }
+    Ok(panel.cast()?)
+}
+
+fn create_staggered_panel_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let panel = StaggeredPanel::new()?;
+    panel.SetWidth(320.0)?;
+    panel.SetHeight(140.0)?;
+    panel.SetDesiredColumnWidth(92.0)?;
+    panel.SetColumnSpacing(8.0)?;
+    panel.SetRowSpacing(8.0)?;
+    panel.SetPadding(thickness(4.0, 4.0, 4.0, 4.0))?;
+    for (label, height) in [
+        ("Short", 32.0),
+        ("Medium", 54.0),
+        ("Tall", 78.0),
+        ("Wide", 44.0),
+        ("Last", 60.0),
+    ] {
+        panel
+            .Children()?
+            .Append(&sample_button(label, 88.0, height)?)?;
+    }
+    Ok(panel.cast()?)
 }
 
 fn create_range_selector_sample(
