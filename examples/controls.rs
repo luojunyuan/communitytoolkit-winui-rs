@@ -110,6 +110,16 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/SettingsControls/SettingsExpander/SettingsExpander.xaml",
                 );
             }
+            "HeaderedContentControl" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/HeaderedControls/HeaderedContentControl/HeaderedContentControl.xaml",
+                );
+            }
+            "HeaderedItemsControl" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/HeaderedControls/HeaderedItemsControl/HeaderedItemsControl.xaml",
+                );
+            }
             "RadialGauge" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
             }
@@ -209,7 +219,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 8] {
+fn all_visual_samples() -> [VisualSample; 10] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -242,6 +252,14 @@ fn all_visual_samples() -> [VisualSample; 8] {
         VisualSample {
             name: "SettingsExpander",
             create: create_settings_expander_sample,
+        },
+        VisualSample {
+            name: "HeaderedContentControl",
+            create: create_headered_content_control_sample,
+        },
+        VisualSample {
+            name: "HeaderedItemsControl",
+            create: create_headered_items_control_sample,
         },
     ]
 }
@@ -375,6 +393,33 @@ fn create_settings_expander_sample(
     expander.Items()?.Append(&density.cast::<IInspectable>()?)?;
 
     Ok(expander.cast()?)
+}
+
+fn create_headered_content_control_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let control = HeaderedContentControl::new()?;
+    control.SetWidth(320.0)?;
+    control.SetHeader(&boxed_string("Headered content")?)?;
+    control.SetContent(&boxed_string("Projection-hosted content body")?)?;
+    control.SetOrientation(Orientation::Vertical)?;
+    Ok(control.cast()?)
+}
+
+fn create_headered_items_control_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let control = HeaderedItemsControl::new()?;
+    control.SetWidth(320.0)?;
+    control.SetHeader(&boxed_string("Headered items")?)?;
+    control.SetFooter(&boxed_string("3 projected items")?)?;
+    let items = IVector::<IInspectable>::from(
+        ["Alpha", "Beta", "Gamma"]
+            .into_iter()
+            .map(boxed_string)
+            .map(|value| value.map(Some))
+            .collect::<windows::core::Result<Vec<_>>>()?,
+    );
+    control.SetItemsSource(&items.cast::<IInspectable>()?)?;
+    Ok(control.cast()?)
 }
 
 fn sample_button(label: &str, width: f64, height: f64) -> windows::core::Result<NativeButton> {
