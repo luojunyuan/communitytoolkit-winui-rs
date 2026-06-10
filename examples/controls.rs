@@ -4,6 +4,7 @@ use std::sync::Once;
 
 use windows::core::{IInspectable, Interface, GUID, HSTRING};
 use windows::Foundation::PropertyValue;
+use windows_collections::IVector;
 use windows_reactor::core::backend::{Backend, ControlId, ControlKind};
 use windows_reactor::core::custom::{CustomElement, CustomElementHandle};
 use windows_reactor::*;
@@ -305,6 +306,14 @@ fn create_segmented_sample(
     segmented.SetWidth(320.0)?;
     segmented.SetHeight(48.0)?;
     segmented.SetOrientation(Orientation::Horizontal)?;
+    let items = IVector::<IInspectable>::from(
+        ["Daily", "Weekly", "Monthly"]
+            .into_iter()
+            .map(boxed_string)
+            .map(|value| value.map(Some))
+            .collect::<windows::core::Result<Vec<_>>>()?,
+    );
+    segmented.SetItemsSource(&items.cast::<IInspectable>()?)?;
     segmented.SetSelectedIndex(1)?;
     Ok(segmented.cast()?)
 }

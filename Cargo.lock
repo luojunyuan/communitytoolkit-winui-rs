@@ -242,6 +242,7 @@ name = "xamltoolkit-rs"
 version = "0.1.0"
 dependencies = [
  "windows",
+ "windows-collections",
  "windows-reactor",
  "windows-reactor-setup",
  "xamltoolkit-winui-controls",
