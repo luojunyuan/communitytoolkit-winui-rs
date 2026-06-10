@@ -1,10 +1,20 @@
-use windows::core::{GUID, HSTRING};
+use std::any::Any;
+use std::env;
+use std::sync::Once;
+
+use windows::core::{IInspectable, Interface, GUID, HSTRING};
 use windows::Foundation::PropertyValue;
+use windows_reactor::core::backend::{Backend, ControlId, ControlKind};
+use windows_reactor::core::custom::{CustomElement, CustomElementHandle};
 use windows_reactor::*;
-use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Controls::Orientation;
-use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Thickness;
-use xamltoolkit_winui_controls::Microsoft::UI::Xaml::{DataTemplate, HorizontalAlignment, Style};
-use xamltoolkit_winui_controls::Windows::Foundation::Rect;
+use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Controls::{
+    Border as NativeBorder, Orientation,
+};
+use xamltoolkit_winui_controls::Microsoft::UI::Xaml::{
+    Application as NativeApplication, DataTemplate, HorizontalAlignment, ResourceDictionary, Style,
+    Thickness as XamlThickness,
+};
+use xamltoolkit_winui_controls::Windows::Foundation::{Rect, Uri};
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::Primitives::{
     ColorPickerSlider, ColorPreviewer,
 };
@@ -38,17 +48,288 @@ fn main() {
 
 fn app(_cx: &mut RenderCx) -> Element {
     eprintln!("controls-example: rendering app");
+    install_toolkit_resources_once();
 
     let controls_status = verify_layout_controls();
 
+    scroll_viewer(
+        vstack((
+            text_block("XamlToolkit Controls").font_size(22.0).bold(),
+            text_block("Rust Controls example consuming the generated XamlToolkit.WinUI.Controls projection crate."),
+            visual_samples(),
+            text_block(controls_status),
+        ))
+        .spacing(12.0)
+        .padding(24.0),
+    )
+    .into()
+}
+
+static INSTALL_TOOLKIT_RESOURCES: Once = Once::new();
+
+fn install_toolkit_resources_once() {
+    INSTALL_TOOLKIT_RESOURCES.call_once(|| match install_toolkit_resources() {
+        Ok(()) => eprintln!("controls-example: installed selected Toolkit resources"),
+        Err(error) => eprintln!("controls-example: Toolkit resource install failed: {error:?}"),
+    });
+}
+
+fn install_toolkit_resources() -> windows::core::Result<()> {
+    let selected = selected_visual_samples();
+    let app = NativeApplication::Current()?;
+    let resources = app.Resources()?;
+    let merged = resources.MergedDictionaries()?;
+
+    for source in toolkit_resource_dictionaries_for(&selected) {
+        eprintln!("controls-example: loading Toolkit resource {source}");
+        let dictionary = ResourceDictionary::new()?;
+        let uri = Uri::CreateUri(&HSTRING::from(source))?;
+        dictionary.SetSource(&uri)?;
+        merged.Append(&dictionary)?;
+    }
+
+    Ok(())
+}
+
+fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static str> {
+    let mut sources = Vec::new();
+    for sample in samples {
+        match sample.name {
+            "SettingsCard" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/SettingsControls/SettingsCard/SettingsCard.xaml",
+                );
+            }
+            "RadialGauge" => {
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
+            }
+            _ => {}
+        }
+    }
+    sources.sort_unstable();
+    sources.dedup();
+    sources
+}
+fn visual_samples() -> Element {
+    let samples = selected_visual_samples();
+    let names = samples.iter().map(|sample| sample.name).collect::<Vec<_>>();
+    eprintln!(
+        "controls-example: visual samples selected: {}",
+        names.join(",")
+    );
+
+    let mut cards = Vec::new();
+    for (index, sample) in samples.iter().enumerate() {
+        cards.push(
+            sample_card(
+                sample.name,
+                toolkit_control_host(sample.name, sample.create),
+            )
+            .grid_row((index / 2) as i32)
+            .grid_column((index % 2) as i32),
+        );
+    }
+
+    let rows = ((cards.len().max(1) + 1) / 2).max(1);
+
     vstack((
-        text_block("XamlToolkit Controls").font_size(22.0).bold(),
-        text_block("Rust Controls example consuming the generated XamlToolkit.WinUI.Controls projection crate."),
-        text_block(controls_status),
+        text_block("Mounted Controls samples")
+            .font_size(18.0)
+            .bold(),
+        grid(cards)
+            .rows((0..rows).map(|_| GridLength::Auto))
+            .columns([GridLength::Star(1.0), GridLength::Star(1.0)])
+            .row_spacing(12.0)
+            .column_spacing(12.0),
     ))
     .spacing(8.0)
-    .padding(24.0)
     .into()
+}
+
+#[derive(Clone, Copy)]
+struct VisualSample {
+    name: &'static str,
+    create:
+        fn() -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement>,
+}
+
+fn selected_visual_samples() -> Vec<VisualSample> {
+    let requested =
+        env::var("XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES").unwrap_or_else(|_| "WrapPanel".to_string());
+    let requested = requested
+        .split(',')
+        .map(|name| name.trim())
+        .filter(|name| !name.is_empty())
+        .collect::<Vec<_>>();
+    let include_all = requested
+        .iter()
+        .any(|name| name.eq_ignore_ascii_case("all"));
+
+    let samples = all_visual_samples();
+    let selected = samples
+        .iter()
+        .copied()
+        .filter(|sample| {
+            include_all
+                || requested
+                    .iter()
+                    .any(|name| name.eq_ignore_ascii_case(sample.name))
+        })
+        .collect::<Vec<_>>();
+
+    if selected.is_empty() {
+        eprintln!(
+            "controls-example: no visual samples matched XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES={requested:?}; defaulting to WrapPanel"
+        );
+        samples
+            .iter()
+            .copied()
+            .filter(|sample| sample.name == "WrapPanel")
+            .collect()
+    } else {
+        selected
+    }
+}
+
+fn all_visual_samples() -> [VisualSample; 3] {
+    [
+        VisualSample {
+            name: "WrapPanel",
+            create: create_wrap_panel_sample,
+        },
+        VisualSample {
+            name: "RadialGauge",
+            create: create_radial_gauge_sample,
+        },
+        VisualSample {
+            name: "SettingsCard",
+            create: create_settings_card_sample,
+        },
+    ]
+}
+
+fn create_wrap_panel_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let panel = WrapPanel::new()?;
+    panel.SetWidth(320.0)?;
+    panel.SetHeight(96.0)?;
+    panel.SetHorizontalSpacing(8.0)?;
+    panel.SetVerticalSpacing(8.0)?;
+    Ok(panel.cast()?)
+}
+
+fn create_radial_gauge_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let gauge = RadialGauge::new()?;
+    gauge.SetWidth(180.0)?;
+    gauge.SetHeight(180.0)?;
+    gauge.SetMinimum(0.0)?;
+    gauge.SetMaximum(100.0)?;
+    gauge.SetUnit(&HSTRING::from("%"))?;
+    gauge.SetIsInteractive(false)?;
+    Ok(gauge.cast()?)
+}
+
+fn create_settings_card_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let card = SettingsCard::new()?;
+    card.SetWidth(320.0)?;
+    card.SetHeader(&boxed_string("Rust projection")?)?;
+    card.SetDescription(&boxed_string("Hosted from xamltoolkit-winui-controls")?)?;
+    card.SetIsClickEnabled(false)?;
+    Ok(card.cast()?)
+}
+
+fn sample_card(title: &'static str, sample: Element) -> Element {
+    border(vstack((text_block(title).bold(), sample)).spacing(8.0))
+        .padding(windows_reactor::Thickness::uniform(12.0))
+        .border_thickness(windows_reactor::Thickness::uniform(1.0))
+        .corner_radius(6.0)
+        .into()
+}
+
+fn toolkit_control_host(
+    name: &'static str,
+    create: fn()
+        -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement>,
+) -> Element {
+    Element::Custom(CustomElementHandle::new(ToolkitControlHost {
+        name,
+        create,
+    }))
+}
+
+#[derive(Clone)]
+struct ToolkitControlHost {
+    name: &'static str,
+    create:
+        fn() -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement>,
+}
+
+impl CustomElement for ToolkitControlHost {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn kind_name(&self) -> &'static str {
+        "ToolkitControlHost"
+    }
+
+    fn eq_dyn(&self, other: &dyn CustomElement) -> bool {
+        other
+            .as_any()
+            .downcast_ref::<ToolkitControlHost>()
+            .is_some_and(|other| self.name == other.name)
+    }
+
+    fn clone_dyn(&self) -> Box<dyn CustomElement> {
+        Box::new(self.clone())
+    }
+
+    fn mount(&self, backend: &mut dyn Backend) -> ControlId {
+        let id = backend.create(ControlKind::Border);
+        mount_toolkit_control(self.name, self.create, backend.get_native_element(id));
+        id
+    }
+
+    fn update(&self, prev: &dyn CustomElement, id: ControlId, backend: &mut dyn Backend) {
+        let prev = prev
+            .as_any()
+            .downcast_ref::<ToolkitControlHost>()
+            .expect("reconciler guarantees matching custom element type");
+        if prev.name != self.name {
+            mount_toolkit_control(self.name, self.create, backend.get_native_element(id));
+        }
+    }
+
+    fn before_destroy(&self, id: ControlId, backend: &mut dyn Backend) {
+        if let Some(native) = backend.get_native_element(id) {
+            if let Ok(border) = native.cast::<NativeBorder>() {
+                let _ = border.SetChild(None);
+            }
+        }
+    }
+}
+
+fn mount_toolkit_control(
+    name: &'static str,
+    create: fn()
+        -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement>,
+    native_host: Option<IInspectable>,
+) {
+    let Some(native_host) = native_host else {
+        eprintln!("controls-example: {name} host native element missing");
+        return;
+    };
+
+    let result = native_host
+        .cast::<NativeBorder>()
+        .and_then(|host| create().and_then(|control| host.SetChild(&control)));
+
+    match result {
+        Ok(()) => eprintln!("controls-example: mounted visual sample {name} OK"),
+        Err(error) => eprintln!("controls-example: mounted visual sample {name} failed: {error:?}"),
+    }
 }
 
 fn verify_layout_controls() -> String {
@@ -887,8 +1168,8 @@ fn verify_corner_radius_converter() -> String {
     }
 }
 
-fn thickness(left: f64, top: f64, right: f64, bottom: f64) -> Thickness {
-    Thickness {
+fn thickness(left: f64, top: f64, right: f64, bottom: f64) -> XamlThickness {
+    XamlThickness {
         Left: left,
         Top: top,
         Right: right,
