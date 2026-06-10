@@ -123,6 +123,7 @@ fn main() {
                 "XamlToolkit.WinUI.Controls.Case".to_string(),
                 "XamlToolkit.WinUI.Controls.CaseCollection".to_string(),
                 "XamlToolkit.WinUI.Controls.ColorChannel".to_string(),
+                "XamlToolkit.WinUI.Controls.IColorPalette".to_string(),
                 "XamlToolkit.WinUI.Controls.ColorPicker".to_string(),
                 "XamlToolkit.WinUI.Controls.ColorPickerButton".to_string(),
                 "XamlToolkit.WinUI.Controls.ColorRepresentation".to_string(),

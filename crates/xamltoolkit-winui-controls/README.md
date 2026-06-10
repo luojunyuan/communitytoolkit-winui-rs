@@ -12,7 +12,7 @@ Validated by `examples/controls.rs` smoke tests:
 - Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`.
 - Range / sizers: `RangeSelector`, `RangeChangedEventArgs`, `SizerBase`, `PropertySizer`, `ContentSizer`, `GridSplitter`.
 - Headered / segmented / settings controls: `HeaderedContentControl`, `HeaderedItemsControl`, `HeaderedTreeView`, `Segmented`, `SegmentedItem`, `SettingsCard`, `SettingsExpander`.
-- Color controls: `ColorPicker`, `ColorPickerButton`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`.
+- Color controls: `ColorPicker`, `ColorPickerButton`, `IColorPalette`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`.
 - Other controls: `RadialGauge`, `TabbedCommandBar`, `TokenizingTextBox`, `RichSuggestBox` activation, `SwitchPresenter`.
 - Image/media-light coverage: `ImageCropper`, `ImageCropperThumb`, `CameraPreview` minimal activation/property surface, `PreviewFailedEventArgs`.
 
