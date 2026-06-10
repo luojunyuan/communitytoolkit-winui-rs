@@ -9,7 +9,10 @@ The source C++/WinRT repository stays as a sibling directory:
 ```text
 C:\Users\kimika\Documents\communitytoolkit\CommunityToolkit.WinUI
 C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
+C:\Users\kimika\Documents\communitytoolkit\windows-rs-62af965-patched
 ```
+
+`windows-rs-62af965-patched` is a local copy of the `microsoft/windows-rs` commit used by the original lockfile, with a small `windows-reactor` patch that lets external WinRT component libraries register their generated XAML metadata provider. The Controls example registers `XamlToolkit.WinUI.Controls.XamlMetaDataProvider` through that hook so templated controls can resolve Toolkit XAML types.
 
 ## Layout
 
@@ -43,6 +46,15 @@ cargo build --example controls
 Run the Controls example with:
 
 ```powershell
+cargo run --example controls
+```
+
+The default visual sample is `WrapPanel`. More samples can be selected with:
+
+```powershell
+$env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "SettingsCard"
+$env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "RadialGauge"
+$env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "all"
 cargo run --example controls
 ```
 

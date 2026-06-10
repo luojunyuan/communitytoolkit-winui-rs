@@ -41,6 +41,9 @@ fn main() {
                 "Microsoft.UI.Xaml.UIElement".to_string(),
                 "Microsoft.UI.Xaml.FrameworkElement".to_string(),
                 "Microsoft.UI.Xaml.HorizontalAlignment".to_string(),
+                "Microsoft.UI.Xaml.Markup.IXamlMetadataProvider".to_string(),
+                "Microsoft.UI.Xaml.Markup.IXamlType".to_string(),
+                "Microsoft.UI.Xaml.Markup.XmlnsDefinition".to_string(),
                 "Microsoft.UI.Input.InputSystemCursorShape".to_string(),
                 "Microsoft.UI.Input.PointerPoint".to_string(),
                 "Microsoft.UI.Text.ITextCharacterFormat".to_string(),
@@ -110,6 +113,8 @@ fn main() {
                 "Windows.Foundation.Collections.IVector".to_string(),
                 "Windows.Storage.StorageFile".to_string(),
                 "Windows.Storage.Streams.IRandomAccessStream".to_string(),
+                "Windows.UI.Xaml.Interop.TypeKind".to_string(),
+                "Windows.UI.Xaml.Interop.TypeName".to_string(),
                 "XamlToolkit.WinUI.HsvColor".to_string(),
                 "XamlToolkit.WinUI.Controls.BitmapFileFormat".to_string(),
                 "XamlToolkit.WinUI.Controls.CameraPreview".to_string(),
@@ -193,6 +198,7 @@ fn main() {
                 "XamlToolkit.WinUI.Controls.TokenizingTextBoxStyleSelector".to_string(),
                 "XamlToolkit.WinUI.Controls.UniformGrid".to_string(),
                 "XamlToolkit.WinUI.Controls.WrapPanel".to_string(),
+                "XamlToolkit.WinUI.Controls.XamlMetaDataProvider".to_string(),
             ]
         });
 
@@ -212,7 +218,6 @@ fn main() {
     args.extend([
         "--out".to_string(),
         out_file.display().to_string(),
-        "--no-allow".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.Graphics".to_string(),
         "--filter".to_string(),
@@ -230,6 +235,41 @@ fn main() {
             out_file.display()
         );
     }
+
+    patch_generated_bindings(&out_file);
+}
+
+fn patch_generated_bindings(out_file: &Path) {
+    let mut generated = fs::read_to_string(out_file)
+        .unwrap_or_else(|error| panic!("failed to read {}: {error}", out_file.display()));
+
+    if generated.contains("pub struct IReference<T>")
+        && !generated.contains("xamltoolkit_controls_ireference_from_bridge")
+    {
+        generated.push_str(
+            r#"
+
+#[allow(non_snake_case)]
+mod xamltoolkit_controls_ireference_from_bridge {
+    use super::Windows::Foundation::IReference;
+    use windows_core::{Interface, RuntimeType};
+
+    impl<T> From<T> for IReference<T>
+    where
+        T: RuntimeType + Clone + 'static,
+    {
+        fn from(value: T) -> Self {
+            let reference = windows_reference::IReference::<T>::from(value);
+            unsafe { Self::from_raw(reference.into_raw()) }
+        }
+    }
+}
+"#,
+        );
+    }
+
+    fs::write(out_file, generated)
+        .unwrap_or_else(|error| panic!("failed to write {}: {error}", out_file.display()));
 }
 
 fn split_filters(value: &str) -> Vec<String> {

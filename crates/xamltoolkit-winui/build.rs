@@ -59,7 +59,6 @@ fn main() {
     args.extend([
         "--out".to_string(),
         out_file.display().to_string(),
-        "--no-allow".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);

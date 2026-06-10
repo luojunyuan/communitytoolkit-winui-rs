@@ -17,26 +17,27 @@ resolver = "2"
 [dependencies]
 xamltoolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
 windows = { version = "0.62.2", features = ["Foundation", "UI"] }
-windows-reactor = { git = "https://github.com/microsoft/windows-rs" }
+windows-reactor = { path = "../windows-rs-62af965-patched/crates/libs/reactor" }
 
 [build-dependencies]
-windows-reactor-setup = { git = "https://github.com/microsoft/windows-rs" }
+windows-reactor-setup = { path = "../windows-rs-62af965-patched/crates/libs/reactor-setup" }
 
 [[example]]
 name = "controls"
 path = "examples/controls.rs"
 
 [patch.crates-io]
-windows = { git = "https://github.com/microsoft/windows-rs" }
-windows-collections = { git = "https://github.com/microsoft/windows-rs" }
-windows-core = { git = "https://github.com/microsoft/windows-rs" }
-windows-future = { git = "https://github.com/microsoft/windows-rs" }
-windows-implement = { git = "https://github.com/microsoft/windows-rs" }
-windows-interface = { git = "https://github.com/microsoft/windows-rs" }
-windows-link = { git = "https://github.com/microsoft/windows-rs" }
-windows-numerics = { git = "https://github.com/microsoft/windows-rs" }
-windows-reference = { git = "https://github.com/microsoft/windows-rs" }
-windows-result = { git = "https://github.com/microsoft/windows-rs" }
-windows-strings = { git = "https://github.com/microsoft/windows-rs" }
-windows-threading = { git = "https://github.com/microsoft/windows-rs" }
-windows-time = { git = "https://github.com/microsoft/windows-rs" }
+windows = { path = "../windows-rs-62af965-patched/crates/libs/windows" }
+windows-bindgen = { path = "../windows-rs-62af965-patched/crates/libs/bindgen" }
+windows-collections = { path = "../windows-rs-62af965-patched/crates/libs/collections" }
+windows-core = { path = "../windows-rs-62af965-patched/crates/libs/core" }
+windows-future = { path = "../windows-rs-62af965-patched/crates/libs/future" }
+windows-implement = { path = "../windows-rs-62af965-patched/crates/libs/implement" }
+windows-interface = { path = "../windows-rs-62af965-patched/crates/libs/interface" }
+windows-link = { path = "../windows-rs-62af965-patched/crates/libs/link" }
+windows-numerics = { path = "../windows-rs-62af965-patched/crates/libs/numerics" }
+windows-reference = { path = "../windows-rs-62af965-patched/crates/libs/reference" }
+windows-result = { path = "../windows-rs-62af965-patched/crates/libs/result" }
+windows-strings = { path = "../windows-rs-62af965-patched/crates/libs/strings" }
+windows-threading = { path = "../windows-rs-62af965-patched/crates/libs/threading" }
+windows-time = { path = "../windows-rs-62af965-patched/crates/libs/time" }

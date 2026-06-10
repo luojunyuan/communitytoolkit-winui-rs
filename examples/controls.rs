@@ -34,12 +34,16 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     SwitchPresenter, TabbedCommandBar, TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector,
     ThumbPlacement, ThumbPosition, TokenItemAddingEventArgs, TokenItemRemovingEventArgs,
     TokenizingTextBox, TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem,
-    TokenizingTextBoxStyleSelector, UniformGrid, WrapPanel,
+    TokenizingTextBoxStyleSelector, UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::HsvColor;
 
 fn main() {
     eprintln!("controls-example: starting");
+    windows_reactor::register_xaml_metadata_provider_factory(|| {
+        let provider = XamlMetaDataProvider::new()?;
+        provider.cast::<IInspectable>()
+    });
     if let Err(error) = App::new().title("XamlToolkit Controls").render(app) {
         eprintln!("controls-example failed: {error:?}");
         std::process::exit(1);
@@ -334,6 +338,7 @@ fn mount_toolkit_control(
 
 fn verify_layout_controls() -> String {
     let results = [
+        verify_xaml_metadata_provider(),
         verify_wrap_panel(),
         verify_dock_panel(),
         verify_equal_panel(),
@@ -392,6 +397,26 @@ fn verify_layout_controls() -> String {
         verify_suggestion_chosen_event_args(),
     ];
     format!("Controls: {}", results.join("; "))
+}
+
+fn verify_xaml_metadata_provider() -> String {
+    eprintln!("controls-example: before XamlMetaDataProvider::new");
+    match XamlMetaDataProvider::new() {
+        Ok(provider) => {
+            eprintln!("controls-example: XamlMetaDataProvider::new OK");
+            let full_name = HSTRING::from("XamlToolkit.WinUI.Controls.WrapPanel");
+            let xaml_type = provider.GetXamlTypeByFullName(&full_name);
+            let xmlns = provider.GetXmlnsDefinitions();
+            eprintln!(
+                "controls-example: XamlMetaDataProvider.GetXamlTypeByFullName(WrapPanel)={xaml_type:?}, GetXmlnsDefinitions={xmlns:?}"
+            );
+            format!("XamlMetaDataProvider OK ({xaml_type:?}, {xmlns:?})")
+        }
+        Err(error) => {
+            eprintln!("controls-example: XamlMetaDataProvider::new failed: {error:?}");
+            format!("XamlMetaDataProvider failed: {error:?}")
+        }
+    }
 }
 
 fn verify_wrap_panel() -> String {
