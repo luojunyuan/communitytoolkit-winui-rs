@@ -95,6 +95,7 @@ fn main() {
                 "Microsoft.UI.Xaml.Controls.Primitives.SelectorItem".to_string(),
                 "Microsoft.UI.Xaml.Controls.Slider".to_string(),
                 "Microsoft.UI.Xaml.Controls.TreeView".to_string(),
+                "Microsoft.UI.Xaml.Controls.UIElementCollection".to_string(),
                 "Microsoft.UI.Xaml.Controls.VirtualizingLayout".to_string(),
                 "Microsoft.UI.Xaml.Media.Brush".to_string(),
                 "Microsoft.UI.Xaml.Media.ImageSource".to_string(),

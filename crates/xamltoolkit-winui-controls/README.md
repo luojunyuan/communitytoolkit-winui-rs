@@ -6,7 +6,7 @@ This crate is generated from `XamlToolkit.WinUI.Controls.winmd` with an intentio
 
 ## Current Coverage
 
-Validated by `examples/controls.rs` smoke tests:
+Validated by `examples/controls.rs` smoke tests and visual sample mounts:
 
 - Layout / panels: `WrapPanel`, `DockPanel`, `EqualPanel`, `UniformGrid`, `StaggeredPanel`, `StaggeredLayout`.
 - Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`.
@@ -38,6 +38,8 @@ cargo run --example controls
 ```
 
 The example is a GUI process and should remain running. For automated smoke verification, start `target\debug\examples\controls.exe`, wait about 10 seconds, confirm the process is still alive, then stop it and inspect stderr.
+
+The current visual sample set includes `WrapPanel`, `DockPanel`, `UniformGrid`, `RangeSelector`, `Segmented`, `RadialGauge`, and `SettingsCard`.
 
 ## Expanding The Projection
 

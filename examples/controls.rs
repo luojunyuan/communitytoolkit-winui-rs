@@ -8,7 +8,7 @@ use windows_reactor::core::backend::{Backend, ControlId, ControlKind};
 use windows_reactor::core::custom::{CustomElement, CustomElementHandle};
 use windows_reactor::*;
 use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Controls::{
-    Border as NativeBorder, Orientation,
+    Border as NativeBorder, Button as NativeButton, Orientation,
 };
 use xamltoolkit_winui_controls::Microsoft::UI::Xaml::{
     Application as NativeApplication, DataTemplate, HorizontalAlignment, ResourceDictionary, Style,
@@ -21,7 +21,7 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::Primitives::{
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     AccentColorConverter, CameraPreview, Case, CaseCollection, ColorChannel, ColorPicker,
     ColorPickerButton, ColorRepresentation, ColorToHexConverter, ConstrainedBox, ContentAlignment,
-    ContentSizer, ContrastBrushConverter, CornerRadiusConverter, DockPanel, EqualPanel,
+    ContentSizer, ContrastBrushConverter, CornerRadiusConverter, Dock, DockPanel, EqualPanel,
     GridResizeBehavior, GridResizeDirection, GridSplitter, HeaderedContentControl,
     HeaderedItemsControl, HeaderedTreeView, ImageCropper, ImageCropperThumb,
     LayoutTransformControl, MetadataControl, MetadataItem, NullToTransparentConverter,
@@ -106,6 +106,14 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
             }
             "RadialGauge" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
+            }
+            "RangeSelector" => {
+                sources
+                    .push("ms-appx:///XamlToolkit.WinUI.Controls/RangeSelector/RangeSelector.xaml");
+            }
+            "Segmented" => {
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/Segmented.xaml");
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/SegmentedItem.xaml");
             }
             _ => {}
         }
@@ -195,11 +203,27 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 3] {
+fn all_visual_samples() -> [VisualSample; 7] {
     [
         VisualSample {
             name: "WrapPanel",
             create: create_wrap_panel_sample,
+        },
+        VisualSample {
+            name: "DockPanel",
+            create: create_dock_panel_sample,
+        },
+        VisualSample {
+            name: "UniformGrid",
+            create: create_uniform_grid_sample,
+        },
+        VisualSample {
+            name: "RangeSelector",
+            create: create_range_selector_sample,
+        },
+        VisualSample {
+            name: "Segmented",
+            create: create_segmented_sample,
         },
         VisualSample {
             name: "RadialGauge",
@@ -219,7 +243,70 @@ fn create_wrap_panel_sample(
     panel.SetHeight(96.0)?;
     panel.SetHorizontalSpacing(8.0)?;
     panel.SetVerticalSpacing(8.0)?;
+    let children = panel.Children()?;
+    for label in ["Alpha", "Beta", "Gamma", "Delta"] {
+        children.Append(&sample_button(label, 74.0, 32.0)?)?;
+    }
     Ok(panel.cast()?)
+}
+
+fn create_dock_panel_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let panel = DockPanel::new()?;
+    panel.SetWidth(320.0)?;
+    panel.SetHeight(132.0)?;
+    panel.SetLastChildFill(true)?;
+    panel.SetPadding(thickness(4.0, 4.0, 4.0, 4.0))?;
+
+    let top = sample_button("Top", 300.0, 30.0)?;
+    DockPanel::SetDock(&top, Dock::Top)?;
+    panel.Children()?.Append(&top)?;
+
+    let left = sample_button("Left", 84.0, 70.0)?;
+    DockPanel::SetDock(&left, Dock::Left)?;
+    panel.Children()?.Append(&left)?;
+
+    panel
+        .Children()?
+        .Append(&sample_button("Fill", 180.0, 70.0)?)?;
+    Ok(panel.cast()?)
+}
+
+fn create_uniform_grid_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let grid = UniformGrid::new()?;
+    grid.SetWidth(320.0)?;
+    grid.SetHeight(132.0)?;
+    grid.SetRows(2)?;
+    grid.SetColumns(3)?;
+    for label in ["One", "Two", "Three", "Four", "Five", "Six"] {
+        grid.Children()?
+            .Append(&sample_button(label, 96.0, 44.0)?)?;
+    }
+    Ok(grid.cast()?)
+}
+
+fn create_range_selector_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let selector = RangeSelector::new()?;
+    selector.SetWidth(320.0)?;
+    selector.SetHeight(64.0)?;
+    selector.SetMinimum(0.0)?;
+    selector.SetMaximum(100.0)?;
+    selector.SetRangeStart(20.0)?;
+    selector.SetRangeEnd(80.0)?;
+    selector.SetStepFrequency(5.0)?;
+    Ok(selector.cast()?)
+}
+
+fn create_segmented_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let segmented = Segmented::new()?;
+    segmented.SetWidth(320.0)?;
+    segmented.SetHeight(48.0)?;
+    segmented.SetOrientation(Orientation::Horizontal)?;
+    segmented.SetSelectedIndex(1)?;
+    Ok(segmented.cast()?)
 }
 
 fn create_radial_gauge_sample(
@@ -242,6 +329,15 @@ fn create_settings_card_sample(
     card.SetDescription(&boxed_string("Hosted from xamltoolkit-winui-controls")?)?;
     card.SetIsClickEnabled(false)?;
     Ok(card.cast()?)
+}
+
+fn sample_button(label: &str, width: f64, height: f64) -> windows::core::Result<NativeButton> {
+    let button = NativeButton::new()?;
+    button.SetContent(&boxed_string(label)?)?;
+    button.SetWidth(width)?;
+    button.SetHeight(height)?;
+    button.SetMargin(thickness(4.0, 4.0, 4.0, 4.0))?;
+    Ok(button)
 }
 
 fn sample_card(title: &'static str, sample: Element) -> Element {

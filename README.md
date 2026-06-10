@@ -32,6 +32,8 @@ The first major scope is `xamltoolkit-winui-controls`.
 
 The controls crate currently projects and smoke-tests a broad Controls subset, including layout panels, basic controls, range/sizer controls, headered/segmented/settings controls, ColorPicker, RadialGauge, TabbedCommandBar, TokenizingTextBox, RichSuggestBox activation, ImageCropper, and a minimal CameraPreview surface.
 
+The example also mounts a growing set of real visual samples. The current `all` run hosts `WrapPanel`, `DockPanel`, `UniformGrid`, `RangeSelector`, `Segmented`, `RadialGauge`, and `SettingsCard` through the generated `xamltoolkit-winui-controls` crate.
+
 Known deeper gaps remain: real visual sample pages are only starting, `CameraHelper` / true camera preview is not enabled by default, and some collection/event-heavy controls still only have light smoke tests.
 
 ## Validate
@@ -54,6 +56,7 @@ The default visual sample is `WrapPanel`. More samples can be selected with:
 ```powershell
 $env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "SettingsCard"
 $env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "RadialGauge"
+$env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "WrapPanel,DockPanel,UniformGrid,RangeSelector,Segmented"
 $env:XAMLTOOLKIT_CONTROLS_VISUAL_SAMPLES = "all"
 cargo run --example controls
 ```
