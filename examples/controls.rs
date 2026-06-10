@@ -120,6 +120,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/HeaderedControls/HeaderedItemsControl/HeaderedItemsControl.xaml",
                 );
             }
+            "MetadataControl" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/MetadataControl/MetadataControl.xaml",
+                );
+            }
             "RadialGauge" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
             }
@@ -219,7 +224,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 12] {
+fn all_visual_samples() -> [VisualSample; 14] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -240,6 +245,14 @@ fn all_visual_samples() -> [VisualSample; 12] {
         VisualSample {
             name: "StaggeredPanel",
             create: create_staggered_panel_sample,
+        },
+        VisualSample {
+            name: "ConstrainedBox",
+            create: create_constrained_box_sample,
+        },
+        VisualSample {
+            name: "MetadataControl",
+            create: create_metadata_control_sample,
         },
         VisualSample {
             name: "RangeSelector",
@@ -360,6 +373,40 @@ fn create_staggered_panel_sample(
     Ok(panel.cast()?)
 }
 
+fn create_constrained_box_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let box_control = ConstrainedBox::new()?;
+    box_control.SetWidth(320.0)?;
+    box_control.SetHeight(80.0)?;
+    box_control.SetScaleX(1.0)?;
+    box_control.SetScaleY(1.0)?;
+    box_control.SetMultipleX(2)?;
+    box_control.SetMultipleY(1)?;
+    box_control.SetContent(&sample_button("Constrained", 160.0, 44.0)?.cast::<IInspectable>()?)?;
+    Ok(box_control.cast()?)
+}
+
+fn create_metadata_control_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let metadata = MetadataControl::new()?;
+    metadata.SetWidth(320.0)?;
+    metadata.SetSeparator(&HSTRING::from(" | "))?;
+    metadata.SetAccessibleSeparator(&HSTRING::from(", "))?;
+    let items = IVector::<MetadataItem>::from(
+        ["Rust", "WinRT", "Controls"]
+            .into_iter()
+            .map(metadata_item)
+            .map(|item| item.map(Some))
+            .collect::<windows::core::Result<Vec<_>>>()?,
+    );
+    let items = items
+        .cast::<
+            xamltoolkit_winui_controls::Windows::Foundation::Collections::IVector<MetadataItem>,
+        >()?;
+    metadata.SetItems(&items)?;
+    Ok(metadata.cast()?)
+}
+
 fn create_range_selector_sample(
 ) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let selector = RangeSelector::new()?;
@@ -475,6 +522,14 @@ fn sample_button(label: &str, width: f64, height: f64) -> windows::core::Result<
     button.SetHeight(height)?;
     button.SetMargin(thickness(4.0, 4.0, 4.0, 4.0))?;
     Ok(button)
+}
+
+fn metadata_item(label: &str) -> windows::core::Result<MetadataItem> {
+    let item = MetadataItem::new()?;
+    let label = HSTRING::from(label);
+    item.SetLabel(&label)?;
+    item.SetAccessibleLabel(&label)?;
+    Ok(item)
 }
 
 fn sample_card(title: &'static str, sample: Element) -> Element {
