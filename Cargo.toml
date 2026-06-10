@@ -1,0 +1,44 @@
+[package]
+name = "xamltoolkit-rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+build = "build.rs"
+
+[workspace]
+members = [
+    "crates/xamltoolkit-winui",
+    "crates/xamltoolkit-winui-converters",
+    "crates/xamltoolkit-winui-controls",
+    "crates/xamltoolkit-winui-helpers",
+]
+resolver = "2"
+
+[dependencies]
+xamltoolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
+xamltoolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
+xamltoolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }
+windows = { version = "0.62.2", features = ["Foundation", "UI"] }
+windows-reactor = { git = "https://github.com/microsoft/windows-rs" }
+
+[build-dependencies]
+windows-reactor-setup = { git = "https://github.com/microsoft/windows-rs" }
+
+[[example]]
+name = "xamltoolkit-labs"
+path = "examples/xamltoolkit-labs/src/main.rs"
+
+[patch.crates-io]
+windows = { git = "https://github.com/microsoft/windows-rs" }
+windows-collections = { git = "https://github.com/microsoft/windows-rs" }
+windows-core = { git = "https://github.com/microsoft/windows-rs" }
+windows-future = { git = "https://github.com/microsoft/windows-rs" }
+windows-implement = { git = "https://github.com/microsoft/windows-rs" }
+windows-interface = { git = "https://github.com/microsoft/windows-rs" }
+windows-link = { git = "https://github.com/microsoft/windows-rs" }
+windows-numerics = { git = "https://github.com/microsoft/windows-rs" }
+windows-reference = { git = "https://github.com/microsoft/windows-rs" }
+windows-result = { git = "https://github.com/microsoft/windows-rs" }
+windows-strings = { git = "https://github.com/microsoft/windows-rs" }
+windows-threading = { git = "https://github.com/microsoft/windows-rs" }
+windows-time = { git = "https://github.com/microsoft/windows-rs" }
