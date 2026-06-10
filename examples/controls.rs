@@ -105,6 +105,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/SettingsControls/SettingsCard/SettingsCard.xaml",
                 );
             }
+            "SettingsExpander" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/SettingsControls/SettingsExpander/SettingsExpander.xaml",
+                );
+            }
             "RadialGauge" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
             }
@@ -204,7 +209,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 7] {
+fn all_visual_samples() -> [VisualSample; 8] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -233,6 +238,10 @@ fn all_visual_samples() -> [VisualSample; 7] {
         VisualSample {
             name: "SettingsCard",
             create: create_settings_card_sample,
+        },
+        VisualSample {
+            name: "SettingsExpander",
+            create: create_settings_expander_sample,
         },
     ]
 }
@@ -338,6 +347,34 @@ fn create_settings_card_sample(
     card.SetDescription(&boxed_string("Hosted from xamltoolkit-winui-controls")?)?;
     card.SetIsClickEnabled(false)?;
     Ok(card.cast()?)
+}
+
+fn create_settings_expander_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let expander = SettingsExpander::new()?;
+    expander.SetWidth(320.0)?;
+    expander.SetHeader(&boxed_string("Display")?)?;
+    expander.SetDescription(&boxed_string(
+        "Grouped settings from the generated Rust projection",
+    )?)?;
+    expander.SetContent(&boxed_string("2 options")?)?;
+    expander.SetIsExpanded(true)?;
+
+    let accent = SettingsCard::new()?;
+    accent.SetHeader(&boxed_string("Accent color")?)?;
+    accent.SetDescription(&boxed_string("Use system color")?)?;
+    accent.SetContent(&boxed_string("On")?)?;
+    accent.SetIsClickEnabled(false)?;
+    expander.Items()?.Append(&accent.cast::<IInspectable>()?)?;
+
+    let density = SettingsCard::new()?;
+    density.SetHeader(&boxed_string("Layout density")?)?;
+    density.SetDescription(&boxed_string("Comfortable spacing")?)?;
+    density.SetContent(&boxed_string("Default")?)?;
+    density.SetIsClickEnabled(false)?;
+    expander.Items()?.Append(&density.cast::<IInspectable>()?)?;
+
+    Ok(expander.cast()?)
 }
 
 fn sample_button(label: &str, width: f64, height: f64) -> windows::core::Result<NativeButton> {
