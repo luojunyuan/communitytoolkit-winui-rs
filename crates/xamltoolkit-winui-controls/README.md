@@ -2,11 +2,11 @@
 
 Rust WinRT projection crate for `XamlToolkit.WinUI.Controls`.
 
-This crate is generated from `XamlToolkit.WinUI.Controls.winmd` with an intentionally curated `windows-bindgen` filter list. The filter list is broad enough for the current Rust Labs demo, but still narrower than the full Toolkit metadata so that inherited WinUI members and media-heavy APIs can be expanded in controlled steps.
+This crate is generated from `XamlToolkit.WinUI.Controls.winmd` with an intentionally curated `windows-bindgen` filter list. The filter list is broad enough for the current Controls example, but still narrower than the full Toolkit metadata so that inherited WinUI members and media-heavy APIs can be expanded in controlled steps.
 
 ## Current Coverage
 
-Validated by `examples/xamltoolkit-labs` smoke tests:
+Validated by `examples/controls.rs` smoke tests:
 
 - Layout / panels: `WrapPanel`, `DockPanel`, `EqualPanel`, `UniformGrid`, `StaggeredPanel`, `StaggeredLayout`.
 - Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`.
@@ -19,7 +19,7 @@ Validated by `examples/xamltoolkit-labs` smoke tests:
 ## Known Gaps
 
 - `CameraPreview.StartAsync`, `StartAsync(CameraHelper)`, `CameraHelper`, and `FrameEventArgs.VideoFrame` are not part of the default controls projection yet. A first attempt showed that `Windows.Media.VideoFrame` pulls in a deeper `IPropertySet` / imaging / Direct3D type graph, so that should be handled as a dedicated media-camera phase.
-- `RichSuggestBox` is currently activation-only in the demo because deeper render-time setters previously hung the app.
+- `RichSuggestBox` is currently activation-only in the example because deeper render-time setters previously hung the app.
 - Some collection-heavy types such as `InterspersedObservableVector` are projected but only lightly smoke-tested.
 
 ## Validate
@@ -27,17 +27,17 @@ Validated by `examples/xamltoolkit-labs` smoke tests:
 ```powershell
 cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 cargo check -p xamltoolkit-winui-controls
-cargo check --example xamltoolkit-labs
-cargo build --example xamltoolkit-labs
+cargo check --example controls
+cargo build --example controls
 ```
 
-Run the demo with:
+Run the example with:
 
 ```powershell
-cargo run --example xamltoolkit-labs
+cargo run --example controls
 ```
 
-The demo is a GUI process and should remain running. For automated smoke verification, start `target\debug\examples\xamltoolkit-labs.exe`, wait about 10 seconds, confirm the process is still alive, then stop it and inspect stderr.
+The example is a GUI process and should remain running. For automated smoke verification, start `target\debug\examples\controls.exe`, wait about 10 seconds, confirm the process is still alive, then stop it and inspect stderr.
 
 ## Expanding The Projection
 

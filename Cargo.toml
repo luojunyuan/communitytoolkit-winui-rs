@@ -15,9 +15,7 @@ members = [
 resolver = "2"
 
 [dependencies]
-xamltoolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
 xamltoolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
-xamltoolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }
 windows = { version = "0.62.2", features = ["Foundation", "UI"] }
 windows-reactor = { git = "https://github.com/microsoft/windows-rs" }
 
@@ -25,8 +23,8 @@ windows-reactor = { git = "https://github.com/microsoft/windows-rs" }
 windows-reactor-setup = { git = "https://github.com/microsoft/windows-rs" }
 
 [[example]]
-name = "xamltoolkit-labs"
-path = "examples/xamltoolkit-labs/src/main.rs"
+name = "controls"
+path = "examples/controls.rs"
 
 [patch.crates-io]
 windows = { git = "https://github.com/microsoft/windows-rs" }

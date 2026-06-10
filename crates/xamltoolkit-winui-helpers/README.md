@@ -2,7 +2,7 @@
 
 Rust WinRT projection crate for `XamlToolkit.WinUI.Helpers`.
 
-The default projection is intentionally incremental. It currently covers low-risk helper APIs used by the Rust Labs demo:
+The default projection is intentionally incremental. It currently covers low-risk helper APIs that were useful during early projection smoke tests:
 
 - `DesignTimeHelpers`
 - `ColorHelper`
@@ -17,5 +17,4 @@ The default projection is intentionally incremental. It currently covers low-ris
 ```powershell
 cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 cargo check -p xamltoolkit-winui-helpers
-cargo check --example xamltoolkit-labs
 ```

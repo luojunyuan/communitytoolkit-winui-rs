@@ -2,7 +2,7 @@
 
 Rust projection workspace for `CommunityToolkit.WinUI` / `XamlToolkit.WinUI`.
 
-The goal is to generate Rust WinRT binding crates for the native Toolkit projects under `crates/`, then consume those crates from a Rust Labs demo executable.
+The current priority is to generate and validate the Rust WinRT projection for `XamlToolkit.WinUI.Controls`. Other Toolkit projects can stay as workspace crates for later phases, but the runnable example is now a Controls consumer, not a Labs crate.
 
 The source C++/WinRT repository stays as a sibling directory:
 
@@ -16,12 +16,12 @@ C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 ```text
 crates/xamltoolkit-winui             root XamlToolkit.WinUI projection crate
 crates/xamltoolkit-winui-controls    XamlToolkit.WinUI.Controls projection crate
-crates/xamltoolkit-winui-helpers     XamlToolkit.WinUI.Helpers projection crate
-crates/xamltoolkit-winui-converters  XamlToolkit.WinUI.Converters projection crate
-examples/xamltoolkit-labs            Rust demo executable for consuming projected controls
+crates/xamltoolkit-winui-helpers     XamlToolkit.WinUI.Helpers projection crate, parked for later
+crates/xamltoolkit-winui-converters  XamlToolkit.WinUI.Converters projection crate, parked for later
+examples/controls.rs                 Controls sample/smoke executable
 ```
 
-`examples/xamltoolkit-labs` replaces the role of the original Labs demo app on the Rust side. It is not a projection crate for `XamlToolkit.Labs.WinUI`; it is a runnable demo that will gradually port the original Labs pages for whichever Toolkit modules already have Rust projections.
+`examples/controls.rs` is a standard Cargo example and runs with `cargo run --example controls`. It intentionally does not use the `xamltoolkit-labs` name: `XamlToolkit.Labs.WinUI.Native` should be treated as its own crate/library if we project it later.
 
 ## Current Scope
 
@@ -29,32 +29,29 @@ The first major scope is `xamltoolkit-winui-controls`.
 
 The controls crate currently projects and smoke-tests a broad Controls subset, including layout panels, basic controls, range/sizer controls, headered/segmented/settings controls, ColorPicker, RadialGauge, TabbedCommandBar, TokenizingTextBox, RichSuggestBox activation, ImageCropper, and a minimal CameraPreview surface.
 
-Helpers currently cover `DesignTimeHelpers` and `ColorHelper`; converters currently cover `BoolNegationConverter`.
-
-Known deeper gaps remain: real Labs pages are not yet ported, `CameraHelper` / true camera preview is not enabled by default, and some collection/event-heavy controls still only have light smoke tests.
+Known deeper gaps remain: real visual sample pages are only starting, `CameraHelper` / true camera preview is not enabled by default, and some collection/event-heavy controls still only have light smoke tests.
 
 ## Validate
 
 ```powershell
 cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
-cargo check --workspace
 cargo check -p xamltoolkit-winui-controls
-cargo check --example xamltoolkit-labs
-cargo build --example xamltoolkit-labs
+cargo check --example controls
+cargo build --example controls
 ```
 
-Run the demo with:
+Run the Controls example with:
 
 ```powershell
-cargo run --example xamltoolkit-labs
+cargo run --example controls
 ```
 
 Runtime activation requires the Toolkit DLL/PRI assets to be deployed next to the executable. The root `build.rs` follows the `windows-reactor-setup` self-contained pattern and emits activatable class manifest entries for Toolkit runtimeclasses.
 
 ## Expansion Plan
 
-1. Keep expanding `crates/xamltoolkit-winui-controls` module by module, with compile and demo smoke tests for each module.
-2. Port the corresponding original Labs pages into `examples/xamltoolkit-labs` for projected controls.
-3. Add or expand sibling binding crates for other native Toolkit projects when needed, for example helpers, converters, media, behaviors, animations, and interactivity.
-4. Commit after each verified module or coherent documentation/update step.
-
+1. Keep expanding `crates/xamltoolkit-winui-controls` module by module, with compile and example smoke tests for each module.
+2. Turn `examples/controls.rs` from a smoke list into real Controls sample pages that exercise the projected controls visually.
+3. Treat `XamlToolkit.Labs.WinUI.Native` as a separate crate/library later instead of naming the example after it.
+4. Add or expand sibling binding crates for other native Toolkit projects only after the Controls path is stable.
+5. Commit after each verified module or coherent documentation/update step.
