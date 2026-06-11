@@ -9,18 +9,18 @@ This crate is generated from `XamlToolkit.WinUI.Controls.winmd` with an intentio
 Validated by `examples/controls.rs` smoke tests and visual sample mounts:
 
 - Layout / panels: `WrapPanel`, `DockPanel`, `EqualPanel`, `UniformGrid`, `StaggeredPanel`, `StaggeredLayout`.
-- Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`.
+- Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`; `AspectRatio` constructors/static string conversion are covered by focused smoke.
 - Range / sizers: `RangeSelector`, `RangeChangedEventArgs`, `RangeSelectorProperty`, `SizerBase`, `PropertySizer`, `ContentSizer`, `GridSplitter`.
 - Headered / segmented / settings controls: `HeaderedContentControl`, `HeaderedItemsControl`, `HeaderedTreeView`, `Segmented`, `SegmentedItem`, `SettingsCard`, `SettingsExpander`.
 - Color controls: `ColorPicker`, `ColorPickerButton`, `IColorPalette`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`.
 - Other controls: `RadialGauge`, `TabbedCommandBar`, `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `RichSuggestToken`, RichSuggest event args, `SwitchPresenter`.
-- Image/media-light coverage: `ImageCropper`, `ImageCropperThumb`, `CameraPreview` minimal activation/property surface, `PreviewFailedEventArgs`.
+- Image/media-light coverage: `ImageCropper`, `ImageCropperThumb`, `BitmapFileFormat`, `CameraPreview` minimal activation/property surface, `PreviewFailedEventArgs`.
 
 ## Known Gaps
 
 - `CameraPreview.StartAsync`, `StartAsync(CameraHelper)`, `CameraHelper`, and `FrameEventArgs.VideoFrame` are not part of the default controls projection yet. A first attempt showed that `Windows.Media.VideoFrame` pulls in a deeper `IPropertySet` / imaging / Direct3D type graph, so that should be handled as a dedicated media-camera phase.
 - `RichSuggestBox` now has a visual sample that mounts the RichEditBox/Popup template and item source path. `RichSuggestTokenSelectedEventArgs` and `RichSuggestTokenPointerOverEventArgs` have focused token-property smoke coverage, but real editor selection/range behavior still needs dedicated coverage.
-- `TokenizingTextBox` full control visual mounting is still isolated because the current template path crashes in `Microsoft.UI.Xaml.dll`; `TokenizingTextBoxItem`, `PretokenStringContainer`, and `InterspersedObservableVector` are covered by focused samples/smoke tests.
+- `TokenizingTextBox` full control visual mounting is still isolated because the current template path crashes in `Microsoft.UI.Xaml.dll`; `TokenizingTextBoxItem`, `PretokenStringContainer`, `ITokenStringContainer`, and `InterspersedObservableVector` are covered by focused samples/smoke tests.
 
 ## Validate
 

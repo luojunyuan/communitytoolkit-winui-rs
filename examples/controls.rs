@@ -20,23 +20,23 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::Primitives::{
     ColorPickerSlider, ColorPreviewer,
 };
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
-    AccentColorConverter, CameraPreview, Case, CaseCollection, ColorChannel, ColorPicker,
-    ColorPickerButton, ColorRepresentation, ColorToHexConverter, ConstrainedBox, ContentAlignment,
-    ContentSizer, ContrastBrushConverter, CornerRadiusConverter, Dock, DockPanel, EqualPanel,
-    GridResizeBehavior, GridResizeDirection, GridSplitter, HeaderedContentControl,
-    HeaderedItemsControl, HeaderedTreeView, ImageCropper, ImageCropperThumb,
-    InterspersedObservableVector, LayoutTransformControl, MetadataControl, MetadataItem,
-    NullToTransparentConverter, PretokenStringContainer, PreviewFailedEventArgs, PropertySizer,
-    RadialGauge, RadialGaugeAutomationPeer, RangeChangedEventArgs, RangeSelector,
-    RangeSelectorProperty, RichSuggestBox, RichSuggestToken, RichSuggestTokenPointerOverEventArgs,
-    RichSuggestTokenSelectedEventArgs, Segmented, SegmentedItem, SegmentedMarginConverter,
-    SettingsCard, SettingsCardAutomationPeer, SettingsExpander, SettingsExpanderAutomationPeer,
-    SettingsExpanderItemStyleSelector, SizerAutomationPeer, StaggeredLayout,
-    StaggeredLayoutItemsStretch, StaggeredPanel, StretchChild, StyleExtensionResourceDictionary,
-    StyleExtensions, SuggestionChosenEventArgs, SuggestionPopupPlacementMode,
-    SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter, TabbedCommandBar,
-    TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement, ThumbPosition,
-    TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
+    AccentColorConverter, AspectRatio, BitmapFileFormat, CameraPreview, Case, CaseCollection,
+    ColorChannel, ColorPicker, ColorPickerButton, ColorRepresentation, ColorToHexConverter,
+    ConstrainedBox, ContentAlignment, ContentSizer, ContrastBrushConverter, CornerRadiusConverter,
+    Dock, DockPanel, EqualPanel, GridResizeBehavior, GridResizeDirection, GridSplitter,
+    HeaderedContentControl, HeaderedItemsControl, HeaderedTreeView, ITokenStringContainer,
+    ImageCropper, ImageCropperThumb, InterspersedObservableVector, LayoutTransformControl,
+    MetadataControl, MetadataItem, NullToTransparentConverter, PretokenStringContainer,
+    PreviewFailedEventArgs, PropertySizer, RadialGauge, RadialGaugeAutomationPeer,
+    RangeChangedEventArgs, RangeSelector, RangeSelectorProperty, RichSuggestBox, RichSuggestToken,
+    RichSuggestTokenPointerOverEventArgs, RichSuggestTokenSelectedEventArgs, Segmented,
+    SegmentedItem, SegmentedMarginConverter, SettingsCard, SettingsCardAutomationPeer,
+    SettingsExpander, SettingsExpanderAutomationPeer, SettingsExpanderItemStyleSelector,
+    SizerAutomationPeer, StaggeredLayout, StaggeredLayoutItemsStretch, StaggeredPanel,
+    StretchChild, StyleExtensionResourceDictionary, StyleExtensions, SuggestionChosenEventArgs,
+    SuggestionPopupPlacementMode, SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter,
+    TabbedCommandBar, TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement,
+    ThumbPosition, TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
     TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem, TokenizingTextBoxStyleSelector,
     UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
@@ -995,6 +995,7 @@ fn verify_layout_controls() -> String {
         verify_staggered_panel(),
         verify_staggered_layout(),
         verify_constrained_box(),
+        verify_aspect_ratio(),
         verify_case(),
         verify_color_picker_converters(),
         verify_color_previewer(),
@@ -1203,6 +1204,38 @@ fn verify_constrained_box() -> String {
     }
 }
 
+fn verify_aspect_ratio() -> String {
+    eprintln!("controls-example: before AspectRatio::CreateInstance");
+    match (
+        AspectRatio::CreateInstance(16.0, 9.0),
+        AspectRatio::CreateInstance2(1.5),
+        AspectRatio::ConvertToAspectRatio(&HSTRING::from("4:3")),
+    ) {
+        (Ok(size_ratio), Ok(value_ratio), Ok(parsed_ratio)) => {
+            eprintln!("controls-example: AspectRatio constructors OK");
+            let width = size_ratio.Width();
+            let height = size_ratio.Height();
+            let value = value_ratio.Value();
+            let parsed = parsed_ratio.ToString();
+            eprintln!(
+                "controls-example: AspectRatio.Width={width:?}, Height={height:?}, Value={value:?}, Parsed.ToString={parsed:?}"
+            );
+            format!("AspectRatio OK ({width:?}, {height:?}, {value:?}, {parsed:?})")
+        }
+        (Err(error), _, _) => {
+            eprintln!("controls-example: AspectRatio::CreateInstance failed: {error:?}");
+            format!("AspectRatio size failed: {error:?}")
+        }
+        (_, Err(error), _) => {
+            eprintln!("controls-example: AspectRatio::CreateInstance2 failed: {error:?}");
+            format!("AspectRatio value failed: {error:?}")
+        }
+        (_, _, Err(error)) => {
+            eprintln!("controls-example: AspectRatio::ConvertToAspectRatio failed: {error:?}");
+            format!("AspectRatio parse failed: {error:?}")
+        }
+    }
+}
 fn verify_case() -> String {
     eprintln!("controls-example: before Case::new");
     match Case::new() {
@@ -1405,6 +1438,7 @@ fn verify_image_cropper() -> String {
     match ImageCropper::new() {
         Ok(cropper) => {
             eprintln!("controls-example: ImageCropper::new OK");
+            let format = BitmapFileFormat::Png;
             let min_crop = cropper.SetMinCroppedPixelLength(32.0);
             let min_select = cropper.SetMinSelectedLength(24.0);
             let shape = cropper.SetCropShape(
@@ -1418,10 +1452,10 @@ fn verify_image_cropper() -> String {
                 Height: 32.0,
             });
             eprintln!(
-                "controls-example: ImageCropper.SetMinCroppedPixelLength={min_crop:?}, SetMinSelectedLength={min_select:?}, SetCropShape={shape:?}, SetThumbPlacement={placement:?}, TrySetCroppedRegion={region:?}"
+                "controls-example: ImageCropper.BitmapFileFormat={format:?}, SetMinCroppedPixelLength={min_crop:?}, SetMinSelectedLength={min_select:?}, SetCropShape={shape:?}, SetThumbPlacement={placement:?}, TrySetCroppedRegion={region:?}"
             );
             format!(
-                "ImageCropper OK ({min_crop:?}, {min_select:?}, {shape:?}, {placement:?}, {region:?})"
+                "ImageCropper OK ({format:?}, {min_crop:?}, {min_select:?}, {shape:?}, {placement:?}, {region:?})"
             )
         }
         Err(error) => {
@@ -2118,10 +2152,20 @@ fn verify_pretoken_string_container() -> String {
             let read = container.Text();
             let last = container.IsLast();
             let string = container.ToString();
+            let (interface_text, interface_last) = match container.cast::<ITokenStringContainer>() {
+                Ok(value) => (
+                    format!("{:?}", value.Text()),
+                    format!("{:?}", value.IsLast()),
+                ),
+                Err(error) => (
+                    format!("cast failed: {error:?}"),
+                    format!("cast failed: {error:?}"),
+                ),
+            };
             eprintln!(
-                "controls-example: PretokenStringContainer.SetText={text:?}, Text={read:?}, IsLast={last:?}, ToString={string:?}"
+                "controls-example: PretokenStringContainer.SetText={text:?}, Text={read:?}, IsLast={last:?}, ToString={string:?}, ITokenStringContainer.Text={interface_text}, ITokenStringContainer.IsLast={interface_last}"
             );
-            format!("PretokenStringContainer OK ({text:?}, {read:?}, {last:?}, {string:?})")
+            format!("PretokenStringContainer OK ({text:?}, {read:?}, {last:?}, {string:?}, {interface_text}, {interface_last})")
         }
         Err(error) => {
             eprintln!(
