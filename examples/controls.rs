@@ -25,16 +25,16 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     ContentSizer, ContrastBrushConverter, CornerRadiusConverter, Dock, DockPanel, EqualPanel,
     GridResizeBehavior, GridResizeDirection, GridSplitter, HeaderedContentControl,
     HeaderedItemsControl, HeaderedTreeView, ImageCropper, ImageCropperThumb,
-    LayoutTransformControl, MetadataControl, MetadataItem, NullToTransparentConverter,
-    PreviewFailedEventArgs, PropertySizer, RadialGauge, RadialGaugeAutomationPeer, RangeSelector,
-    RichSuggestBox, RichSuggestToken, Segmented, SegmentedItem, SegmentedMarginConverter,
-    SettingsCard, SettingsCardAutomationPeer, SettingsExpander, SettingsExpanderAutomationPeer,
-    SettingsExpanderItemStyleSelector, SizerAutomationPeer, StaggeredLayout,
-    StaggeredLayoutItemsStretch, StaggeredPanel, StretchChild, StyleExtensionResourceDictionary,
-    StyleExtensions, SuggestionChosenEventArgs, SuggestionPopupPlacementMode,
-    SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter, TabbedCommandBar,
-    TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement, ThumbPosition,
-    TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
+    InterspersedObservableVector, LayoutTransformControl, MetadataControl, MetadataItem,
+    NullToTransparentConverter, PretokenStringContainer, PreviewFailedEventArgs, PropertySizer,
+    RadialGauge, RadialGaugeAutomationPeer, RangeSelector, RichSuggestBox, RichSuggestToken,
+    Segmented, SegmentedItem, SegmentedMarginConverter, SettingsCard, SettingsCardAutomationPeer,
+    SettingsExpander, SettingsExpanderAutomationPeer, SettingsExpanderItemStyleSelector,
+    SizerAutomationPeer, StaggeredLayout, StaggeredLayoutItemsStretch, StaggeredPanel,
+    StretchChild, StyleExtensionResourceDictionary, StyleExtensions, SuggestionChosenEventArgs,
+    SuggestionPopupPlacementMode, SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter,
+    TabbedCommandBar, TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement,
+    ThumbPosition, TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
     TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem, TokenizingTextBoxStyleSelector,
     UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
@@ -1035,6 +1035,8 @@ fn verify_layout_controls() -> String {
         verify_tokenizing_text_box(),
         verify_tokenizing_text_box_item(),
         verify_tokenizing_text_box_style_selector(),
+        verify_pretoken_string_container(),
+        verify_interspersed_observable_vector(),
         verify_token_item_adding_event_args(),
         verify_token_item_removing_event_args(),
         verify_tokenizing_text_box_automation_peer(),
@@ -2079,6 +2081,62 @@ fn verify_tokenizing_text_box_style_selector() -> String {
                 "controls-example: TokenizingTextBoxStyleSelector Style::new failed: {error:?}"
             );
             format!("TokenizingTextBoxStyleSelector style failed: {error:?}")
+        }
+    }
+}
+
+fn verify_pretoken_string_container() -> String {
+    eprintln!("controls-example: before PretokenStringContainer::CreateInstance");
+    match PretokenStringContainer::CreateInstance(true) {
+        Ok(container) => {
+            eprintln!("controls-example: PretokenStringContainer::CreateInstance OK");
+            let text = container.SetText(&HSTRING::from("alpha"));
+            let read = container.Text();
+            let last = container.IsLast();
+            let string = container.ToString();
+            eprintln!(
+                "controls-example: PretokenStringContainer.SetText={text:?}, Text={read:?}, IsLast={last:?}, ToString={string:?}"
+            );
+            format!("PretokenStringContainer OK ({text:?}, {read:?}, {last:?}, {string:?})")
+        }
+        Err(error) => {
+            eprintln!(
+                "controls-example: PretokenStringContainer::CreateInstance failed: {error:?}"
+            );
+            format!("PretokenStringContainer failed: {error:?}")
+        }
+    }
+}
+
+fn verify_interspersed_observable_vector() -> String {
+    eprintln!("controls-example: before InterspersedObservableVector::CreateInstance");
+    let source_items = ["alpha", "beta"]
+        .into_iter()
+        .map(boxed_string)
+        .map(|value| value.map(Some))
+        .collect::<windows::core::Result<Vec<_>>>();
+
+    let source = source_items.map(IVector::<IInspectable>::from);
+    match source
+        .and_then(|source| source.cast::<IInspectable>())
+        .and_then(|source| InterspersedObservableVector::CreateInstance(&source))
+    {
+        Ok(vector) => {
+            eprintln!("controls-example: InterspersedObservableVector::CreateInstance OK");
+            let source = vector.ItemsSource().and_then(|items| items.Size());
+            let insert = boxed_string("inserted").and_then(|value| vector.Insert(1, &value));
+            let size = vector.Size();
+            let first = vector.GetAt(0).map(|_| ());
+            eprintln!(
+                "controls-example: InterspersedObservableVector.ItemsSource.Size={source:?}, Insert={insert:?}, Size={size:?}, GetAt={first:?}"
+            );
+            format!("InterspersedObservableVector OK ({source:?}, {insert:?}, {size:?}, {first:?})")
+        }
+        Err(error) => {
+            eprintln!(
+                "controls-example: InterspersedObservableVector::CreateInstance failed: {error:?}"
+            );
+            format!("InterspersedObservableVector failed: {error:?}")
         }
     }
 }

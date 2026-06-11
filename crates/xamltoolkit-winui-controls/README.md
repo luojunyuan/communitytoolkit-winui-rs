@@ -13,14 +13,14 @@ Validated by `examples/controls.rs` smoke tests and visual sample mounts:
 - Range / sizers: `RangeSelector`, `RangeChangedEventArgs`, `SizerBase`, `PropertySizer`, `ContentSizer`, `GridSplitter`.
 - Headered / segmented / settings controls: `HeaderedContentControl`, `HeaderedItemsControl`, `HeaderedTreeView`, `Segmented`, `SegmentedItem`, `SettingsCard`, `SettingsExpander`.
 - Color controls: `ColorPicker`, `ColorPickerButton`, `IColorPalette`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`.
-- Other controls: `RadialGauge`, `TabbedCommandBar`, `TokenizingTextBox`, `RichSuggestBox` activation, `SwitchPresenter`.
+- Other controls: `RadialGauge`, `TabbedCommandBar`, `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `SwitchPresenter`.
 - Image/media-light coverage: `ImageCropper`, `ImageCropperThumb`, `CameraPreview` minimal activation/property surface, `PreviewFailedEventArgs`.
 
 ## Known Gaps
 
 - `CameraPreview.StartAsync`, `StartAsync(CameraHelper)`, `CameraHelper`, and `FrameEventArgs.VideoFrame` are not part of the default controls projection yet. A first attempt showed that `Windows.Media.VideoFrame` pulls in a deeper `IPropertySet` / imaging / Direct3D type graph, so that should be handled as a dedicated media-camera phase.
-- `RichSuggestBox` is currently activation-only in the example because deeper render-time setters previously hung the app.
-- Some collection-heavy types such as `InterspersedObservableVector` are projected but only lightly smoke-tested.
+- `RichSuggestBox` now has a visual sample that mounts the RichEditBox/Popup template and item source path, but deeper selection/event/range behavior still needs dedicated coverage.
+- `TokenizingTextBox` full control visual mounting is still isolated because the current template path crashes in `Microsoft.UI.Xaml.dll`; `TokenizingTextBoxItem`, `PretokenStringContainer`, and `InterspersedObservableVector` are covered by focused samples/smoke tests.
 
 ## Validate
 
@@ -39,7 +39,7 @@ cargo run --example controls
 
 The example is a GUI process and should remain running. For automated smoke verification, start `target\debug\examples\controls.exe`, wait about 10 seconds, confirm the process is still alive, then stop it and inspect stderr.
 
-The current visual sample set includes `WrapPanel`, `DockPanel`, `UniformGrid`, `RangeSelector`, `Segmented`, `RadialGauge`, and `SettingsCard`.
+The current visual sample set contains 28 mounts: `WrapPanel`, `DockPanel`, `UniformGrid`, `EqualPanel`, `StaggeredPanel`, `ConstrainedBox`, `LayoutTransformControl`, `ImageCropper`, `CameraPreview`, `TabbedCommandBar`, `TabbedCommandBarItem`, `SwitchPresenter`, `MetadataControl`, `ColorPreviewer`, `ColorPickerSlider`, `ColorPickerButton`, `ColorPicker`, `Sizers`, `RangeSelector`, `RichSuggestBox`, `TokenizingTextBoxItem`, `Segmented`, `RadialGauge`, `SettingsCard`, `SettingsExpander`, `HeaderedContentControl`, `HeaderedItemsControl`, and `HeaderedTreeView`.
 
 ## Expanding The Projection
 
