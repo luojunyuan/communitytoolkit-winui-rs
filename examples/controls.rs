@@ -252,7 +252,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 20] {
+fn all_visual_samples() -> [VisualSample; 21] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -293,6 +293,10 @@ fn all_visual_samples() -> [VisualSample; 20] {
         VisualSample {
             name: "TabbedCommandBar",
             create: create_tabbed_command_bar_sample,
+        },
+        VisualSample {
+            name: "SwitchPresenter",
+            create: create_switch_presenter_sample,
         },
         VisualSample {
             name: "MetadataControl",
@@ -477,6 +481,30 @@ fn create_tabbed_command_bar_sample(
     command_bar.SetWidth(320.0)?;
     command_bar.SetHeight(96.0)?;
     Ok(command_bar.cast()?)
+}
+
+fn create_switch_presenter_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let presenter = SwitchPresenter::new()?;
+    presenter.SetWidth(320.0)?;
+    presenter.SetHeight(64.0)?;
+
+    let selected = Case::new()?;
+    selected.SetValue(&boxed_string("rust")?)?;
+    selected.SetContent(&boxed_string("Rust case selected")?)?;
+
+    let fallback = Case::new()?;
+    fallback.SetIsDefault(true)?;
+    fallback.SetContent(&boxed_string("Default case")?)?;
+
+    let cases = CaseCollection::new()?;
+    cases.Append(&selected)?;
+    cases.Append(&fallback)?;
+
+    presenter.SetSwitchCases(&cases)?;
+    let value_property = SwitchPresenter::ValueProperty()?;
+    presenter.SetValue(&value_property, &boxed_string("rust")?)?;
+    Ok(presenter.cast()?)
 }
 
 fn create_metadata_control_sample(
