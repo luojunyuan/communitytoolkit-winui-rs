@@ -21,7 +21,7 @@ fn main() {
 
     require_file(
         &toolkit_winmd,
-        "XamlToolkit.WinUI metadata is missing. Run crates/xamltoolkit-winui/sync-metadata.ps1 to refresh checked-in metadata.",
+        "XamlToolkit.WinUI metadata is missing. Run tools/sync-metadata.ps1 -Project Root to refresh checked-in metadata.",
     );
 
     let deps_dir = env::var_os("XAMLTOOLKIT_WINUI_METADATA_DEPS")

@@ -24,11 +24,10 @@ CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*
 Run the sync helper after rebuilding upstream metadata:
 
 ```powershell
-cd crates\xamltoolkit-winui
-.\sync-metadata.ps1
+.\tools\sync-metadata.ps1 -Project Root
 ```
 
-`sync-metadata.ps1` copies produced metadata and the matching native runtime artifacts into `metadata/native/<platform>`. It discovers `CommunityToolkit.WinUI` first as `xamltoolkit-rs\submodules\CommunityToolkit.WinUI`, then falls back to the old sibling directory layout, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
+`tools\sync-metadata.ps1` copies produced metadata and the matching native runtime artifacts into `metadata/native/<platform>`. It discovers `CommunityToolkit.WinUI` first as `xamltoolkit-rs\submodules\CommunityToolkit.WinUI`, then falls back to the old sibling directory layout, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
 
 The checked-in native runtime layout is:
 

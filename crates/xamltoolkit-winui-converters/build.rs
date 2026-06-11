@@ -20,7 +20,7 @@ fn main() {
         .unwrap_or_else(|| manifest_dir.join(CONVERTERS_WINMD));
     require_file(
         &converters_winmd,
-        "XamlToolkit.WinUI.Converters metadata is missing. Run crates/xamltoolkit-winui-converters/sync-metadata.ps1 to refresh checked-in metadata.",
+        "XamlToolkit.WinUI.Converters metadata is missing. Run tools/sync-metadata.ps1 -Project Converters to refresh checked-in metadata.",
     );
 
     let deps_dir = env::var_os("XAMLTOOLKIT_WINUI_CONVERTERS_METADATA_DEPS")

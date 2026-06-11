@@ -27,21 +27,23 @@ examples/controls.rs                 Controls sample source, parked for later
 
 ## Metadata
 
-`crates/xamltoolkit-winui/metadata` and `crates/xamltoolkit-winui-converters/metadata` are checked in so the crates can build and run smoke examples without the upstream repository being present. Each metadata directory contains the projection WinMD, dependency WinMD files, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). To refresh root metadata from upstream build output and package metadata:
+`crates/xamltoolkit-winui/metadata` and `crates/xamltoolkit-winui-converters/metadata` are checked in so the crates can build and run smoke examples without the upstream repository being present. Each metadata directory contains the projection WinMD, dependency WinMD files, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`).
+
+Use the top-level sync helper to refresh metadata from upstream build output and package metadata:
 
 ```powershell
-cd crates\xamltoolkit-winui
-.\sync-metadata.ps1
+.\tools\sync-metadata.ps1
 ```
 
-To refresh Converters metadata:
+By default this syncs the active Root and Converters crates for `x64|Release`. Common variants:
 
 ```powershell
-cd crates\xamltoolkit-winui-converters
-.\sync-metadata.ps1
+.\tools\sync-metadata.ps1 -Platform All
+.\tools\sync-metadata.ps1 -Project Root -Platform x64
+.\tools\sync-metadata.ps1 -Project Converters -Platform ARM64
 ```
 
-The sync helpers copy produced WinMD/native runtime artifacts from the selected upstream Release output and discover Windows App SDK metadata versions from `submodules\CommunityToolkit.WinUI\packages`. `Win32` output is accepted from `submodules\CommunityToolkit.WinUI\Release\<project>`; `x64` and `ARM64` use `submodules\CommunityToolkit.WinUI\<platform>\Release\<project>`.
+The sync helper copies produced WinMD/native runtime artifacts from the selected upstream Release output and discovers Windows App SDK metadata versions from `submodules\CommunityToolkit.WinUI\packages`. `Win32` output is accepted from `submodules\CommunityToolkit.WinUI\Release\<project>`; `x64` and `ARM64` use `submodules\CommunityToolkit.WinUI\<platform>\Release\<project>`. When syncing `-Platform All`, the checked-in top-level projection WinMD is taken from `x64` unless `-MetadataPlatform` is specified.
 
 ## Validate
 
