@@ -171,6 +171,16 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPickerButton.xaml",
                 );
             }
+            "ColorPicker" => {
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/Segmented.xaml");
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/SegmentedItem.xaml");
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPickerSlider.xaml",
+                );
+                sources
+                    .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPicker.xaml");
+            }
             "Sizers" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Sizers/SizerBase.xaml");
             }
@@ -278,7 +288,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 26] {
+fn all_visual_samples() -> [VisualSample; 27] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -343,6 +353,10 @@ fn all_visual_samples() -> [VisualSample; 26] {
         VisualSample {
             name: "ColorPickerButton",
             create: create_color_picker_button_sample,
+        },
+        VisualSample {
+            name: "ColorPicker",
+            create: create_color_picker_sample,
         },
         VisualSample {
             name: "Sizers",
@@ -620,6 +634,17 @@ fn create_color_picker_slider_sample(
     slider.SetIsAutoUpdatingEnabled(true)?;
     slider.UpdateColors()?;
     Ok(slider.cast()?)
+}
+
+fn create_color_picker_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let picker = ColorPicker::new()?;
+    picker.SetWidth(320.0)?;
+    picker.SetHeight(360.0)?;
+    picker.SetCustomPaletteColumnCount(6)?;
+    picker.SetIsColorPaletteVisible(true)?;
+    picker.SetShowAccentColors(true)?;
+    Ok(picker.cast()?)
 }
 
 fn create_color_picker_button_sample(
