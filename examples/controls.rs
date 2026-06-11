@@ -151,6 +151,9 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                 sources.push(
                     "ms-appx:///XamlToolkit.WinUI.Controls/TabbedCommandBar/TabbedCommandBar.xaml",
                 );
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/TabbedCommandBar/TabbedCommandBarItem.xaml",
+                );
             }
             "TabbedCommandBarItem" => {
                 sources.push(
@@ -539,7 +542,21 @@ fn create_tabbed_command_bar_sample(
 ) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let command_bar = TabbedCommandBar::new()?;
     command_bar.SetWidth(320.0)?;
-    command_bar.SetHeight(96.0)?;
+    command_bar.SetHeight(112.0)?;
+    command_bar.SetIsSettingsVisible(false)?;
+
+    let home = TabbedCommandBarItem::new()?;
+    home.SetHeader(&boxed_string("Home")?)?;
+    home.SetIsContextual(false)?;
+
+    let context = TabbedCommandBarItem::new()?;
+    context.SetHeader(&boxed_string("Context")?)?;
+    context.SetIsContextual(true)?;
+
+    let menu_items = command_bar.MenuItems()?;
+    menu_items.Append(&home.cast::<IInspectable>()?)?;
+    menu_items.Append(&context.cast::<IInspectable>()?)?;
+    command_bar.SetSelectedItem(&home.cast::<IInspectable>()?)?;
     Ok(command_bar.cast()?)
 }
 
