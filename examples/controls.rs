@@ -125,6 +125,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/MetadataControl/MetadataControl.xaml",
                 );
             }
+            "LayoutTransformControl" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/LayoutTransformControl/LayoutTransformControl.xaml",
+                );
+            }
             "ColorPreviewer" => {
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
@@ -231,7 +236,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 16] {
+fn all_visual_samples() -> [VisualSample; 17] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -256,6 +261,10 @@ fn all_visual_samples() -> [VisualSample; 16] {
         VisualSample {
             name: "ConstrainedBox",
             create: create_constrained_box_sample,
+        },
+        VisualSample {
+            name: "LayoutTransformControl",
+            create: create_layout_transform_control_sample,
         },
         VisualSample {
             name: "MetadataControl",
@@ -399,6 +408,16 @@ fn create_constrained_box_sample(
     box_control.SetMultipleY(1)?;
     box_control.SetContent(&sample_button("Constrained", 160.0, 44.0)?.cast::<IInspectable>()?)?;
     Ok(box_control.cast()?)
+}
+
+fn create_layout_transform_control_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let control = LayoutTransformControl::new()?;
+    control.SetWidth(320.0)?;
+    control.SetHeight(72.0)?;
+    let child = sample_button("Layout child", 180.0, 44.0)?;
+    control.SetChild(&child)?;
+    Ok(control.cast()?)
 }
 
 fn create_metadata_control_sample(
