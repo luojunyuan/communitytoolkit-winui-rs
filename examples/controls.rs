@@ -31,11 +31,12 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     SettingsCard, SettingsCardAutomationPeer, SettingsExpander, SettingsExpanderAutomationPeer,
     SettingsExpanderItemStyleSelector, SizerAutomationPeer, StaggeredLayout,
     StaggeredLayoutItemsStretch, StaggeredPanel, StretchChild, StyleExtensionResourceDictionary,
-    StyleExtensions, SuggestionChosenEventArgs, SuggestionRequestedEventArgs, SwitchConverter,
-    SwitchPresenter, TabbedCommandBar, TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector,
-    ThumbPlacement, ThumbPosition, TokenItemAddingEventArgs, TokenItemRemovingEventArgs,
-    TokenizingTextBox, TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem,
-    TokenizingTextBoxStyleSelector, UniformGrid, WrapPanel, XamlMetaDataProvider,
+    StyleExtensions, SuggestionChosenEventArgs, SuggestionPopupPlacementMode,
+    SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter, TabbedCommandBar,
+    TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement, ThumbPosition,
+    TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
+    TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem, TokenizingTextBoxStyleSelector,
+    UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::HsvColor;
 
@@ -180,6 +181,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/RangeSelector/RangeSelector.xaml");
             }
+            "RichSuggestBox" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/RichSuggestBox/RichSuggestBox.xaml",
+                );
+            }
             "Segmented" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/Segmented.xaml");
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/SegmentedItem.xaml");
@@ -272,7 +278,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 25] {
+fn all_visual_samples() -> [VisualSample; 26] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -345,6 +351,10 @@ fn all_visual_samples() -> [VisualSample; 25] {
         VisualSample {
             name: "RangeSelector",
             create: create_range_selector_sample,
+        },
+        VisualSample {
+            name: "RichSuggestBox",
+            create: create_rich_suggest_box_sample,
         },
         VisualSample {
             name: "Segmented",
@@ -672,6 +682,30 @@ fn create_range_selector_sample(
     selector.SetRangeEnd(80.0)?;
     selector.SetStepFrequency(5.0)?;
     Ok(selector.cast()?)
+}
+
+fn create_rich_suggest_box_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let suggest = RichSuggestBox::new()?;
+    suggest.SetWidth(320.0)?;
+    suggest.SetHeight(112.0)?;
+    suggest.SetHeader(&boxed_string("Mention")?)?;
+    suggest.SetDescription(&boxed_string("Suggestions supplied from Rust")?)?;
+    suggest.SetPlaceholderText(&HSTRING::from("Type @ to mention"))?;
+    suggest.SetPrefixes(&HSTRING::from("@#"))?;
+    suggest.SetPopupHeader(&boxed_string("Suggestions")?)?;
+    suggest.SetPopupFooter(&boxed_string("3 projected items")?)?;
+    suggest.SetPopupPlacement(SuggestionPopupPlacementMode::Attached)?;
+    suggest.SetDisplayMemberPath(&HSTRING::from(""))?;
+    let items = IVector::<IInspectable>::from(
+        ["Ada", "Grace", "Rust"]
+            .into_iter()
+            .map(boxed_string)
+            .map(|value| value.map(Some))
+            .collect::<windows::core::Result<Vec<_>>>()?,
+    );
+    suggest.SetItemsSource(&items.cast::<IInspectable>()?)?;
+    Ok(suggest.cast()?)
 }
 
 fn create_segmented_sample(
