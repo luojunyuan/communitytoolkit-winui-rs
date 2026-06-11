@@ -125,6 +125,10 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/MetadataControl/MetadataControl.xaml",
                 );
             }
+            "ColorPreviewer" => {
+                sources
+                    .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
+            }
             "RadialGauge" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
             }
@@ -224,7 +228,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 14] {
+fn all_visual_samples() -> [VisualSample; 15] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -253,6 +257,10 @@ fn all_visual_samples() -> [VisualSample; 14] {
         VisualSample {
             name: "MetadataControl",
             create: create_metadata_control_sample,
+        },
+        VisualSample {
+            name: "ColorPreviewer",
+            create: create_color_previewer_sample,
         },
         VisualSample {
             name: "RangeSelector",
@@ -405,6 +413,21 @@ fn create_metadata_control_sample(
         >()?;
     metadata.SetItems(&items)?;
     Ok(metadata.cast()?)
+}
+
+fn create_color_previewer_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let previewer = ColorPreviewer::new()?;
+    previewer.SetWidth(320.0)?;
+    previewer.SetHeight(44.0)?;
+    previewer.SetHsvColor(HsvColor {
+        H: 214.0,
+        S: 0.74,
+        V: 0.82,
+        A: 1.0,
+    })?;
+    previewer.SetShowAccentColors(true)?;
+    Ok(previewer.cast()?)
 }
 
 fn create_range_selector_sample(
