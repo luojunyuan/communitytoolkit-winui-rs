@@ -137,6 +137,10 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/ImageCropper/ImageCropperThumb.xaml",
                 );
             }
+            "CameraPreview" => {
+                sources
+                    .push("ms-appx:///XamlToolkit.WinUI.Controls/CameraPreview/CameraPreview.xaml");
+            }
             "ColorPreviewer" => {
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
@@ -243,7 +247,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 18] {
+fn all_visual_samples() -> [VisualSample; 19] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -276,6 +280,10 @@ fn all_visual_samples() -> [VisualSample; 18] {
         VisualSample {
             name: "ImageCropper",
             create: create_image_cropper_sample,
+        },
+        VisualSample {
+            name: "CameraPreview",
+            create: create_camera_preview_sample,
         },
         VisualSample {
             name: "MetadataControl",
@@ -443,6 +451,15 @@ fn create_image_cropper_sample(
     )?;
     cropper.SetThumbPlacement(ThumbPlacement::Corners)?;
     Ok(cropper.cast()?)
+}
+
+fn create_camera_preview_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let preview = CameraPreview::new()?;
+    preview.SetWidth(320.0)?;
+    preview.SetHeight(180.0)?;
+    preview.SetIsFrameSourceGroupButtonVisible(true)?;
+    Ok(preview.cast()?)
 }
 
 fn create_metadata_control_sample(
