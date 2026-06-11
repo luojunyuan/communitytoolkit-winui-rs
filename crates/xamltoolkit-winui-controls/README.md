@@ -12,7 +12,7 @@ Validated by `examples/controls.rs` smoke tests and visual sample mounts:
 - Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`; `AspectRatio` constructors/static string conversion are covered by focused smoke.
 - Range / sizers: `RangeSelector`, `RangeChangedEventArgs`, `RangeSelectorProperty`, `SizerBase`, `PropertySizer`, `ContentSizer`, `GridSplitter`.
 - Headered / segmented / settings controls: `HeaderedContentControl`, `HeaderedItemsControl`, `HeaderedTreeView`, `Segmented`, `SegmentedItem`, `SettingsCard`, `SettingsExpander`.
-- Color controls: `ColorPicker`, `ColorPickerButton`, `IColorPalette`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`.
+- Color controls: `ColorPicker`, `ColorPickerButton`, `IColorPalette`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`; the example implements `IColorPalette` in Rust and passes it to `ColorPicker.SetCustomPalette`.
 - Other controls: `RadialGauge`, `TabbedCommandBar`, `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `RichSuggestToken`, RichSuggest event args, `SwitchPresenter`.
 - Image/media-light coverage: `ImageCropper`, `ImageCropperThumb`, `BitmapFileFormat`, `CameraPreview` minimal activation/property surface, `PreviewFailedEventArgs`.
 

@@ -7,7 +7,9 @@ use windows::Foundation::PropertyValue;
 use windows_collections::IVector;
 use windows_reactor::core::backend::{Backend, ControlId, ControlKind};
 use windows_reactor::core::custom::{CustomElement, CustomElementHandle};
-use windows_reactor::*;
+use windows_reactor::{
+    border, grid, scroll_viewer, text_block, vstack, App, Element, ElementExt, GridLength, RenderCx,
+};
 use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Controls::{
     Border as NativeBorder, Button as NativeButton, Orientation,
 };
@@ -16,6 +18,7 @@ use xamltoolkit_winui_controls::Microsoft::UI::Xaml::{
     Thickness as XamlThickness, UIElement,
 };
 use xamltoolkit_winui_controls::Windows::Foundation::{Rect, Uri};
+use xamltoolkit_winui_controls::Windows::UI::Color as ToolkitColor;
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::Primitives::{
     ColorPickerSlider, ColorPreviewer,
 };
@@ -24,24 +27,49 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     ColorChannel, ColorPicker, ColorPickerButton, ColorRepresentation, ColorToHexConverter,
     ConstrainedBox, ContentAlignment, ContentSizer, ContrastBrushConverter, CornerRadiusConverter,
     Dock, DockPanel, EqualPanel, GridResizeBehavior, GridResizeDirection, GridSplitter,
-    HeaderedContentControl, HeaderedItemsControl, HeaderedTreeView, ITokenStringContainer,
-    ImageCropper, ImageCropperThumb, InterspersedObservableVector, LayoutTransformControl,
-    MetadataControl, MetadataItem, NullToTransparentConverter, PretokenStringContainer,
-    PreviewFailedEventArgs, PropertySizer, RadialGauge, RadialGaugeAutomationPeer,
-    RangeChangedEventArgs, RangeSelector, RangeSelectorProperty, RichSuggestBox, RichSuggestToken,
-    RichSuggestTokenPointerOverEventArgs, RichSuggestTokenSelectedEventArgs, Segmented,
-    SegmentedItem, SegmentedMarginConverter, SettingsCard, SettingsCardAutomationPeer,
-    SettingsExpander, SettingsExpanderAutomationPeer, SettingsExpanderItemStyleSelector,
-    SizerAutomationPeer, StaggeredLayout, StaggeredLayoutItemsStretch, StaggeredPanel,
-    StretchChild, StyleExtensionResourceDictionary, StyleExtensions, SuggestionChosenEventArgs,
-    SuggestionPopupPlacementMode, SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter,
-    TabbedCommandBar, TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement,
-    ThumbPosition, TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
+    HeaderedContentControl, HeaderedItemsControl, HeaderedTreeView, IColorPalette,
+    IColorPalette_Impl, ITokenStringContainer, ImageCropper, ImageCropperThumb,
+    InterspersedObservableVector, LayoutTransformControl, MetadataControl, MetadataItem,
+    NullToTransparentConverter, PretokenStringContainer, PreviewFailedEventArgs, PropertySizer,
+    RadialGauge, RadialGaugeAutomationPeer, RangeChangedEventArgs, RangeSelector,
+    RangeSelectorProperty, RichSuggestBox, RichSuggestToken, RichSuggestTokenPointerOverEventArgs,
+    RichSuggestTokenSelectedEventArgs, Segmented, SegmentedItem, SegmentedMarginConverter,
+    SettingsCard, SettingsCardAutomationPeer, SettingsExpander, SettingsExpanderAutomationPeer,
+    SettingsExpanderItemStyleSelector, SizerAutomationPeer, StaggeredLayout,
+    StaggeredLayoutItemsStretch, StaggeredPanel, StretchChild, StyleExtensionResourceDictionary,
+    StyleExtensions, SuggestionChosenEventArgs, SuggestionPopupPlacementMode,
+    SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter, TabbedCommandBar,
+    TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement, ThumbPosition,
+    TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
     TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem, TokenizingTextBoxStyleSelector,
     UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::HsvColor;
 
+#[windows::core::implement(IColorPalette)]
+struct DemoColorPalette;
+
+impl IColorPalette_Impl for DemoColorPalette_Impl {
+    fn ColorCount(&self) -> windows::core::Result<i32> {
+        Ok(2)
+    }
+
+    fn ShadeCount(&self) -> windows::core::Result<i32> {
+        Ok(2)
+    }
+
+    fn GetColor(&self, color_index: i32, shade_index: i32) -> windows::core::Result<ToolkitColor> {
+        let red = if color_index == 0 { 48 } else { 0 };
+        let green = if color_index == 0 { 128 } else { 96 };
+        let blue = if shade_index == 0 { 220 } else { 160 };
+        Ok(ToolkitColor {
+            A: 255,
+            R: red,
+            G: green,
+            B: blue,
+        })
+    }
+}
 fn main() {
     eprintln!("controls-example: starting");
     windows_reactor::register_xaml_metadata_provider_factory(|| {
@@ -1336,13 +1364,19 @@ fn verify_color_picker() -> String {
     match ColorPicker::new() {
         Ok(picker) => {
             eprintln!("controls-example: ColorPicker::new OK");
+            let custom_palette: IColorPalette = DemoColorPalette.into();
             let columns = picker.SetCustomPaletteColumnCount(6);
+            let set_custom = picker.SetCustomPalette(&custom_palette);
             let palette = picker.SetIsColorPaletteVisible(true);
             let accents = picker.SetShowAccentColors(true);
+            let read_custom = picker.CustomPalette();
+            let color_count = custom_palette.ColorCount();
+            let shade_count = custom_palette.ShadeCount();
+            let sample_color = custom_palette.GetColor(1, 1);
             eprintln!(
-                "controls-example: ColorPicker.SetCustomPaletteColumnCount={columns:?}, SetIsColorPaletteVisible={palette:?}, SetShowAccentColors={accents:?}"
+                "controls-example: ColorPicker.SetCustomPaletteColumnCount={columns:?}, SetCustomPalette={set_custom:?}, SetIsColorPaletteVisible={palette:?}, SetShowAccentColors={accents:?}, CustomPalette={read_custom:?}, IColorPalette.ColorCount={color_count:?}, ShadeCount={shade_count:?}, GetColor={sample_color:?}"
             );
-            format!("ColorPicker OK ({columns:?}, {palette:?}, {accents:?})")
+            format!("ColorPicker OK ({columns:?}, {set_custom:?}, {palette:?}, {accents:?}, {read_custom:?}, {color_count:?}, {shade_count:?}, {sample_color:?})")
         }
         Err(error) => {
             eprintln!("controls-example: ColorPicker::new failed: {error:?}");

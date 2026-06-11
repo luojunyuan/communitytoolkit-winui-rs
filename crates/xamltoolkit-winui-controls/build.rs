@@ -114,6 +114,7 @@ fn main() {
                 "Windows.Foundation.Collections.IVector".to_string(),
                 "Windows.Storage.StorageFile".to_string(),
                 "Windows.Storage.Streams.IRandomAccessStream".to_string(),
+                "Windows.UI.Color".to_string(),
                 "Windows.UI.Xaml.Interop.TypeKind".to_string(),
                 "Windows.UI.Xaml.Interop.TypeName".to_string(),
                 "XamlToolkit.WinUI.HsvColor".to_string(),
