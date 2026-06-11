@@ -100,6 +100,31 @@ function Get-InteractiveMetadataTarget([string]$MetadataRoot, [string]$Preferred
     return $targets[-1].FullName
 }
 
+function Get-ToolkitOutput([string]$SourceRoot, [string]$Platform, [string]$Configuration) {
+    $candidates = @(
+        (Join-Path $SourceRoot "$Platform\$Configuration\XamlToolkit.WinUI")
+    )
+
+    if ($Platform -eq "Win32") {
+        $candidates += (Join-Path $SourceRoot "$Configuration\XamlToolkit.WinUI")
+    }
+
+    return Get-ExistingPath $candidates "XamlToolkit.WinUI $Platform|$Configuration build output"
+}
+
+function Copy-NativeRuntime([string]$ToolkitOutput, [string]$Destination) {
+    New-Item -ItemType Directory -Force $Destination | Out-Null
+
+    foreach ($name in @("XamlToolkit.WinUI.dll", "XamlToolkit.WinUI.pri", "XamlToolkit.WinUI.winmd")) {
+        $source = Join-Path $ToolkitOutput $name
+        if (!(Test-Path -LiteralPath $source)) {
+            throw "Missing native runtime artifact: $source"
+        }
+
+        Copy-Item -LiteralPath $source -Destination (Join-Path $Destination $name) -Force
+    }
+}
+
 $crateRoot = $PSScriptRoot
 $workspaceRoot = Split-Path -Parent (Split-Path -Parent $crateRoot)
 
@@ -113,13 +138,14 @@ if (!$SourceRoot) {
 }
 
 $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
-$toolkitOutput = Join-Path $SourceRoot "$Platform\$Configuration\XamlToolkit.WinUI"
+$toolkitOutput = Get-ToolkitOutput $SourceRoot $Platform $Configuration
 $toolkitWinmd = Join-Path $toolkitOutput "XamlToolkit.WinUI.winmd"
 $projectRoot = Join-Path $SourceRoot "XamlToolkit.WinUI"
 $projectPath = Join-Path $projectRoot "XamlToolkit.WinUI.vcxproj"
 $packagesRoot = Join-Path $SourceRoot "packages"
 $metadataDir = Join-Path $crateRoot "metadata"
 $depsDir = Join-Path $metadataDir "deps"
+$nativeDir = Join-Path $metadataDir "native"
 
 if (!(Test-Path -LiteralPath $toolkitWinmd)) {
     throw "Missing $toolkitWinmd. Build XamlToolkit.WinUI.vcxproj for $Platform|$Configuration first."
@@ -151,7 +177,9 @@ Copy-Item -LiteralPath $toolkitWinmd -Destination (Join-Path $metadataDir "XamlT
 foreach ($dep in $deps) {
     Copy-Item -LiteralPath $dep -Destination (Join-Path $depsDir (Split-Path -Leaf $dep)) -Force
 }
+Copy-NativeRuntime $toolkitOutput (Join-Path $nativeDir $Platform)
 
 Write-Host "Synced XamlToolkit.WinUI metadata from $toolkitOutput"
+Write-Host "Synced native runtime artifacts to $(Join-Path $nativeDir $Platform)"
 Write-Host "Synced dependency metadata from $winuiPackage and $interactiveTarget"
 

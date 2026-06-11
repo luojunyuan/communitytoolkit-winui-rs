@@ -6,7 +6,7 @@ This crate consumes the checked-in WinMD metadata under `metadata/` and generate
 
 ## Metadata source
 
-The regular source of `metadata/XamlToolkit.WinUI.winmd` is the native build output from the upstream Toolkit repository:
+The regular source of `metadata/XamlToolkit.WinUI.winmd` is the native Release build output from the upstream Toolkit repository:
 
 ```text
 CommunityToolkit.WinUI\x64\Release\XamlToolkit.WinUI\XamlToolkit.WinUI.winmd
@@ -28,7 +28,21 @@ cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs\crates\xamltoolkit-
 .\sync-metadata.ps1
 ```
 
-`sync-metadata.ps1` only copies produced metadata. It discovers `CommunityToolkit.WinUI` first as a future submodule under `xamltoolkit-rs`, then as the current sibling directory, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
+`sync-metadata.ps1` copies produced metadata and the matching native runtime artifacts into `metadata/native/<platform>`. It discovers `CommunityToolkit.WinUI` first as a future submodule under `xamltoolkit-rs`, then as the current sibling directory, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
+
+The checked-in native runtime layout is:
+
+```text
+metadata\native\ARM64\XamlToolkit.WinUI.dll
+metadata\native\ARM64\XamlToolkit.WinUI.pri
+metadata\native\ARM64\XamlToolkit.WinUI.winmd
+metadata\native\x64\XamlToolkit.WinUI.dll
+metadata\native\x64\XamlToolkit.WinUI.pri
+metadata\native\x64\XamlToolkit.WinUI.winmd
+metadata\native\Win32\XamlToolkit.WinUI.dll
+metadata\native\Win32\XamlToolkit.WinUI.pri
+metadata\native\Win32\XamlToolkit.WinUI.winmd
+```
 
 ## Projection scope
 
@@ -67,4 +81,4 @@ The workspace provides a light root smoke example:
 cargo run --example root
 ```
 
-Runtime activation requires the matching Toolkit DLL/PRI files next to the executable. The workspace `build.rs` copies native outputs from `CommunityToolkit.WinUI\<platform>\Release\<Project>` by default, where `<platform>` follows the Cargo target architecture (`ARM64`, `x64`, or `Win32`). Override with `XAMLTOOLKIT_NATIVE_PLATFORM` and `XAMLTOOLKIT_NATIVE_CONFIGURATION` if needed.
+Runtime activation requires the matching Toolkit DLL/PRI files next to the executable. The workspace `build.rs` copies native artifacts from `metadata\native\<platform>` by default, where `<platform>` follows the Cargo target architecture (`ARM64`, `x64`, or `Win32`). Override with `XAMLTOOLKIT_NATIVE_PLATFORM` or `XAMLTOOLKIT_WINUI_NATIVE_DIR` if needed.
