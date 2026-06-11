@@ -120,6 +120,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/HeaderedControls/HeaderedItemsControl/HeaderedItemsControl.xaml",
                 );
             }
+            "HeaderedTreeView" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/HeaderedControls/HeaderedTreeView/HeaderedTreeView.xaml",
+                );
+            }
             "MetadataControl" => {
                 sources.push(
                     "ms-appx:///XamlToolkit.WinUI.Controls/MetadataControl/MetadataControl.xaml",
@@ -252,7 +257,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 21] {
+fn all_visual_samples() -> [VisualSample; 22] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -337,6 +342,10 @@ fn all_visual_samples() -> [VisualSample; 21] {
         VisualSample {
             name: "HeaderedItemsControl",
             create: create_headered_items_control_sample,
+        },
+        VisualSample {
+            name: "HeaderedTreeView",
+            create: create_headered_tree_view_sample,
         },
     ]
 }
@@ -688,6 +697,16 @@ fn create_headered_items_control_sample(
             .collect::<windows::core::Result<Vec<_>>>()?,
     );
     control.SetItemsSource(&items.cast::<IInspectable>()?)?;
+    Ok(control.cast()?)
+}
+
+fn create_headered_tree_view_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let control = HeaderedTreeView::new()?;
+    control.SetWidth(320.0)?;
+    control.SetHeight(96.0)?;
+    control.SetHeader(&boxed_string("Headered tree")?)?;
+    control.SetFooter(&boxed_string("TreeView shell")?)?;
     Ok(control.cast()?)
 }
 
