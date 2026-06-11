@@ -73,6 +73,9 @@ fn main() {
                 "Microsoft.UI.Xaml.Controls.Control".to_string(),
                 "Microsoft.UI.Xaml.Controls.Button".to_string(),
                 "Microsoft.UI.Xaml.Controls.ColorPicker".to_string(),
+                "Microsoft.UI.Xaml.Controls.ColorChangedEventArgs".to_string(),
+                "Microsoft.UI.Xaml.Controls.ColorSpectrumComponents".to_string(),
+                "Microsoft.UI.Xaml.Controls.ColorSpectrumShape".to_string(),
                 "Microsoft.UI.Xaml.Controls.DataTemplateSelector".to_string(),
                 "Microsoft.UI.Xaml.Controls.DropDownButton".to_string(),
                 "Microsoft.UI.Xaml.Controls.Grid".to_string(),
@@ -108,6 +111,7 @@ fn main() {
                 "Windows.Foundation.IReference".to_string(),
                 "Windows.Foundation.Uri".to_string(),
                 "Windows.Foundation.EventHandler".to_string(),
+                "Windows.Foundation.TypedEventHandler".to_string(),
                 "Windows.Foundation.Rect".to_string(),
                 "Windows.Foundation.IStringable".to_string(),
                 "Windows.Foundation.Collections.IObservableVector".to_string(),
@@ -229,7 +233,9 @@ fn main() {
 
     let warnings = windows_bindgen::bindgen(args);
     if !warnings.is_empty() {
-        println!("cargo:warning=xamltoolkit-winui-controls generated with skipped inherited WinUI members for the current minimal control projection:\n{warnings}");
+        println!(
+            "cargo:warning=xamltoolkit-winui-controls generated with skipped inherited WinUI members for the current minimal control projection:\n{warnings}"
+        );
     }
 
     if !out_file.exists() {

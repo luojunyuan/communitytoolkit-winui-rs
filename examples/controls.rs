@@ -2,13 +2,13 @@ use std::any::Any;
 use std::env;
 use std::sync::Once;
 
-use windows::core::{IInspectable, Interface, GUID, HSTRING};
 use windows::Foundation::PropertyValue;
+use windows::core::{GUID, HSTRING, IInspectable, Interface};
 use windows_collections::IVector;
 use windows_reactor::core::backend::{Backend, ControlId, ControlKind};
 use windows_reactor::core::custom::{CustomElement, CustomElementHandle};
 use windows_reactor::{
-    border, grid, scroll_viewer, text_block, vstack, App, Element, ElementExt, GridLength, RenderCx,
+    App, Element, ElementExt, GridLength, RenderCx, border, grid, scroll_viewer, text_block, vstack,
 };
 use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Controls::{
     Border as NativeBorder, Button as NativeButton, Orientation,
@@ -443,8 +443,8 @@ fn all_visual_samples() -> [VisualSample; 28] {
     ]
 }
 
-fn create_wrap_panel_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_wrap_panel_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let panel = WrapPanel::new()?;
     panel.SetWidth(320.0)?;
     panel.SetHeight(96.0)?;
@@ -457,8 +457,8 @@ fn create_wrap_panel_sample(
     Ok(panel.cast()?)
 }
 
-fn create_dock_panel_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_dock_panel_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let panel = DockPanel::new()?;
     panel.SetWidth(320.0)?;
     panel.SetHeight(132.0)?;
@@ -479,8 +479,8 @@ fn create_dock_panel_sample(
     Ok(panel.cast()?)
 }
 
-fn create_uniform_grid_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_uniform_grid_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let grid = UniformGrid::new()?;
     grid.SetWidth(320.0)?;
     grid.SetHeight(132.0)?;
@@ -493,8 +493,8 @@ fn create_uniform_grid_sample(
     Ok(grid.cast()?)
 }
 
-fn create_equal_panel_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_equal_panel_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let panel = EqualPanel::new()?;
     panel.SetWidth(320.0)?;
     panel.SetHeight(96.0)?;
@@ -508,8 +508,8 @@ fn create_equal_panel_sample(
     Ok(panel.cast()?)
 }
 
-fn create_staggered_panel_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_staggered_panel_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let panel = StaggeredPanel::new()?;
     panel.SetWidth(320.0)?;
     panel.SetHeight(140.0)?;
@@ -531,8 +531,8 @@ fn create_staggered_panel_sample(
     Ok(panel.cast()?)
 }
 
-fn create_constrained_box_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_constrained_box_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let box_control = ConstrainedBox::new()?;
     box_control.SetWidth(320.0)?;
     box_control.SetHeight(80.0)?;
@@ -544,8 +544,8 @@ fn create_constrained_box_sample(
     Ok(box_control.cast()?)
 }
 
-fn create_layout_transform_control_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_layout_transform_control_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let control = LayoutTransformControl::new()?;
     control.SetWidth(320.0)?;
     control.SetHeight(72.0)?;
@@ -554,8 +554,8 @@ fn create_layout_transform_control_sample(
     Ok(control.cast()?)
 }
 
-fn create_image_cropper_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_image_cropper_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let cropper = ImageCropper::new()?;
     cropper.SetWidth(320.0)?;
     cropper.SetHeight(180.0)?;
@@ -568,8 +568,8 @@ fn create_image_cropper_sample(
     Ok(cropper.cast()?)
 }
 
-fn create_camera_preview_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_camera_preview_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let preview = CameraPreview::new()?;
     preview.SetWidth(320.0)?;
     preview.SetHeight(180.0)?;
@@ -577,8 +577,8 @@ fn create_camera_preview_sample(
     Ok(preview.cast()?)
 }
 
-fn create_tabbed_command_bar_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_tabbed_command_bar_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let command_bar = TabbedCommandBar::new()?;
     command_bar.SetWidth(320.0)?;
     command_bar.SetHeight(112.0)?;
@@ -599,8 +599,8 @@ fn create_tabbed_command_bar_sample(
     Ok(command_bar.cast()?)
 }
 
-fn create_tabbed_command_bar_item_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_tabbed_command_bar_item_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let item = TabbedCommandBarItem::new()?;
     item.SetWidth(320.0)?;
     item.SetHeight(48.0)?;
@@ -611,8 +611,8 @@ fn create_tabbed_command_bar_item_sample(
     Ok(item.cast()?)
 }
 
-fn create_switch_presenter_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_switch_presenter_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let presenter = SwitchPresenter::new()?;
     presenter.SetWidth(320.0)?;
     presenter.SetHeight(64.0)?;
@@ -635,8 +635,8 @@ fn create_switch_presenter_sample(
     Ok(presenter.cast()?)
 }
 
-fn create_metadata_control_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_metadata_control_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let metadata = MetadataControl::new()?;
     metadata.SetWidth(320.0)?;
     metadata.SetSeparator(&HSTRING::from(" | "))?;
@@ -656,8 +656,8 @@ fn create_metadata_control_sample(
     Ok(metadata.cast()?)
 }
 
-fn create_color_previewer_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_color_previewer_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let previewer = ColorPreviewer::new()?;
     previewer.SetWidth(320.0)?;
     previewer.SetHeight(44.0)?;
@@ -671,8 +671,8 @@ fn create_color_previewer_sample(
     Ok(previewer.cast()?)
 }
 
-fn create_color_picker_slider_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_color_picker_slider_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let slider = ColorPickerSlider::new()?;
     slider.SetWidth(320.0)?;
     slider.SetHeight(44.0)?;
@@ -692,8 +692,8 @@ fn create_color_picker_slider_sample(
     Ok(slider.cast()?)
 }
 
-fn create_color_picker_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_color_picker_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let picker = ColorPicker::new()?;
     picker.SetWidth(320.0)?;
     picker.SetHeight(360.0)?;
@@ -703,8 +703,8 @@ fn create_color_picker_sample(
     Ok(picker.cast()?)
 }
 
-fn create_color_picker_button_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_color_picker_button_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let button = ColorPickerButton::new()?;
     button.SetWidth(180.0)?;
     button.SetHeight(36.0)?;
@@ -712,8 +712,8 @@ fn create_color_picker_button_sample(
     Ok(button.cast()?)
 }
 
-fn create_sizers_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_sizers_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let panel = WrapPanel::new()?;
     panel.SetWidth(320.0)?;
     panel.SetHeight(96.0)?;
@@ -752,8 +752,8 @@ fn create_sizers_sample(
     Ok(panel.cast()?)
 }
 
-fn create_range_selector_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_range_selector_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let selector = RangeSelector::new()?;
     selector.SetWidth(320.0)?;
     selector.SetHeight(64.0)?;
@@ -765,8 +765,8 @@ fn create_range_selector_sample(
     Ok(selector.cast()?)
 }
 
-fn create_rich_suggest_box_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_rich_suggest_box_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let suggest = RichSuggestBox::new()?;
     suggest.SetWidth(320.0)?;
     suggest.SetHeight(112.0)?;
@@ -789,8 +789,8 @@ fn create_rich_suggest_box_sample(
     Ok(suggest.cast()?)
 }
 
-fn create_tokenizing_text_box_item_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_tokenizing_text_box_item_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let item = TokenizingTextBoxItem::new()?;
     item.SetWidth(148.0)?;
     item.SetHeight(36.0)?;
@@ -799,8 +799,8 @@ fn create_tokenizing_text_box_item_sample(
     Ok(item.cast()?)
 }
 
-fn create_segmented_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_segmented_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let segmented = Segmented::new()?;
     segmented.SetWidth(320.0)?;
     segmented.SetHeight(48.0)?;
@@ -817,8 +817,8 @@ fn create_segmented_sample(
     Ok(segmented.cast()?)
 }
 
-fn create_radial_gauge_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_radial_gauge_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let gauge = RadialGauge::new()?;
     gauge.SetWidth(180.0)?;
     gauge.SetHeight(180.0)?;
@@ -829,8 +829,8 @@ fn create_radial_gauge_sample(
     Ok(gauge.cast()?)
 }
 
-fn create_settings_card_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_settings_card_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let card = SettingsCard::new()?;
     card.SetWidth(320.0)?;
     card.SetHeader(&boxed_string("Rust projection")?)?;
@@ -839,8 +839,8 @@ fn create_settings_card_sample(
     Ok(card.cast()?)
 }
 
-fn create_settings_expander_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_settings_expander_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let expander = SettingsExpander::new()?;
     expander.SetWidth(320.0)?;
     expander.SetHeader(&boxed_string("Display")?)?;
@@ -867,8 +867,8 @@ fn create_settings_expander_sample(
     Ok(expander.cast()?)
 }
 
-fn create_headered_content_control_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_headered_content_control_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let control = HeaderedContentControl::new()?;
     control.SetWidth(320.0)?;
     control.SetHeader(&boxed_string("Headered content")?)?;
@@ -877,8 +877,8 @@ fn create_headered_content_control_sample(
     Ok(control.cast()?)
 }
 
-fn create_headered_items_control_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_headered_items_control_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let control = HeaderedItemsControl::new()?;
     control.SetWidth(320.0)?;
     control.SetHeader(&boxed_string("Headered items")?)?;
@@ -894,8 +894,8 @@ fn create_headered_items_control_sample(
     Ok(control.cast()?)
 }
 
-fn create_headered_tree_view_sample(
-) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+fn create_headered_tree_view_sample()
+-> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
     let control = HeaderedTreeView::new()?;
     control.SetWidth(320.0)?;
     control.SetHeight(96.0)?;
@@ -1376,7 +1376,9 @@ fn verify_color_picker() -> String {
             eprintln!(
                 "controls-example: ColorPicker.SetCustomPaletteColumnCount={columns:?}, SetCustomPalette={set_custom:?}, SetIsColorPaletteVisible={palette:?}, SetShowAccentColors={accents:?}, CustomPalette={read_custom:?}, IColorPalette.ColorCount={color_count:?}, ShadeCount={shade_count:?}, GetColor={sample_color:?}"
             );
-            format!("ColorPicker OK ({columns:?}, {set_custom:?}, {palette:?}, {accents:?}, {read_custom:?}, {color_count:?}, {shade_count:?}, {sample_color:?})")
+            format!(
+                "ColorPicker OK ({columns:?}, {set_custom:?}, {palette:?}, {accents:?}, {read_custom:?}, {color_count:?}, {shade_count:?}, {sample_color:?})"
+            )
         }
         Err(error) => {
             eprintln!("controls-example: ColorPicker::new failed: {error:?}");
@@ -1858,7 +1860,9 @@ fn verify_settings_expander_automation_peer() -> String {
             format!("SettingsExpanderAutomationPeer OK ({raise:?})")
         }
         Err(error) => {
-            eprintln!("controls-example: SettingsExpanderAutomationPeer::CreateInstance failed: {error:?}");
+            eprintln!(
+                "controls-example: SettingsExpanderAutomationPeer::CreateInstance failed: {error:?}"
+            );
             format!("SettingsExpanderAutomationPeer failed: {error:?}")
         }
     }
@@ -2138,7 +2142,9 @@ fn verify_tokenizing_text_box_item() -> String {
             format!("TokenizingTextBoxItem failed: {error:?}")
         }
         (_, Err(error), _) => {
-            eprintln!("controls-example: TokenizingTextBoxItem owner TokenizingTextBox::new failed: {error:?}");
+            eprintln!(
+                "controls-example: TokenizingTextBoxItem owner TokenizingTextBox::new failed: {error:?}"
+            );
             format!("TokenizingTextBoxItem owner failed: {error:?}")
         }
         (_, _, Err(error)) => {
@@ -2199,7 +2205,9 @@ fn verify_pretoken_string_container() -> String {
             eprintln!(
                 "controls-example: PretokenStringContainer.SetText={text:?}, Text={read:?}, IsLast={last:?}, ToString={string:?}, ITokenStringContainer.Text={interface_text}, ITokenStringContainer.IsLast={interface_last}"
             );
-            format!("PretokenStringContainer OK ({text:?}, {read:?}, {last:?}, {string:?}, {interface_text}, {interface_last})")
+            format!(
+                "PretokenStringContainer OK ({text:?}, {read:?}, {last:?}, {string:?}, {interface_text}, {interface_last})"
+            )
         }
         Err(error) => {
             eprintln!(
@@ -2276,7 +2284,9 @@ fn verify_token_item_removing_event_args() -> String {
                 format!("TokenItemRemovingEventArgs OK ({cancel:?})")
             }
             Err(error) => {
-                eprintln!("controls-example: TokenItemRemovingEventArgs::CreateInstance failed: {error:?}");
+                eprintln!(
+                    "controls-example: TokenItemRemovingEventArgs::CreateInstance failed: {error:?}"
+                );
                 format!("TokenItemRemovingEventArgs failed: {error:?}")
             }
         },
@@ -2285,7 +2295,9 @@ fn verify_token_item_removing_event_args() -> String {
             format!("TokenItemRemovingEventArgs item failed: {error:?}")
         }
         (_, Err(error)) => {
-            eprintln!("controls-example: TokenItemRemovingEventArgs TokenizingTextBoxItem::new failed: {error:?}");
+            eprintln!(
+                "controls-example: TokenItemRemovingEventArgs TokenizingTextBoxItem::new failed: {error:?}"
+            );
             format!("TokenItemRemovingEventArgs token failed: {error:?}")
         }
     }
@@ -2301,7 +2313,9 @@ fn verify_tokenizing_text_box_automation_peer() -> String {
             "TokenizingTextBoxAutomationPeer OK".to_string()
         }
         Err(error) => {
-            eprintln!("controls-example: TokenizingTextBoxAutomationPeer::CreateInstance failed: {error:?}");
+            eprintln!(
+                "controls-example: TokenizingTextBoxAutomationPeer::CreateInstance failed: {error:?}"
+            );
             format!("TokenizingTextBoxAutomationPeer failed: {error:?}")
         }
     }

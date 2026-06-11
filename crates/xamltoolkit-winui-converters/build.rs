@@ -55,7 +55,6 @@ fn generate_bindings(winmd: &Path, deps: &[PathBuf], filters: Vec<String>, crate
     args.extend([
         "--out".to_string(),
         out_file.display().to_string(),
-        "--no-allow".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.Foundation".to_string(),
         "--reference".to_string(),
@@ -66,7 +65,9 @@ fn generate_bindings(winmd: &Path, deps: &[PathBuf], filters: Vec<String>, crate
 
     let warnings = windows_bindgen::bindgen(args);
     if !warnings.is_empty() {
-        println!("cargo:warning={crate_name} generated with skipped members for the current projection:\n{warnings}");
+        println!(
+            "cargo:warning={crate_name} generated with skipped members for the current projection:\n{warnings}"
+        );
     }
 
     if !out_file.exists() {
