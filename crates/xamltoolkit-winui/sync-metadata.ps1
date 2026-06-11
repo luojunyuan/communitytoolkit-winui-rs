@@ -130,7 +130,7 @@ $workspaceRoot = Split-Path -Parent (Split-Path -Parent $crateRoot)
 
 if (!$SourceRoot) {
     $SourceRoot = Get-ExistingPath @(
-        (Join-Path $workspaceRoot "CommunityToolkit.WinUI"),
+        (Join-Path $workspaceRoot "submodules\CommunityToolkit.WinUI"),
         (Join-Path (Split-Path -Parent $workspaceRoot) "CommunityToolkit.WinUI")
     ) "CommunityToolkit.WinUI source root"
 } elseif (!(Test-Path -LiteralPath $SourceRoot)) {

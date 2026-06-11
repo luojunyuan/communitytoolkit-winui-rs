@@ -25,7 +25,6 @@ Validated by `examples/controls.rs` smoke tests and visual sample mounts:
 ## Validate
 
 ```powershell
-cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 cargo check -p xamltoolkit-winui-controls
 cargo check --example controls
 cargo build --example controls

@@ -1,0 +1,3 @@
+[submodule "submodules/CommunityToolkit.WinUI"]
+	path = submodules/CommunityToolkit.WinUI
+	url = https://github.com/lgztx96/CommunityToolkit.WinUI.git

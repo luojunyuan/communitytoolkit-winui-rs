@@ -4,12 +4,12 @@ Rust projection workspace for `CommunityToolkit.WinUI` / `XamlToolkit.WinUI`.
 
 The root `xamltoolkit-winui` crate projects the public root `XamlToolkit.WinUI` WinRT surface from the produced Toolkit WinMD. The other projection crates are kept in the repository for later expansion, but the workspace currently builds only the root crate.
 
-The source C++/WinRT repository is currently a sibling directory and may later become a submodule under this workspace:
+The source C++/WinRT repository is checked out as a git submodule under this workspace:
 
 ```text
-C:\Users\kimika\Documents\communitytoolkit\CommunityToolkit.WinUI
-C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
-C:\Users\kimika\Documents\communitytoolkit\windows-rs-62af965-patched
+xamltoolkit-rs
+xamltoolkit-rs\submodules\CommunityToolkit.WinUI
+windows-rs-62af965-patched
 ```
 
 `windows-rs-62af965-patched` is a local copy of the `microsoft/windows-rs` commit used by the original lockfile, with a small `windows-reactor` patch that lets external WinRT component libraries register generated XAML metadata providers.
@@ -30,16 +30,15 @@ examples/controls.rs                 Controls sample/smoke executable
 `crates/xamltoolkit-winui/metadata` is checked in so the crate can build and run the root smoke example without the upstream repository being present. It contains the projection WinMD, dependency WinMD files, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). To refresh it from upstream build output and package metadata:
 
 ```powershell
-cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs\crates\xamltoolkit-winui
+cd crates\xamltoolkit-winui
 .\sync-metadata.ps1
 ```
 
-The sync helper copies `XamlToolkit.WinUI.winmd` and native runtime artifacts from the selected upstream Release output and discovers Windows App SDK metadata versions from `CommunityToolkit.WinUI\packages`. `Win32` output is accepted from `CommunityToolkit.WinUI\Release\XamlToolkit.WinUI`; `x64` and `ARM64` use `CommunityToolkit.WinUI\<platform>\Release\XamlToolkit.WinUI`.
+The sync helper copies `XamlToolkit.WinUI.winmd` and native runtime artifacts from the selected upstream Release output and discovers Windows App SDK metadata versions from `submodules\CommunityToolkit.WinUI\packages`. `Win32` output is accepted from `submodules\CommunityToolkit.WinUI\Release\XamlToolkit.WinUI`; `x64` and `ARM64` use `submodules\CommunityToolkit.WinUI\<platform>\Release\XamlToolkit.WinUI`.
 
 ## Validate
 
 ```powershell
-cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 cargo fmt --check
 cargo check -p xamltoolkit-winui
 cargo check --example root

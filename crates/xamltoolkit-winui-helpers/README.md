@@ -15,6 +15,5 @@ The default projection is intentionally incremental. It currently covers low-ris
 ## Validate
 
 ```powershell
-cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 cargo check -p xamltoolkit-winui-helpers
 ```

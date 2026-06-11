@@ -24,11 +24,11 @@ CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*
 Run the sync helper after rebuilding upstream metadata:
 
 ```powershell
-cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs\crates\xamltoolkit-winui
+cd crates\xamltoolkit-winui
 .\sync-metadata.ps1
 ```
 
-`sync-metadata.ps1` copies produced metadata and the matching native runtime artifacts into `metadata/native/<platform>`. It discovers `CommunityToolkit.WinUI` first as a future submodule under `xamltoolkit-rs`, then as the current sibling directory, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
+`sync-metadata.ps1` copies produced metadata and the matching native runtime artifacts into `metadata/native/<platform>`. It discovers `CommunityToolkit.WinUI` first as `xamltoolkit-rs\submodules\CommunityToolkit.WinUI`, then falls back to the old sibling directory layout, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
 
 The checked-in native runtime layout is:
 
@@ -60,7 +60,6 @@ The default filter covers the root `XamlToolkit.WinUI` public WinRT surface expo
 ## Build
 
 ```powershell
-cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
 cargo check -p xamltoolkit-winui
 cargo check --example root
 ```
