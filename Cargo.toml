@@ -11,32 +11,16 @@ resolver = "2"
 
 [dependencies]
 xamltoolkit-winui = { path = "crates/xamltoolkit-winui" }
-windows = { version = "0.62.2", features = ["Foundation", "UI"] }
-windows-collections = "0.3.2"
-windows-core = "0.62.2"
-windows-reactor = { path = "../windows-rs-62af965-patched/crates/libs/reactor" }
+windows = { git = "https://github.com/microsoft/windows-rs", features = ["Foundation", "UI"] }
+windows-collections = { git = "https://github.com/microsoft/windows-rs" }
+windows-core = { git = "https://github.com/microsoft/windows-rs" }
+windows-reactor = { git = "https://github.com/microsoft/windows-rs" }
 
 [build-dependencies]
-windows-metadata = { path = "../windows-rs-62af965-patched/crates/libs/metadata" }
-windows-reactor-setup = { path = "../windows-rs-62af965-patched/crates/libs/reactor-setup" }
+windows-metadata = { git = "https://github.com/microsoft/windows-rs" }
+windows-reactor-setup = { git = "https://github.com/microsoft/windows-rs" }
 
 [[example]]
 name = "root"
 path = "examples/root.rs"
-
-[patch.crates-io]
-windows = { path = "../windows-rs-62af965-patched/crates/libs/windows" }
-windows-bindgen = { path = "../windows-rs-62af965-patched/crates/libs/bindgen" }
-windows-collections = { path = "../windows-rs-62af965-patched/crates/libs/collections" }
-windows-core = { path = "../windows-rs-62af965-patched/crates/libs/core" }
-windows-future = { path = "../windows-rs-62af965-patched/crates/libs/future" }
-windows-implement = { path = "../windows-rs-62af965-patched/crates/libs/implement" }
-windows-interface = { path = "../windows-rs-62af965-patched/crates/libs/interface" }
-windows-link = { path = "../windows-rs-62af965-patched/crates/libs/link" }
-windows-numerics = { path = "../windows-rs-62af965-patched/crates/libs/numerics" }
-windows-reference = { path = "../windows-rs-62af965-patched/crates/libs/reference" }
-windows-result = { path = "../windows-rs-62af965-patched/crates/libs/result" }
-windows-strings = { path = "../windows-rs-62af965-patched/crates/libs/strings" }
-windows-threading = { path = "../windows-rs-62af965-patched/crates/libs/threading" }
-windows-time = { path = "../windows-rs-62af965-patched/crates/libs/time" }
 

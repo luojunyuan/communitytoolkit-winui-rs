@@ -9,10 +9,9 @@ The source C++/WinRT repository is checked out as a git submodule under this wor
 ```text
 xamltoolkit-rs
 xamltoolkit-rs\submodules\CommunityToolkit.WinUI
-windows-rs-62af965-patched
 ```
 
-`windows-rs-62af965-patched` is a local copy of the `microsoft/windows-rs` commit used by the original lockfile, with a small `windows-reactor` patch that lets external WinRT component libraries register generated XAML metadata providers.
+The Rust Windows projection/runtime crates are pulled from the official `microsoft/windows-rs` git repository.
 
 ## Layout
 
