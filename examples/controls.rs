@@ -199,6 +199,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/RichSuggestBox/RichSuggestBox.xaml",
                 );
             }
+            "TokenizingTextBoxItem" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/TokenizingTextBox/TokenizingTextBoxItem.Token.xaml",
+                );
+            }
             "Segmented" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/Segmented.xaml");
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Segmented/SegmentedItem.xaml");
@@ -291,7 +296,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 27] {
+fn all_visual_samples() -> [VisualSample; 28] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -372,6 +377,10 @@ fn all_visual_samples() -> [VisualSample; 27] {
         VisualSample {
             name: "RichSuggestBox",
             create: create_rich_suggest_box_sample,
+        },
+        VisualSample {
+            name: "TokenizingTextBoxItem",
+            create: create_tokenizing_text_box_item_sample,
         },
         VisualSample {
             name: "Segmented",
@@ -748,6 +757,16 @@ fn create_rich_suggest_box_sample(
     );
     suggest.SetItemsSource(&items.cast::<IInspectable>()?)?;
     Ok(suggest.cast()?)
+}
+
+fn create_tokenizing_text_box_item_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let item = TokenizingTextBoxItem::new()?;
+    item.SetWidth(148.0)?;
+    item.SetHeight(36.0)?;
+    item.SetContent(&boxed_string("Token item")?)?;
+    item.SetIsSelected(true)?;
+    Ok(item.cast()?)
 }
 
 fn create_segmented_sample(
