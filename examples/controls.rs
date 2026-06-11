@@ -130,6 +130,13 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/LayoutTransformControl/LayoutTransformControl.xaml",
                 );
             }
+            "ImageCropper" => {
+                sources
+                    .push("ms-appx:///XamlToolkit.WinUI.Controls/ImageCropper/ImageCropper.xaml");
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/ImageCropper/ImageCropperThumb.xaml",
+                );
+            }
             "ColorPreviewer" => {
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
@@ -236,7 +243,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 17] {
+fn all_visual_samples() -> [VisualSample; 18] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -265,6 +272,10 @@ fn all_visual_samples() -> [VisualSample; 17] {
         VisualSample {
             name: "LayoutTransformControl",
             create: create_layout_transform_control_sample,
+        },
+        VisualSample {
+            name: "ImageCropper",
+            create: create_image_cropper_sample,
         },
         VisualSample {
             name: "MetadataControl",
@@ -418,6 +429,20 @@ fn create_layout_transform_control_sample(
     let child = sample_button("Layout child", 180.0, 44.0)?;
     control.SetChild(&child)?;
     Ok(control.cast()?)
+}
+
+fn create_image_cropper_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let cropper = ImageCropper::new()?;
+    cropper.SetWidth(320.0)?;
+    cropper.SetHeight(180.0)?;
+    cropper.SetMinCroppedPixelLength(32.0)?;
+    cropper.SetMinSelectedLength(24.0)?;
+    cropper.SetCropShape(
+        xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::CropShape::Rectangular,
+    )?;
+    cropper.SetThumbPlacement(ThumbPlacement::Corners)?;
+    Ok(cropper.cast()?)
 }
 
 fn create_metadata_control_sample(
