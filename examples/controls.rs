@@ -151,6 +151,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/TabbedCommandBar/TabbedCommandBar.xaml",
                 );
             }
+            "TabbedCommandBarItem" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/TabbedCommandBar/TabbedCommandBarItem.xaml",
+                );
+            }
             "ColorPreviewer" => {
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
@@ -267,7 +272,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 24] {
+fn all_visual_samples() -> [VisualSample; 25] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -308,6 +313,10 @@ fn all_visual_samples() -> [VisualSample; 24] {
         VisualSample {
             name: "TabbedCommandBar",
             create: create_tabbed_command_bar_sample,
+        },
+        VisualSample {
+            name: "TabbedCommandBarItem",
+            create: create_tabbed_command_bar_item_sample,
         },
         VisualSample {
             name: "SwitchPresenter",
@@ -508,6 +517,18 @@ fn create_tabbed_command_bar_sample(
     command_bar.SetWidth(320.0)?;
     command_bar.SetHeight(96.0)?;
     Ok(command_bar.cast()?)
+}
+
+fn create_tabbed_command_bar_item_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let item = TabbedCommandBarItem::new()?;
+    item.SetWidth(320.0)?;
+    item.SetHeight(48.0)?;
+    item.SetHeader(&boxed_string("Home")?)?;
+    item.SetIsContextual(true)?;
+    item.SetCommandAlignment(HorizontalAlignment::Left)?;
+    item.SetOverflowButtonAlignment(HorizontalAlignment::Right)?;
+    Ok(item.cast()?)
 }
 
 fn create_switch_presenter_sample(
