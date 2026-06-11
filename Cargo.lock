@@ -266,6 +266,7 @@ dependencies = [
  "windows-reactor-setup",
  "xamltoolkit-winui",
  "xamltoolkit-winui-converters",
+ "xamltoolkit-winui-helpers",
 ]
 
 [[package]]
@@ -294,6 +295,21 @@ dependencies = [
  "windows-numerics",
  "windows-reference",
  "windows-time",
+]
+
+[[package]]
+name = "xamltoolkit-winui-helpers"
+version = "0.1.0"
+dependencies = [
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+ "xamltoolkit-winui",
 ]
 
 [[package]]

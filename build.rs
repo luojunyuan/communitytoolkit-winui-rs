@@ -9,6 +9,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_NATIVE_PLATFORM");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_NATIVE_DIR");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR");
+    println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_HELPERS_NATIVE_DIR");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
     let manifest_dir =
@@ -47,6 +48,14 @@ fn native_projects(manifest_dir: &Path, platform: &str) -> Vec<(String, PathBuf)
                 .map(PathBuf::from)
                 .unwrap_or_else(|| {
                     toolkit_native_dir(manifest_dir, "xamltoolkit-winui-converters", platform)
+                }),
+        ),
+        (
+            "XamlToolkit.WinUI.Helpers".to_string(),
+            env::var_os("XAMLTOOLKIT_WINUI_HELPERS_NATIVE_DIR")
+                .map(PathBuf::from)
+                .unwrap_or_else(|| {
+                    toolkit_native_dir(manifest_dir, "xamltoolkit-winui-helpers", platform)
                 }),
         ),
     ]

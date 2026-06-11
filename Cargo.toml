@@ -7,12 +7,17 @@ build = "build.rs"
 autoexamples = false
 
 [workspace]
-members = ["crates/xamltoolkit-winui", "crates/xamltoolkit-winui-converters"]
+members = [
+    "crates/xamltoolkit-winui",
+    "crates/xamltoolkit-winui-converters",
+    "crates/xamltoolkit-winui-helpers",
+]
 resolver = "2"
 
 [dependencies]
 xamltoolkit-winui = { path = "crates/xamltoolkit-winui" }
 xamltoolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
+xamltoolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = ["Foundation", "UI"] }
 windows-collections = { git = "https://github.com/microsoft/windows-rs" }
 windows-core = { git = "https://github.com/microsoft/windows-rs" }
@@ -29,4 +34,8 @@ path = "examples/root.rs"
 [[example]]
 name = "converters"
 path = "examples/converters.rs"
+
+[[example]]
+name = "helpers"
+path = "examples/helpers.rs"
 

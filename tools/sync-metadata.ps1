@@ -1,6 +1,6 @@
 param(
     [string]$SourceRoot,
-    [ValidateSet("All", "Root", "Converters", "XamlToolkit.WinUI", "XamlToolkit.WinUI.Converters")]
+    [ValidateSet("All", "Root", "Converters", "Helpers", "XamlToolkit.WinUI", "XamlToolkit.WinUI.Converters", "XamlToolkit.WinUI.Helpers")]
     [string[]]$Project = @("All"),
     [ValidateSet("All", "x64", "ARM64", "Win32")]
     [string[]]$Platform = @("x64"),
@@ -42,6 +42,7 @@ function Get-ProjectConfigs {
             ProjectDir = "XamlToolkit.WinUI"
             ProjectFile = "XamlToolkit.WinUI.vcxproj"
             Winmd = "XamlToolkit.WinUI.winmd"
+            DependencyWinmds = @()
         },
         [pscustomobject]@{
             Alias = "Converters"
@@ -50,6 +51,16 @@ function Get-ProjectConfigs {
             ProjectDir = "XamlToolkit.WinUI.Converters"
             ProjectFile = "XamlToolkit.WinUI.Converters.vcxproj"
             Winmd = "XamlToolkit.WinUI.Converters.winmd"
+            DependencyWinmds = @()
+        },
+        [pscustomobject]@{
+            Alias = "Helpers"
+            Name = "XamlToolkit.WinUI.Helpers"
+            Crate = "xamltoolkit-winui-helpers"
+            ProjectDir = "XamlToolkit.WinUI.Helpers"
+            ProjectFile = "XamlToolkit.WinUI.Helpers.vcxproj"
+            Winmd = "XamlToolkit.WinUI.Helpers.winmd"
+            DependencyWinmds = @("XamlToolkit.WinUI.winmd")
         }
     )
 }
@@ -166,11 +177,13 @@ function Get-InteractiveMetadataTarget([string]$MetadataRoot, [string]$Preferred
 
 function Get-ProjectOutput($ProjectConfig, [string]$SourceRoot, [string]$PlatformName, [string]$ConfigurationName) {
     $candidates = @(
-        (Join-Path $SourceRoot "$PlatformName\$ConfigurationName\$($ProjectConfig.Name)")
+        (Join-Path $SourceRoot "$PlatformName\$ConfigurationName\$($ProjectConfig.Name)"),
+        (Join-Path $SourceRoot "$($ProjectConfig.ProjectDir)\$PlatformName\$ConfigurationName\$($ProjectConfig.Name)")
     )
 
     if ($PlatformName -eq "Win32") {
         $candidates += (Join-Path $SourceRoot "$ConfigurationName\$($ProjectConfig.Name)")
+        $candidates += (Join-Path $SourceRoot "$($ProjectConfig.ProjectDir)\$ConfigurationName\$($ProjectConfig.Name)")
     }
 
     return Get-ExistingPath $candidates "$($ProjectConfig.Name) $PlatformName|$ConfigurationName build output"
@@ -216,7 +229,28 @@ function Get-WindowsWinmdCandidate([string]$WorkspaceRoot, [string]$LocalWindows
     return $null
 }
 
-function Sync-DependencyMetadata($ProjectConfig, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string]$DepsDir) {
+function Copy-ToolkitDependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$DepsDir, [string]$MetadataPlatformName, [string]$ConfigurationName) {
+    foreach ($dependencyWinmd in $ProjectConfig.DependencyWinmds) {
+        $dependencyProject = $AllProjectConfigs | Where-Object { $_.Winmd -eq $dependencyWinmd } | Select-Object -First 1
+        if (!$dependencyProject) {
+            throw "Unknown Toolkit dependency metadata '$dependencyWinmd' for $($ProjectConfig.Name)."
+        }
+
+        $source = Join-Path (Join-Path (Join-Path $WorkspaceRoot "crates") $dependencyProject.Crate) "metadata\$dependencyWinmd"
+        if (!(Test-Path -LiteralPath $source)) {
+            $dependencyOutput = Get-ProjectOutput $dependencyProject $SourceRoot $MetadataPlatformName $ConfigurationName
+            $source = Join-Path $dependencyOutput $dependencyWinmd
+        }
+
+        if (!(Test-Path -LiteralPath $source)) {
+            throw "Missing Toolkit dependency metadata '$dependencyWinmd'. Sync or build $($dependencyProject.Name) first."
+        }
+
+        Copy-Item -LiteralPath $source -Destination (Join-Path $DepsDir $dependencyWinmd) -Force
+    }
+}
+
+function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string]$DepsDir, [string]$MetadataPlatformName, [string]$ConfigurationName) {
     $projectRoot = Join-Path $SourceRoot $ProjectConfig.ProjectDir
     $projectPath = Join-Path $projectRoot $ProjectConfig.ProjectFile
 
@@ -250,9 +284,12 @@ function Sync-DependencyMetadata($ProjectConfig, [string]$WorkspaceRoot, [string
         Write-Warning "Windows.winmd was not found. Existing builds may fail for Windows.UI.Xaml.Interop.TypeName."
     }
 
+    Copy-ToolkitDependencyMetadata $ProjectConfig $AllProjectConfigs $WorkspaceRoot $SourceRoot $DepsDir $MetadataPlatformName $ConfigurationName
+
+    $keepToolkitDeps = @($ProjectConfig.DependencyWinmds)
     foreach ($name in @("XamlToolkit.WinUI.winmd", "XamlToolkit.WinUI.Helpers.winmd", "XamlToolkit.WinUI.Converters.winmd")) {
         $staleDep = Join-Path $DepsDir $name
-        if (Test-Path -LiteralPath $staleDep) {
+        if ((Test-Path -LiteralPath $staleDep) -and !($keepToolkitDeps | Where-Object { $_ -eq $name })) {
             Remove-Item -LiteralPath $staleDep -Force
         }
     }
@@ -260,7 +297,7 @@ function Sync-DependencyMetadata($ProjectConfig, [string]$WorkspaceRoot, [string
     Write-Host "Synced dependency metadata for $($ProjectConfig.Name) from $winuiPackage and $interactiveTarget"
 }
 
-function Sync-ProjectMetadata($ProjectConfig, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string[]]$Platforms, [string]$MetadataPlatformName, [string]$ConfigurationName) {
+function Sync-ProjectMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string[]]$Platforms, [string]$MetadataPlatformName, [string]$ConfigurationName) {
     $crateRoot = Join-Path (Join-Path $WorkspaceRoot "crates") $ProjectConfig.Crate
     $metadataDir = Join-Path $crateRoot "metadata"
     $depsDir = Join-Path $metadataDir "deps"
@@ -285,7 +322,7 @@ function Sync-ProjectMetadata($ProjectConfig, [string]$WorkspaceRoot, [string]$S
     }
 
     Copy-Item -LiteralPath $projectWinmd -Destination (Join-Path $metadataDir $ProjectConfig.Winmd) -Force
-    Sync-DependencyMetadata $ProjectConfig $WorkspaceRoot $SourceRoot $PackagesRoot $depsDir
+    Sync-DependencyMetadata $ProjectConfig $AllProjectConfigs $WorkspaceRoot $SourceRoot $PackagesRoot $depsDir $MetadataPlatformName $ConfigurationName
 
     foreach ($platformName in $Platforms) {
         $projectOutput = Get-ProjectOutput $ProjectConfig $SourceRoot $platformName $ConfigurationName
@@ -318,5 +355,5 @@ $selectedProjects = Resolve-ProjectSelection $Project $projectConfigs
 $selectedPlatforms = Resolve-PlatformSelection $Platform
 
 foreach ($projectConfig in $selectedProjects) {
-    Sync-ProjectMetadata $projectConfig $workspaceRoot $SourceRoot $packagesRoot $selectedPlatforms $MetadataPlatform $Configuration
+    Sync-ProjectMetadata $projectConfig $projectConfigs $workspaceRoot $SourceRoot $packagesRoot $selectedPlatforms $MetadataPlatform $Configuration
 }

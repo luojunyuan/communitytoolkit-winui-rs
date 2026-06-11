@@ -7,7 +7,7 @@ build = "build.rs"
 
 [dependencies]
 xamltoolkit-winui = { path = "../xamltoolkit-winui" }
-windows = { version = "0.62.2", features = [
+windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation",
     "Foundation_Collections",
     "Foundation_Numerics",
@@ -17,10 +17,12 @@ windows = { version = "0.62.2", features = [
     "UI_Core",
     "UI_Text",
 ] }
-windows-core = "0.62.2"
-windows-collections = "0.3.2"
-windows-future = "0.3.2"
-windows-numerics = "0.3.1"
+windows-core = { git = "https://github.com/microsoft/windows-rs" }
+windows-collections = { git = "https://github.com/microsoft/windows-rs" }
+windows-future = { git = "https://github.com/microsoft/windows-rs" }
+windows-numerics = { git = "https://github.com/microsoft/windows-rs" }
+windows-reference = { git = "https://github.com/microsoft/windows-rs" }
+windows-time = { git = "https://github.com/microsoft/windows-rs" }
 
 [build-dependencies]
-windows-bindgen = "0.66.0"
+windows-bindgen = { git = "https://github.com/microsoft/windows-rs" }
