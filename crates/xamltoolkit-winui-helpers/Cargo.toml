@@ -12,6 +12,8 @@ windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation_Collections",
     "Foundation_Numerics",
     "Graphics",
+    "Media",
+    "Media_Capture_Frames",
     "UI",
     "UI_Composition",
     "UI_Core",

@@ -57,6 +57,10 @@ fn main() {
         "--reference".to_string(),
         "windows,skip-root,Windows.Graphics".to_string(),
         "--reference".to_string(),
+        "windows,skip-root,Windows.Media".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Media.Capture.Frames".to_string(),
+        "--reference".to_string(),
         "windows,skip-root,Windows.UI".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.UI.Composition".to_string(),
@@ -64,6 +68,10 @@ fn main() {
         "windows,skip-root,Windows.UI.Core".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.UI.Text".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);
@@ -94,8 +102,18 @@ fn main() {
 fn default_filters() -> Vec<String> {
     [
         "Microsoft.UI.Dispatching.DispatcherQueue",
+        "Microsoft.UI.Dispatching.DispatcherQueueHandler",
+        "Microsoft.UI.Dispatching.DispatcherQueuePriority",
+        "Microsoft.UI.Dispatching.DispatcherQueueShutdownStartingEventArgs",
+        "Microsoft.UI.Dispatching.DispatcherQueueTimer",
+        "Microsoft.UI.Dispatching.DispatcherExitDeferral",
+        "Microsoft.UI.Dispatching.DispatcherRunOptions",
         "Microsoft.UI.Xaml.ApplicationTheme",
+        "XamlToolkit.WinUI.Helpers.CameraHelperResult",
+        "XamlToolkit.WinUI.Helpers.CameraHelper",
+        "XamlToolkit.WinUI.Helpers.ColorHelper",
         "XamlToolkit.WinUI.Helpers.DesignTimeHelpers",
+        "XamlToolkit.WinUI.Helpers.FrameEventArgs",
         "XamlToolkit.WinUI.Helpers.ThemeChangedHandler",
         "XamlToolkit.WinUI.Helpers.ThemeListener",
     ]

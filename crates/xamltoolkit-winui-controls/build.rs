@@ -2,8 +2,11 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use windows_metadata::reader;
+
 const CONTROLS_WINMD: &str = "metadata/XamlToolkit.WinUI.Controls.winmd";
 const DEFAULT_DEPS_DIR: &str = "metadata/deps";
+const BINDGEN_WARNINGS_ENV: &str = "XAMLTOOLKIT_WINUI_CONTROLS_BINDGEN_WARNINGS";
 
 fn main() {
     println!("cargo:rerun-if-changed={CONTROLS_WINMD}");
@@ -11,6 +14,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONTROLS_WINMD");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONTROLS_METADATA_DEPS");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONTROLS_FILTERS");
+    println!("cargo:rerun-if-env-changed={BINDGEN_WARNINGS_ENV}");
 
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let controls_winmd = env::var_os("XAMLTOOLKIT_WINUI_CONTROLS_WINMD")
@@ -26,6 +30,7 @@ fn main() {
         .unwrap_or_else(|| manifest_dir.join(DEFAULT_DEPS_DIR));
     let deps = collect_winmd_files(&deps_dir);
 
+    let filters_overridden = env::var_os("XAMLTOOLKIT_WINUI_CONTROLS_FILTERS").is_some();
     let filters = env::var("XAMLTOOLKIT_WINUI_CONTROLS_FILTERS")
         .map(|value| split_filters(&value))
         .unwrap_or_else(|_| {
@@ -41,6 +46,8 @@ fn main() {
                 "Microsoft.UI.Xaml.UIElement".to_string(),
                 "Microsoft.UI.Xaml.FrameworkElement".to_string(),
                 "Microsoft.UI.Xaml.HorizontalAlignment".to_string(),
+                "Microsoft.UI.Xaml.RoutedEventArgs".to_string(),
+                "Microsoft.UI.Xaml.RoutedEventHandler".to_string(),
                 "Microsoft.UI.Xaml.Markup.IXamlMetadataProvider".to_string(),
                 "Microsoft.UI.Xaml.Markup.IXamlType".to_string(),
                 "Microsoft.UI.Xaml.Markup.XmlnsDefinition".to_string(),
@@ -93,6 +100,10 @@ fn main() {
                 "Microsoft.UI.Xaml.Controls.StyleSelector".to_string(),
                 "Microsoft.UI.Xaml.Controls.TextControlPasteEventArgs".to_string(),
                 "Microsoft.UI.Xaml.Controls.Primitives.ButtonBase".to_string(),
+                "Microsoft.UI.Xaml.Controls.Primitives.DragCompletedEventArgs".to_string(),
+                "Microsoft.UI.Xaml.Controls.Primitives.DragCompletedEventHandler".to_string(),
+                "Microsoft.UI.Xaml.Controls.Primitives.DragStartedEventArgs".to_string(),
+                "Microsoft.UI.Xaml.Controls.Primitives.DragStartedEventHandler".to_string(),
                 "Microsoft.UI.Xaml.Controls.Primitives.RangeBase".to_string(),
                 "Microsoft.UI.Xaml.Controls.Primitives.Selector".to_string(),
                 "Microsoft.UI.Xaml.Controls.Primitives.SelectorItem".to_string(),
@@ -100,28 +111,17 @@ fn main() {
                 "Microsoft.UI.Xaml.Controls.TreeView".to_string(),
                 "Microsoft.UI.Xaml.Controls.UIElementCollection".to_string(),
                 "Microsoft.UI.Xaml.Controls.VirtualizingLayout".to_string(),
+                "Microsoft.UI.Xaml.Input.ICommand".to_string(),
                 "Microsoft.UI.Xaml.Media.Brush".to_string(),
+                "Microsoft.UI.Xaml.Media.GeneralTransform".to_string(),
                 "Microsoft.UI.Xaml.Media.ImageSource".to_string(),
                 "Microsoft.UI.Xaml.Media.SolidColorBrush".to_string(),
+                "Microsoft.UI.Xaml.Media.Transform".to_string(),
                 "Microsoft.UI.Xaml.Media.Imaging.BitmapSource".to_string(),
                 "Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap".to_string(),
                 "Microsoft.UI.Xaml.Data.INotifyPropertyChanged".to_string(),
-                "Windows.Foundation.Deferral".to_string(),
-                "Windows.Foundation.IAsyncAction".to_string(),
-                "Windows.Foundation.IReference".to_string(),
-                "Windows.Foundation.Uri".to_string(),
-                "Windows.Foundation.EventHandler".to_string(),
-                "Windows.Foundation.TypedEventHandler".to_string(),
-                "Windows.Foundation.Rect".to_string(),
-                "Windows.Foundation.IStringable".to_string(),
-                "Windows.Foundation.Collections.IObservableVector".to_string(),
-                "Windows.Foundation.Collections.IVector".to_string(),
-                "Windows.Storage.StorageFile".to_string(),
-                "Windows.Storage.Streams.IRandomAccessStream".to_string(),
-                "Windows.UI.Color".to_string(),
                 "Windows.UI.Xaml.Interop.TypeKind".to_string(),
                 "Windows.UI.Xaml.Interop.TypeName".to_string(),
-                "XamlToolkit.WinUI.HsvColor".to_string(),
                 "XamlToolkit.WinUI.Controls.BitmapFileFormat".to_string(),
                 "XamlToolkit.WinUI.Controls.CameraPreview".to_string(),
                 "XamlToolkit.WinUI.Controls.AccentColorConverter".to_string(),
@@ -226,16 +226,75 @@ fn main() {
         "--out".to_string(),
         out_file.display().to_string(),
         "--reference".to_string(),
+        "windows,skip-root,Windows.Foundation".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Foundation.Collections".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Foundation.Numerics".to_string(),
+        "--reference".to_string(),
         "windows,skip-root,Windows.Graphics".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Graphics.DirectX".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Graphics.DirectX.Direct3D11".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Graphics.Imaging".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Media".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Media.Capture".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Media.Capture.Frames".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Media.MediaProperties".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Storage".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Storage.Streams".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI.Composition".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI.Core".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI.Text".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.CameraHelper".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.ICameraHelper".to_string(),
+        "--reference".to_string(),
+        "xamltoolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.ICameraHelperStatics".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);
 
     let warnings = windows_bindgen::bindgen(args);
     if !warnings.is_empty() {
-        println!(
-            "cargo:warning=xamltoolkit-winui-controls generated with skipped inherited WinUI members for the current minimal control projection:\n{warnings}"
-        );
+        let warnings_file = out_dir.join("bindgen-warnings.txt");
+        let warnings_text = format!("{warnings}");
+        fs::write(&warnings_file, warnings_text)
+            .unwrap_or_else(|error| panic!("failed to write {}: {error}", warnings_file.display()));
+
+        let warnings_text = fs::read_to_string(&warnings_file)
+            .unwrap_or_else(|error| panic!("failed to read {}: {error}", warnings_file.display()));
+        if has_toolkit_projection_warning(&warnings_text) {
+            panic!(
+                "windows-bindgen skipped Toolkit projection members for xamltoolkit-winui-controls; see {}",
+                warnings_file.display()
+            );
+        }
+
+        if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
+            println!(
+                "cargo:warning=xamltoolkit-winui-controls bindgen skipped Microsoft supporting projection members; see {}",
+                warnings_file.display()
+            );
+        }
     }
 
     if !out_file.exists() {
@@ -246,6 +305,46 @@ fn main() {
     }
 
     patch_generated_bindings(&out_file);
+
+    if !filters_overridden {
+        assert_controls_surface_generated(&controls_winmd, &out_file);
+    }
+}
+
+fn has_toolkit_projection_warning(warnings: &str) -> bool {
+    warnings.contains("XamlToolkit.WinUI.Controls")
+        || warnings.contains("XamlToolkit.WinUI.Helpers")
+        || warnings.contains("XamlToolkit.WinUI.Converters")
+        || warnings.contains("XamlToolkit.WinUI.HslColor")
+        || warnings.contains("XamlToolkit.WinUI.HsvColor")
+}
+
+fn assert_controls_surface_generated(winmd: &Path, out_file: &Path) {
+    let index = reader::Index::read(winmd)
+        .unwrap_or_else(|| panic!("failed to read WinMD metadata from {}", winmd.display()));
+    let generated = fs::read_to_string(out_file)
+        .unwrap_or_else(|error| panic!("failed to read {}: {error}", out_file.display()));
+
+    let mut missing = Vec::new();
+    for ty in index.types() {
+        if ty.name() == "<Module>" || !ty.namespace().starts_with("XamlToolkit.WinUI.Controls") {
+            continue;
+        }
+
+        let full_name = format!("{}.{}", ty.namespace(), ty.name());
+        if !generated.contains(&full_name) {
+            missing.push(full_name);
+        }
+    }
+
+    missing.sort();
+    missing.dedup();
+    if !missing.is_empty() {
+        panic!(
+            "xamltoolkit-winui-controls generated bindings are missing WinMD Toolkit types:\n{}",
+            missing.join("\n")
+        );
+    }
 }
 
 fn patch_generated_bindings(out_file: &Path) {

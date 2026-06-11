@@ -76,6 +76,15 @@ fn main() {
         fs::write(&warnings_file, warnings_text)
             .unwrap_or_else(|error| panic!("failed to write {}: {error}", warnings_file.display()));
 
+        let warnings_text = fs::read_to_string(&warnings_file)
+            .unwrap_or_else(|error| panic!("failed to read {}: {error}", warnings_file.display()));
+        if has_toolkit_projection_warning(&warnings_text) {
+            panic!(
+                "windows-bindgen skipped Toolkit projection members for xamltoolkit-winui; see {}",
+                warnings_file.display()
+            );
+        }
+
         if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
             println!(
                 "cargo:warning=xamltoolkit-winui bindgen skipped inherited or dependency members; see {}",
@@ -94,8 +103,57 @@ fn main() {
     patch_generated_bindings(&out_file);
 }
 
+fn has_toolkit_projection_warning(warnings: &str) -> bool {
+    warnings.contains("XamlToolkit.WinUI.")
+}
+
 fn default_filters() -> Vec<String> {
     [
+        "Microsoft.UI.Composition.CompositionBrush",
+        "Microsoft.UI.Composition.CompositionClip",
+        "Microsoft.UI.Composition.CompositionObject",
+        "Microsoft.UI.Composition.CompositionShadow",
+        "Microsoft.UI.Composition.Compositor",
+        "Microsoft.UI.Composition.ContainerVisual",
+        "Microsoft.UI.Composition.DropShadow",
+        "Microsoft.UI.Composition.ICompositor",
+        "Microsoft.UI.Composition.ICompositor2",
+        "Microsoft.UI.Composition.ICompositor4",
+        "Microsoft.UI.Composition.ICompositor5",
+        "Microsoft.UI.Composition.ICompositor6",
+        "Microsoft.UI.Composition.ICompositor7",
+        "Microsoft.UI.Composition.ICompositor8",
+        "Microsoft.UI.Composition.ICompositorStatics",
+        "Microsoft.UI.Composition.ICompositorWithProjectedShadow",
+        "Microsoft.UI.Composition.ICompositorWithRadialGradient",
+        "Microsoft.UI.Composition.ICompositorWithVisualSurface",
+        "Microsoft.UI.Composition.ICompositionBrush",
+        "Microsoft.UI.Composition.ICompositionBrushFactory",
+        "Microsoft.UI.Composition.ICompositionClip",
+        "Microsoft.UI.Composition.ICompositionClip2",
+        "Microsoft.UI.Composition.ICompositionClipFactory",
+        "Microsoft.UI.Composition.ICompositionObject",
+        "Microsoft.UI.Composition.ICompositionObject2",
+        "Microsoft.UI.Composition.ICompositionObject3",
+        "Microsoft.UI.Composition.ICompositionObject4",
+        "Microsoft.UI.Composition.ICompositionObject5",
+        "Microsoft.UI.Composition.ICompositionObjectFactory",
+        "Microsoft.UI.Composition.ICompositionObjectStatics",
+        "Microsoft.UI.Composition.ICompositionShadow",
+        "Microsoft.UI.Composition.ICompositionShadowFactory",
+        "Microsoft.UI.Composition.IContainerVisual",
+        "Microsoft.UI.Composition.IContainerVisualFactory",
+        "Microsoft.UI.Composition.IDropShadow",
+        "Microsoft.UI.Composition.IDropShadow2",
+        "Microsoft.UI.Composition.ISpriteVisual",
+        "Microsoft.UI.Composition.ISpriteVisual2",
+        "Microsoft.UI.Composition.IVisual",
+        "Microsoft.UI.Composition.IVisual2",
+        "Microsoft.UI.Composition.IVisual3",
+        "Microsoft.UI.Composition.IVisual4",
+        "Microsoft.UI.Composition.IVisualFactory",
+        "Microsoft.UI.Composition.SpriteVisual",
+        "Microsoft.UI.Composition.Visual",
         "Microsoft.UI.Input.InputSystemCursorShape",
         "Microsoft.UI.Xaml.DependencyObject",
         "Microsoft.UI.Xaml.DependencyProperty",
