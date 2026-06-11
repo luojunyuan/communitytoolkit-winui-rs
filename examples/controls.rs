@@ -141,6 +141,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/CameraPreview/CameraPreview.xaml");
             }
+            "TabbedCommandBar" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/TabbedCommandBar/TabbedCommandBar.xaml",
+                );
+            }
             "ColorPreviewer" => {
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
@@ -247,7 +252,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 19] {
+fn all_visual_samples() -> [VisualSample; 20] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -284,6 +289,10 @@ fn all_visual_samples() -> [VisualSample; 19] {
         VisualSample {
             name: "CameraPreview",
             create: create_camera_preview_sample,
+        },
+        VisualSample {
+            name: "TabbedCommandBar",
+            create: create_tabbed_command_bar_sample,
         },
         VisualSample {
             name: "MetadataControl",
@@ -460,6 +469,14 @@ fn create_camera_preview_sample(
     preview.SetHeight(180.0)?;
     preview.SetIsFrameSourceGroupButtonVisible(true)?;
     Ok(preview.cast()?)
+}
+
+fn create_tabbed_command_bar_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let command_bar = TabbedCommandBar::new()?;
+    command_bar.SetWidth(320.0)?;
+    command_bar.SetHeight(96.0)?;
+    Ok(command_bar.cast()?)
 }
 
 fn create_metadata_control_sample(
