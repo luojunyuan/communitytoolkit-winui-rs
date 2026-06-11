@@ -155,6 +155,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
             }
+            "ColorPickerSlider" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPickerSlider.xaml",
+                );
+            }
             "Sizers" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Sizers/SizerBase.xaml");
             }
@@ -257,7 +262,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 22] {
+fn all_visual_samples() -> [VisualSample; 23] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -310,6 +315,10 @@ fn all_visual_samples() -> [VisualSample; 22] {
         VisualSample {
             name: "ColorPreviewer",
             create: create_color_previewer_sample,
+        },
+        VisualSample {
+            name: "ColorPickerSlider",
+            create: create_color_picker_slider_sample,
         },
         VisualSample {
             name: "Sizers",
@@ -550,6 +559,27 @@ fn create_color_previewer_sample(
     })?;
     previewer.SetShowAccentColors(true)?;
     Ok(previewer.cast()?)
+}
+
+fn create_color_picker_slider_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let slider = ColorPickerSlider::new()?;
+    slider.SetWidth(320.0)?;
+    slider.SetHeight(44.0)?;
+    slider.SetMinimum(0.0)?;
+    slider.SetMaximum(360.0)?;
+    slider.SetValue2(214.0)?;
+    slider.SetColorChannel(ColorChannel::Channel1)?;
+    slider.SetColorRepresentation(ColorRepresentation::Hsva)?;
+    slider.SetHsvColor(HsvColor {
+        H: 214.0,
+        S: 0.74,
+        V: 0.82,
+        A: 1.0,
+    })?;
+    slider.SetIsAutoUpdatingEnabled(true)?;
+    slider.UpdateColors()?;
+    Ok(slider.cast()?)
 }
 
 fn create_sizers_sample(
