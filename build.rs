@@ -2,31 +2,21 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use windows_metadata::{TypeAttributes, reader};
-
 fn main() {
-    windows_reactor_setup::as_self_contained();
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_NATIVE_PLATFORM");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_NATIVE_DIR");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_HELPERS_NATIVE_DIR");
+    println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONTROLS_NATIVE_DIR");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
     let manifest_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
     let platform = env::var("XAMLTOOLKIT_NATIVE_PLATFORM").unwrap_or_else(|_| target_platform());
     let native_projects = native_projects(&manifest_dir, &platform);
-    let manifest_path = out_dir.join("app.manifest");
-    add_toolkit_activation_to_manifest(&manifest_path, &native_projects);
-    println!("cargo:rustc-link-arg-examples=/MANIFEST:EMBED");
-    println!(
-        "cargo:rustc-link-arg-examples=/MANIFESTINPUT:{}",
-        manifest_path.display()
-    );
 
     let target_dir = target_dir_from_out(&out_dir);
     let examples_dir = target_dir.join("examples");
-    copy_runtime_to_examples(&target_dir, &examples_dir);
     copy_toolkit_native_to_examples(&native_projects, &examples_dir);
 }
 
@@ -34,30 +24,26 @@ fn target_dir_from_out(out: &Path) -> PathBuf {
     out.ancestors().nth(3).unwrap_or(out).to_path_buf()
 }
 
-fn native_projects(manifest_dir: &Path, platform: &str) -> Vec<(String, PathBuf)> {
+fn native_projects(manifest_dir: &Path, platform: &str) -> Vec<PathBuf> {
     vec![
-        (
-            "XamlToolkit.WinUI".to_string(),
-            env::var_os("XAMLTOOLKIT_WINUI_NATIVE_DIR")
-                .map(PathBuf::from)
-                .unwrap_or_else(|| toolkit_native_dir(manifest_dir, "xamltoolkit-winui", platform)),
-        ),
-        (
-            "XamlToolkit.WinUI.Converters".to_string(),
-            env::var_os("XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR")
-                .map(PathBuf::from)
-                .unwrap_or_else(|| {
-                    toolkit_native_dir(manifest_dir, "xamltoolkit-winui-converters", platform)
-                }),
-        ),
-        (
-            "XamlToolkit.WinUI.Helpers".to_string(),
-            env::var_os("XAMLTOOLKIT_WINUI_HELPERS_NATIVE_DIR")
-                .map(PathBuf::from)
-                .unwrap_or_else(|| {
-                    toolkit_native_dir(manifest_dir, "xamltoolkit-winui-helpers", platform)
-                }),
-        ),
+        env::var_os("XAMLTOOLKIT_WINUI_NATIVE_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| toolkit_native_dir(manifest_dir, "xamltoolkit-winui", platform)),
+        env::var_os("XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| {
+                toolkit_native_dir(manifest_dir, "xamltoolkit-winui-converters", platform)
+            }),
+        env::var_os("XAMLTOOLKIT_WINUI_HELPERS_NATIVE_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| {
+                toolkit_native_dir(manifest_dir, "xamltoolkit-winui-helpers", platform)
+            }),
+        env::var_os("XAMLTOOLKIT_WINUI_CONTROLS_NATIVE_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| {
+                toolkit_native_dir(manifest_dir, "xamltoolkit-winui-controls", platform)
+            }),
     ]
 }
 
@@ -78,141 +64,8 @@ fn target_platform() -> String {
     }
 }
 
-fn add_toolkit_activation_to_manifest(manifest_path: &Path, native_projects: &[(String, PathBuf)]) {
-    let Ok(mut manifest) = fs::read_to_string(manifest_path) else {
-        println!(
-            "cargo:warning=Windows App SDK manifest not found: {}",
-            manifest_path.display()
-        );
-        return;
-    };
-
-    let mut toolkit_entries = String::new();
-    for (project, native_dir) in native_projects {
-        let winmd = native_dir.join(format!("{project}.winmd"));
-        println!("cargo:rerun-if-changed={}", winmd.display());
-
-        let classes = collect_runtime_classes(&winmd);
-        if classes.is_empty() {
-            println!(
-                "cargo:warning=No runtime classes found in {}",
-                winmd.display()
-            );
-            continue;
-        }
-
-        let missing_classes: Vec<_> = classes
-            .into_iter()
-            .filter(|class| !manifest.contains(&format!("name=\"{class}\"")))
-            .collect();
-
-        if missing_classes.is_empty() {
-            continue;
-        }
-
-        toolkit_entries.push_str(&format!("    <asmv3:file name=\"{project}.dll\">\n"));
-        for class in missing_classes {
-            toolkit_entries.push_str(&format!(
-                "        <winrtv1:activatableClass name=\"{class}\" threadingModel=\"both\"></winrtv1:activatableClass>\n"
-            ));
-        }
-        toolkit_entries.push_str("    </asmv3:file>\n");
-    }
-
-    let marker = "</assembly>";
-    if let Some(index) = manifest.rfind(marker) {
-        manifest.insert_str(index, &toolkit_entries);
-        if let Err(error) = fs::write(manifest_path, manifest) {
-            println!(
-                "cargo:warning=Failed to write Toolkit activation manifest {}: {error}",
-                manifest_path.display()
-            );
-        }
-    } else {
-        println!(
-            "cargo:warning=Windows App SDK manifest did not contain </assembly>: {}",
-            manifest_path.display()
-        );
-    }
-}
-
-fn collect_runtime_classes(winmd: &Path) -> Vec<String> {
-    let Some(index) = reader::Index::read(winmd) else {
-        return Vec::new();
-    };
-
-    let mut classes = Vec::new();
-    for ty in index.types() {
-        if ty.flags().contains(TypeAttributes::WindowsRuntime)
-            && ty.category() == reader::TypeCategory::Class
-            && ty.namespace().starts_with("XamlToolkit.WinUI")
-        {
-            classes.push(format!("{}.{}", ty.namespace(), ty.name()));
-        }
-    }
-
-    classes.sort();
-    classes.dedup();
-    classes
-}
-
-fn copy_runtime_to_examples(target_dir: &Path, examples_dir: &Path) {
-    let _ = fs::create_dir_all(examples_dir);
-
-    let Ok(entries) = fs::read_dir(target_dir) else {
-        return;
-    };
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-        let name = entry.file_name();
-        let name_text = name.to_string_lossy();
-
-        if name_text.eq_ignore_ascii_case("examples")
-            || name_text.eq_ignore_ascii_case("build")
-            || name_text.eq_ignore_ascii_case("deps")
-            || name_text.eq_ignore_ascii_case("incremental")
-            || name_text.eq_ignore_ascii_case(".fingerprint")
-        {
-            continue;
-        }
-
-        if path.is_file() && is_runtime_file(&name_text) {
-            copy_file(&path, &examples_dir.join(name));
-        } else if path.is_dir() && is_runtime_dir(&path) {
-            copy_dir_contents(&path, &examples_dir.join(name));
-        }
-    }
-}
-
-fn is_runtime_file(name: &str) -> bool {
-    let lower = name.to_ascii_lowercase();
-    lower.ends_with(".dll") || lower.ends_with(".pri")
-}
-
-fn is_runtime_dir(path: &Path) -> bool {
-    if path
-        .file_name()
-        .is_some_and(|name| name == "Microsoft.UI.Xaml")
-    {
-        return true;
-    }
-
-    let Ok(entries) = fs::read_dir(path) else {
-        return false;
-    };
-
-    entries.flatten().any(|entry| {
-        entry
-            .path()
-            .file_name()
-            .and_then(|name| name.to_str())
-            .is_some_and(|name| name.eq_ignore_ascii_case("Microsoft.ui.xaml.dll.mui"))
-    })
-}
-
-fn copy_toolkit_native_to_examples(native_projects: &[(String, PathBuf)], examples_dir: &Path) {
-    for (_, native_dir) in native_projects {
+fn copy_toolkit_native_to_examples(native_projects: &[PathBuf], examples_dir: &Path) {
+    for native_dir in native_projects {
         println!("cargo:rerun-if-changed={}", native_dir.display());
         copy_native_project_to_examples(native_dir, examples_dir);
     }
@@ -234,9 +87,6 @@ fn copy_native_project_to_examples(native_dir: &Path, examples_dir: &Path) {
 
         if path.is_file() {
             if should_copy_toolkit_file(&name) {
-                if name.eq_ignore_ascii_case("Microsoft.WindowsAppRuntime.Bootstrap.dll") {
-                    continue;
-                }
                 copy_file(&path, &examples_dir.join(file_name));
             }
         } else if path.is_dir() {

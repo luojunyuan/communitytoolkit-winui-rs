@@ -33,12 +33,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustc-hash"
-version = "2.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94300abf3f1ae2e2b8ffb7b58043de3d399c73fa6f4b73826402a5c457614dbe"
-
-[[package]]
 name = "serde"
 version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -193,26 +187,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows-reactor"
-version = "0.0.0"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
-dependencies = [
- "rustc-hash",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "windows-reference",
- "windows-threading",
- "windows-time",
-]
-
-[[package]]
-name = "windows-reactor-setup"
-version = "0.0.0"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
-
-[[package]]
 name = "windows-reference"
 version = "0.1.0"
 source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
@@ -259,12 +233,9 @@ name = "xamltoolkit-rs"
 version = "0.1.0"
 dependencies = [
  "windows",
- "windows-collections",
  "windows-core",
- "windows-metadata",
- "windows-reactor",
- "windows-reactor-setup",
  "xamltoolkit-winui",
+ "xamltoolkit-winui-controls",
  "xamltoolkit-winui-converters",
  "xamltoolkit-winui-helpers",
 ]
@@ -281,6 +252,24 @@ dependencies = [
  "windows-numerics",
  "windows-reference",
  "windows-time",
+]
+
+[[package]]
+name = "xamltoolkit-winui-controls"
+version = "0.1.0"
+dependencies = [
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-metadata",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+ "xamltoolkit-winui",
+ "xamltoolkit-winui-converters",
+ "xamltoolkit-winui-helpers",
 ]
 
 [[package]]

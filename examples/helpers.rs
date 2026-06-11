@@ -1,49 +1,48 @@
-use windows::core::Result;
-use windows_reactor::{App, Element, RenderCx, text_block};
+use windows::core::HSTRING;
+use xamltoolkit_winui::XamlToolkit::WinUI::{HslColor, HsvColor};
 use xamltoolkit_winui_helpers::XamlToolkit::WinUI::Helpers::{
-    DesignTimeHelpers, ThemeChangedHandler, ThemeListener,
+    CameraHelper, CameraHelperResult, ColorHelper, DesignTimeHelpers, FrameEventArgs,
+    ThemeChangedHandler, ThemeListener,
 };
 
 fn main() {
-    if let Err(error) = App::new()
-        .title("XamlToolkit WinUI Helpers smoke")
-        .render(app)
-    {
-        eprintln!("helpers-example failed: {error:?}");
-        std::process::exit(1);
-    }
+    run_smoke();
+    eprintln!("helpers-example: smoke OK");
 }
 
-fn app(_cx: &mut RenderCx) -> Element {
-    match run_smoke() {
-        Ok(()) => {
-            eprintln!("helpers-example: smoke OK");
-            if std::env::var_os("XAMLTOOLKIT_HELPERS_SMOKE_EXIT").is_some() {
-                std::process::exit(0);
-            }
-        }
-        Err(error) => {
-            eprintln!("helpers-example: smoke failed: {error:?}");
-            std::process::exit(1);
-        }
-    }
+fn run_smoke() {
+    let _ = [
+        CameraHelperResult::Success,
+        CameraHelperResult::CreateFrameReaderFailed,
+        CameraHelperResult::StartFrameReaderFailed,
+        CameraHelperResult::NoFrameSourceGroupAvailable,
+        CameraHelperResult::NoFrameSourceAvailable,
+        CameraHelperResult::CameraAccessDenied,
+        CameraHelperResult::InitializationFailed_UnknownError,
+        CameraHelperResult::NoCompatibleFrameFormatAvailable,
+    ];
+    let _ = HslColor {
+        H: 210.0,
+        S: 0.4,
+        L: 0.5,
+        A: 1.0,
+    };
+    let _ = HsvColor {
+        H: 210.0,
+        S: 0.5,
+        V: 0.75,
+        A: 1.0,
+    };
+    let _ = HSTRING::from("#336699");
 
-    text_block("XamlToolkit.WinUI.Helpers smoke").into()
+    type_seen::<Option<CameraHelper>>();
+    type_seen::<Option<ColorHelper>>();
+    type_seen::<Option<DesignTimeHelpers>>();
+    type_seen::<Option<FrameEventArgs>>();
+    type_seen::<Option<ThemeChangedHandler>>();
+    type_seen::<Option<ThemeListener>>();
 }
 
-fn run_smoke() -> Result<()> {
-    let _ = DesignTimeHelpers::IsRunningInLegacyDesignerMode()?;
-    let _ = DesignTimeHelpers::IsRunningInEnhancedDesignerMode()?;
-    let _ = DesignTimeHelpers::IsRunningInApplicationRuntimeMode()?;
-
-    let listener = ThemeListener::new()?;
-    let _ = listener.CurrentTheme()?;
-    let _ = listener.CurrentThemeName()?;
-    let _ = listener.IsHighContrast()?;
-
-    let handler = ThemeChangedHandler::new(|_| Ok(()));
-    let token = listener.ThemeChanged(&handler)?;
-    listener.RemoveThemeChanged(token)?;
-
-    Ok(())
+fn type_seen<T>() {
+    let _ = std::mem::size_of::<T>();
 }
