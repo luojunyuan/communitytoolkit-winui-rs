@@ -70,7 +70,10 @@ Environment overrides are available for metadata experiments:
 $env:XAMLTOOLKIT_WINUI_WINMD = "C:\path\to\XamlToolkit.WinUI.winmd"
 $env:XAMLTOOLKIT_WINUI_METADATA_DEPS = "C:\path\to\metadata-deps"
 $env:XAMLTOOLKIT_WINUI_FILTERS = "XamlToolkit.WinUI.HsvColor;XamlToolkit.WinUI.TextIconExtension"
+$env:XAMLTOOLKIT_WINUI_BINDGEN_WARNINGS = "1"
 ```
+
+`XAMLTOOLKIT_WINUI_BINDGEN_WARNINGS=1` prints the `windows-bindgen` skip summary. By default the crate writes that detail to `target/.../bindgen-warnings.txt` without surfacing a Cargo warning, because the default projection intentionally keeps WinUI/Composition support types minimal instead of generating the full inherited WinUI surface.
 
 ## Runtime smoke
 

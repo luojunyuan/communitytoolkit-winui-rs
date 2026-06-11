@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 const TOOLKIT_WINMD: &str = "metadata/XamlToolkit.WinUI.winmd";
 const DEFAULT_DEPS_DIR: &str = "metadata/deps";
+const BINDGEN_WARNINGS_ENV: &str = "XAMLTOOLKIT_WINUI_BINDGEN_WARNINGS";
 
 fn main() {
     println!("cargo:rerun-if-changed={TOOLKIT_WINMD}");
@@ -11,6 +12,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_WINMD");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_METADATA_DEPS");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_FILTERS");
+    println!("cargo:rerun-if-env-changed={BINDGEN_WARNINGS_ENV}");
 
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let toolkit_winmd = env::var_os("XAMLTOOLKIT_WINUI_WINMD")
@@ -69,9 +71,17 @@ fn main() {
 
     let warnings = windows_bindgen::bindgen(args);
     if !warnings.is_empty() {
-        println!(
-            "cargo:warning=xamltoolkit-winui generated with skipped inherited or dependency members for the current projection:\n{warnings}"
-        );
+        let warnings_file = out_dir.join("bindgen-warnings.txt");
+        let warnings_text = format!("{warnings}");
+        fs::write(&warnings_file, warnings_text)
+            .unwrap_or_else(|error| panic!("failed to write {}: {error}", warnings_file.display()));
+
+        if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
+            println!(
+                "cargo:warning=xamltoolkit-winui bindgen skipped inherited or dependency members; see {}",
+                warnings_file.display()
+            );
+        }
     }
 
     if !out_file.exists() {
