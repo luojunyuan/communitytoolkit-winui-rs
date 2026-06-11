@@ -13,7 +13,7 @@ use xamltoolkit_winui_controls::Microsoft::UI::Xaml::Controls::{
 };
 use xamltoolkit_winui_controls::Microsoft::UI::Xaml::{
     Application as NativeApplication, DataTemplate, HorizontalAlignment, ResourceDictionary, Style,
-    Thickness as XamlThickness,
+    Thickness as XamlThickness, UIElement,
 };
 use xamltoolkit_winui_controls::Windows::Foundation::{Rect, Uri};
 use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::Primitives::{
@@ -129,6 +129,9 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                 sources
                     .push("ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPreviewer.xaml");
             }
+            "Sizers" => {
+                sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Sizers/SizerBase.xaml");
+            }
             "RadialGauge" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/RadialGauge/RadialGauge.xaml");
             }
@@ -228,7 +231,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 15] {
+fn all_visual_samples() -> [VisualSample; 16] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -261,6 +264,10 @@ fn all_visual_samples() -> [VisualSample; 15] {
         VisualSample {
             name: "ColorPreviewer",
             create: create_color_previewer_sample,
+        },
+        VisualSample {
+            name: "Sizers",
+            create: create_sizers_sample,
         },
         VisualSample {
             name: "RangeSelector",
@@ -428,6 +435,46 @@ fn create_color_previewer_sample(
     })?;
     previewer.SetShowAccentColors(true)?;
     Ok(previewer.cast()?)
+}
+
+fn create_sizers_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let panel = WrapPanel::new()?;
+    panel.SetWidth(320.0)?;
+    panel.SetHeight(96.0)?;
+    panel.SetHorizontalSpacing(10.0)?;
+    panel.SetVerticalSpacing(8.0)?;
+
+    let property = PropertySizer::new()?;
+    property.SetWidth(88.0)?;
+    property.SetHeight(32.0)?;
+    property.SetOrientation(Orientation::Horizontal)?;
+    property.SetBinding(120.0)?;
+    property.SetMinimum(40.0)?;
+    property.SetMaximum(360.0)?;
+    property.SetDragIncrement(4.0)?;
+    let property: UIElement = property.cast()?;
+    panel.Children()?.Append(&property)?;
+
+    let content = ContentSizer::new()?;
+    content.SetWidth(88.0)?;
+    content.SetHeight(32.0)?;
+    content.SetOrientation(Orientation::Horizontal)?;
+    content.SetKeyboardIncrement(8.0)?;
+    content.SetIsThumbVisible(true)?;
+    let content: UIElement = content.cast()?;
+    panel.Children()?.Append(&content)?;
+
+    let splitter = GridSplitter::new()?;
+    splitter.SetWidth(88.0)?;
+    splitter.SetHeight(32.0)?;
+    splitter.SetResizeDirection(GridResizeDirection::Columns)?;
+    splitter.SetResizeBehavior(GridResizeBehavior::CurrentAndNext)?;
+    splitter.SetOrientation(Orientation::Vertical)?;
+    let splitter: UIElement = splitter.cast()?;
+    panel.Children()?.Append(&splitter)?;
+
+    Ok(panel.cast()?)
 }
 
 fn create_range_selector_sample(
