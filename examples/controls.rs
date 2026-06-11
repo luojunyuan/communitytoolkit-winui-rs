@@ -160,6 +160,11 @@ fn toolkit_resource_dictionaries_for(samples: &[VisualSample]) -> Vec<&'static s
                     "ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPickerSlider.xaml",
                 );
             }
+            "ColorPickerButton" => {
+                sources.push(
+                    "ms-appx:///XamlToolkit.WinUI.Controls/ColorPicker/ColorPickerButton.xaml",
+                );
+            }
             "Sizers" => {
                 sources.push("ms-appx:///XamlToolkit.WinUI.Controls/Sizers/SizerBase.xaml");
             }
@@ -262,7 +267,7 @@ fn selected_visual_samples() -> Vec<VisualSample> {
     }
 }
 
-fn all_visual_samples() -> [VisualSample; 23] {
+fn all_visual_samples() -> [VisualSample; 24] {
     [
         VisualSample {
             name: "WrapPanel",
@@ -319,6 +324,10 @@ fn all_visual_samples() -> [VisualSample; 23] {
         VisualSample {
             name: "ColorPickerSlider",
             create: create_color_picker_slider_sample,
+        },
+        VisualSample {
+            name: "ColorPickerButton",
+            create: create_color_picker_button_sample,
         },
         VisualSample {
             name: "Sizers",
@@ -580,6 +589,15 @@ fn create_color_picker_slider_sample(
     slider.SetIsAutoUpdatingEnabled(true)?;
     slider.UpdateColors()?;
     Ok(slider.cast()?)
+}
+
+fn create_color_picker_button_sample(
+) -> windows::core::Result<xamltoolkit_winui_controls::Microsoft::UI::Xaml::UIElement> {
+    let button = ColorPickerButton::new()?;
+    button.SetWidth(180.0)?;
+    button.SetHeight(36.0)?;
+    button.SetContent(&boxed_string("Accent")?)?;
+    Ok(button.cast()?)
 }
 
 fn create_sizers_sample(
