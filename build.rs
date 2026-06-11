@@ -6,16 +6,17 @@ use windows_metadata::{TypeAttributes, reader};
 
 fn main() {
     windows_reactor_setup::as_self_contained();
+    println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_NATIVE_PLATFORM");
+    println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_NATIVE_DIR");
+    println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
     let manifest_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
     let platform = env::var("XAMLTOOLKIT_NATIVE_PLATFORM").unwrap_or_else(|_| target_platform());
-    let native_dir = env::var_os("XAMLTOOLKIT_WINUI_NATIVE_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| toolkit_native_dir(&manifest_dir, &platform));
+    let native_projects = native_projects(&manifest_dir, &platform);
     let manifest_path = out_dir.join("app.manifest");
-    add_toolkit_activation_to_manifest(&manifest_path, &native_dir);
+    add_toolkit_activation_to_manifest(&manifest_path, &native_projects);
     println!("cargo:rustc-link-arg-examples=/MANIFEST:EMBED");
     println!(
         "cargo:rustc-link-arg-examples=/MANIFESTINPUT:{}",
@@ -25,17 +26,36 @@ fn main() {
     let target_dir = target_dir_from_out(&out_dir);
     let examples_dir = target_dir.join("examples");
     copy_runtime_to_examples(&target_dir, &examples_dir);
-    copy_toolkit_native_to_examples(&native_dir, &examples_dir);
+    copy_toolkit_native_to_examples(&native_projects, &examples_dir);
 }
 
 fn target_dir_from_out(out: &Path) -> PathBuf {
     out.ancestors().nth(3).unwrap_or(out).to_path_buf()
 }
 
-fn toolkit_native_dir(manifest_dir: &Path, platform: &str) -> PathBuf {
+fn native_projects(manifest_dir: &Path, platform: &str) -> Vec<(String, PathBuf)> {
+    vec![
+        (
+            "XamlToolkit.WinUI".to_string(),
+            env::var_os("XAMLTOOLKIT_WINUI_NATIVE_DIR")
+                .map(PathBuf::from)
+                .unwrap_or_else(|| toolkit_native_dir(manifest_dir, "xamltoolkit-winui", platform)),
+        ),
+        (
+            "XamlToolkit.WinUI.Converters".to_string(),
+            env::var_os("XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR")
+                .map(PathBuf::from)
+                .unwrap_or_else(|| {
+                    toolkit_native_dir(manifest_dir, "xamltoolkit-winui-converters", platform)
+                }),
+        ),
+    ]
+}
+
+fn toolkit_native_dir(manifest_dir: &Path, crate_name: &str, platform: &str) -> PathBuf {
     manifest_dir
         .join("crates")
-        .join("xamltoolkit-winui")
+        .join(crate_name)
         .join("metadata")
         .join("native")
         .join(platform)
@@ -49,7 +69,7 @@ fn target_platform() -> String {
     }
 }
 
-fn add_toolkit_activation_to_manifest(manifest_path: &Path, native_dir: &Path) {
+fn add_toolkit_activation_to_manifest(manifest_path: &Path, native_projects: &[(String, PathBuf)]) {
     let Ok(mut manifest) = fs::read_to_string(manifest_path) else {
         println!(
             "cargo:warning=Windows App SDK manifest not found: {}",
@@ -59,7 +79,7 @@ fn add_toolkit_activation_to_manifest(manifest_path: &Path, native_dir: &Path) {
     };
 
     let mut toolkit_entries = String::new();
-    for project in ["XamlToolkit.WinUI"] {
+    for (project, native_dir) in native_projects {
         let winmd = native_dir.join(format!("{project}.winmd"));
         println!("cargo:rerun-if-changed={}", winmd.display());
 
@@ -182,9 +202,11 @@ fn is_runtime_dir(path: &Path) -> bool {
     })
 }
 
-fn copy_toolkit_native_to_examples(native_dir: &Path, examples_dir: &Path) {
-    println!("cargo:rerun-if-changed={}", native_dir.display());
-    copy_native_project_to_examples(native_dir, examples_dir);
+fn copy_toolkit_native_to_examples(native_projects: &[(String, PathBuf)], examples_dir: &Path) {
+    for (_, native_dir) in native_projects {
+        println!("cargo:rerun-if-changed={}", native_dir.display());
+        copy_native_project_to_examples(native_dir, examples_dir);
+    }
 }
 
 fn copy_native_project_to_examples(native_dir: &Path, examples_dir: &Path) {

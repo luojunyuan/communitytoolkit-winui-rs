@@ -265,10 +265,25 @@ dependencies = [
  "windows-reactor",
  "windows-reactor-setup",
  "xamltoolkit-winui",
+ "xamltoolkit-winui-converters",
 ]
 
 [[package]]
 name = "xamltoolkit-winui"
+version = "0.1.0"
+dependencies = [
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+]
+
+[[package]]
+name = "xamltoolkit-winui-converters"
 version = "0.1.0"
 dependencies = [
  "windows",

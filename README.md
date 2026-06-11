@@ -2,7 +2,7 @@
 
 Rust projection workspace for `CommunityToolkit.WinUI` / `XamlToolkit.WinUI`.
 
-The root `xamltoolkit-winui` crate projects the public root `XamlToolkit.WinUI` WinRT surface from the produced Toolkit WinMD. The other projection crates are kept in the repository for later expansion, but the workspace currently builds only the root crate.
+The `xamltoolkit-winui` crate projects the public root `XamlToolkit.WinUI` WinRT surface from the produced Toolkit WinMD. The `xamltoolkit-winui-converters` crate projects the full `XamlToolkit.WinUI.Converters` WinRT surface from its produced WinMD. Other projection crates remain parked for later expansion.
 
 The source C++/WinRT repository is checked out as a git submodule under this workspace:
 
@@ -17,40 +17,51 @@ The Rust Windows projection/runtime crates are pulled from the official `microso
 
 ```text
 crates/xamltoolkit-winui             root XamlToolkit.WinUI projection crate
+crates/xamltoolkit-winui-converters  XamlToolkit.WinUI.Converters projection crate
 crates/xamltoolkit-winui-controls    XamlToolkit.WinUI.Controls projection crate
 crates/xamltoolkit-winui-helpers     XamlToolkit.WinUI.Helpers projection crate, parked for later
-crates/xamltoolkit-winui-converters  XamlToolkit.WinUI.Converters projection crate, parked for later
 examples/root.rs                     root projection smoke executable
-examples/controls.rs                 Controls sample/smoke executable
+examples/converters.rs               Converters projection smoke executable
+examples/controls.rs                 Controls sample source, parked for later
 ```
 
 ## Metadata
 
-`crates/xamltoolkit-winui/metadata` is checked in so the crate can build and run the root smoke example without the upstream repository being present. It contains the projection WinMD, dependency WinMD files, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). To refresh it from upstream build output and package metadata:
+`crates/xamltoolkit-winui/metadata` and `crates/xamltoolkit-winui-converters/metadata` are checked in so the crates can build and run smoke examples without the upstream repository being present. Each metadata directory contains the projection WinMD, dependency WinMD files, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). To refresh root metadata from upstream build output and package metadata:
 
 ```powershell
 cd crates\xamltoolkit-winui
 .\sync-metadata.ps1
 ```
 
-The sync helper copies `XamlToolkit.WinUI.winmd` and native runtime artifacts from the selected upstream Release output and discovers Windows App SDK metadata versions from `submodules\CommunityToolkit.WinUI\packages`. `Win32` output is accepted from `submodules\CommunityToolkit.WinUI\Release\XamlToolkit.WinUI`; `x64` and `ARM64` use `submodules\CommunityToolkit.WinUI\<platform>\Release\XamlToolkit.WinUI`.
+To refresh Converters metadata:
+
+```powershell
+cd crates\xamltoolkit-winui-converters
+.\sync-metadata.ps1
+```
+
+The sync helpers copy produced WinMD/native runtime artifacts from the selected upstream Release output and discover Windows App SDK metadata versions from `submodules\CommunityToolkit.WinUI\packages`. `Win32` output is accepted from `submodules\CommunityToolkit.WinUI\Release\<project>`; `x64` and `ARM64` use `submodules\CommunityToolkit.WinUI\<platform>\Release\<project>`.
 
 ## Validate
 
 ```powershell
 cargo fmt --check
 cargo check -p xamltoolkit-winui
+cargo check -p xamltoolkit-winui-converters
 cargo check --example root
+cargo check --example converters
 cargo check --workspace
 ```
 
-Run the root smoke example with:
+Run the smoke examples with:
 
 ```powershell
 cargo run --example root
+cargo run --example converters
 ```
 
-Runtime activation requires Toolkit DLL/PRI assets next to the executable. The workspace `build.rs` copies the checked-in native artifacts from `crates\xamltoolkit-winui\metadata\native\<platform>` by default, where `<platform>` follows the Cargo target architecture (`ARM64`, `x64`, or `Win32`). Use `XAMLTOOLKIT_NATIVE_PLATFORM` or `XAMLTOOLKIT_WINUI_NATIVE_DIR` to override that mapping.
+Runtime activation requires Toolkit DLL/PRI assets next to the executable. The workspace `build.rs` copies the checked-in native artifacts from each active crate's `metadata\native\<platform>` directory by default, where `<platform>` follows the Cargo target architecture (`ARM64`, `x64`, or `Win32`). Use `XAMLTOOLKIT_NATIVE_PLATFORM`, `XAMLTOOLKIT_WINUI_NATIVE_DIR`, or `XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR` to override that mapping.
 
 ## Expansion Plan
 
