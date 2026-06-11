@@ -6,17 +6,11 @@ publish = false
 build = "build.rs"
 
 [workspace]
-members = [
-    "crates/xamltoolkit-winui",
-    "crates/xamltoolkit-winui-converters",
-    "crates/xamltoolkit-winui-controls",
-    "crates/xamltoolkit-winui-helpers",
-]
+members = ["crates/xamltoolkit-winui"]
 resolver = "2"
 
 [dependencies]
 xamltoolkit-winui = { path = "crates/xamltoolkit-winui" }
-xamltoolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
 windows = { version = "0.62.2", features = ["Foundation", "UI"] }
 windows-collections = "0.3.2"
 windows-core = "0.62.2"
@@ -25,10 +19,6 @@ windows-reactor = { path = "../windows-rs-62af965-patched/crates/libs/reactor" }
 [build-dependencies]
 windows-metadata = { path = "../windows-rs-62af965-patched/crates/libs/metadata" }
 windows-reactor-setup = { path = "../windows-rs-62af965-patched/crates/libs/reactor-setup" }
-
-[[example]]
-name = "controls"
-path = "examples/controls.rs"
 
 [[example]]
 name = "root"

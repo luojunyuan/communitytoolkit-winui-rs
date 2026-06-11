@@ -248,7 +248,6 @@ dependencies = [
  "windows-reactor",
  "windows-reactor-setup",
  "xamltoolkit-winui",
- "xamltoolkit-winui-controls",
 ]
 
 [[package]]
@@ -263,47 +262,6 @@ dependencies = [
  "windows-numerics",
  "windows-reference",
  "windows-time",
-]
-
-[[package]]
-name = "xamltoolkit-winui-controls"
-version = "0.1.0"
-dependencies = [
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "windows-reference",
- "windows-time",
- "xamltoolkit-winui",
-]
-
-[[package]]
-name = "xamltoolkit-winui-converters"
-version = "0.1.0"
-dependencies = [
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "xamltoolkit-winui",
-]
-
-[[package]]
-name = "xamltoolkit-winui-helpers"
-version = "0.1.0"
-dependencies = [
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "xamltoolkit-winui",
 ]
 
 [[package]]
