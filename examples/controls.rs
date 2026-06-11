@@ -27,14 +27,16 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     HeaderedItemsControl, HeaderedTreeView, ImageCropper, ImageCropperThumb,
     InterspersedObservableVector, LayoutTransformControl, MetadataControl, MetadataItem,
     NullToTransparentConverter, PretokenStringContainer, PreviewFailedEventArgs, PropertySizer,
-    RadialGauge, RadialGaugeAutomationPeer, RangeSelector, RichSuggestBox, RichSuggestToken,
-    Segmented, SegmentedItem, SegmentedMarginConverter, SettingsCard, SettingsCardAutomationPeer,
-    SettingsExpander, SettingsExpanderAutomationPeer, SettingsExpanderItemStyleSelector,
-    SizerAutomationPeer, StaggeredLayout, StaggeredLayoutItemsStretch, StaggeredPanel,
-    StretchChild, StyleExtensionResourceDictionary, StyleExtensions, SuggestionChosenEventArgs,
-    SuggestionPopupPlacementMode, SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter,
-    TabbedCommandBar, TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement,
-    ThumbPosition, TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
+    RadialGauge, RadialGaugeAutomationPeer, RangeChangedEventArgs, RangeSelector,
+    RangeSelectorProperty, RichSuggestBox, RichSuggestToken, RichSuggestTokenPointerOverEventArgs,
+    RichSuggestTokenSelectedEventArgs, Segmented, SegmentedItem, SegmentedMarginConverter,
+    SettingsCard, SettingsCardAutomationPeer, SettingsExpander, SettingsExpanderAutomationPeer,
+    SettingsExpanderItemStyleSelector, SizerAutomationPeer, StaggeredLayout,
+    StaggeredLayoutItemsStretch, StaggeredPanel, StretchChild, StyleExtensionResourceDictionary,
+    StyleExtensions, SuggestionChosenEventArgs, SuggestionPopupPlacementMode,
+    SuggestionRequestedEventArgs, SwitchConverter, SwitchPresenter, TabbedCommandBar,
+    TabbedCommandBarItem, TabbedCommandBarItemTemplateSelector, ThumbPlacement, ThumbPosition,
+    TokenItemAddingEventArgs, TokenItemRemovingEventArgs, TokenizingTextBox,
     TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem, TokenizingTextBoxStyleSelector,
     UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
@@ -1026,6 +1028,7 @@ fn verify_layout_controls() -> String {
         verify_style_extensions(),
         verify_corner_radius_converter(),
         verify_range_selector(),
+        verify_range_changed_event_args(),
         verify_case_collection(),
         verify_switch_converter(),
         verify_switch_presenter(),
@@ -1042,6 +1045,8 @@ fn verify_layout_controls() -> String {
         verify_tokenizing_text_box_automation_peer(),
         verify_rich_suggest_box(),
         verify_rich_suggest_token(),
+        verify_rich_suggest_token_selected_event_args(),
+        verify_rich_suggest_token_pointer_over_event_args(),
         verify_suggestion_requested_event_args(),
         verify_suggestion_chosen_event_args(),
     ];
@@ -1877,6 +1882,25 @@ fn verify_range_selector() -> String {
     }
 }
 
+fn verify_range_changed_event_args() -> String {
+    eprintln!("controls-example: before RangeChangedEventArgs::CreateInstance");
+    match RangeChangedEventArgs::CreateInstance(10.0, 30.0, RangeSelectorProperty::MinimumValue) {
+        Ok(args) => {
+            eprintln!("controls-example: RangeChangedEventArgs::CreateInstance OK");
+            let old = args.OldValue();
+            let new = args.NewValue();
+            let property = args.ChangedRangeProperty();
+            eprintln!(
+                "controls-example: RangeChangedEventArgs.OldValue={old:?}, NewValue={new:?}, ChangedRangeProperty={property:?}"
+            );
+            format!("RangeChangedEventArgs OK ({old:?}, {new:?}, {property:?})")
+        }
+        Err(error) => {
+            eprintln!("controls-example: RangeChangedEventArgs::CreateInstance failed: {error:?}");
+            format!("RangeChangedEventArgs failed: {error:?}")
+        }
+    }
+}
 fn verify_case_collection() -> String {
     eprintln!("controls-example: before CaseCollection::new");
     match CaseCollection::new() {
@@ -2242,6 +2266,69 @@ fn verify_rich_suggest_token() -> String {
     }
 }
 
+fn verify_rich_suggest_token_selected_event_args() -> String {
+    eprintln!("controls-example: before RichSuggestTokenSelectedEventArgs::new");
+    match (
+        RichSuggestTokenSelectedEventArgs::new(),
+        RichSuggestToken::CreateInstance(
+            GUID::from_u128(0x87654321_4321_6789_abcd_ef0123456789),
+            &HSTRING::from("Bob"),
+        ),
+    ) {
+        (Ok(args), Ok(token)) => {
+            eprintln!("controls-example: RichSuggestTokenSelectedEventArgs::new OK");
+            let set = args.SetToken(&token);
+            let read = args.Token().map(|_| ());
+            eprintln!(
+                "controls-example: RichSuggestTokenSelectedEventArgs.SetToken={set:?}, Token={read:?}"
+            );
+            format!("RichSuggestTokenSelectedEventArgs OK ({set:?}, {read:?})")
+        }
+        (Err(error), _) => {
+            eprintln!("controls-example: RichSuggestTokenSelectedEventArgs::new failed: {error:?}");
+            format!("RichSuggestTokenSelectedEventArgs failed: {error:?}")
+        }
+        (_, Err(error)) => {
+            eprintln!(
+                "controls-example: RichSuggestTokenSelectedEventArgs token failed: {error:?}"
+            );
+            format!("RichSuggestTokenSelectedEventArgs token failed: {error:?}")
+        }
+    }
+}
+
+fn verify_rich_suggest_token_pointer_over_event_args() -> String {
+    eprintln!("controls-example: before RichSuggestTokenPointerOverEventArgs::new");
+    match (
+        RichSuggestTokenPointerOverEventArgs::new(),
+        RichSuggestToken::CreateInstance(
+            GUID::from_u128(0xabcdef01_2345_6789_abcd_ef0123456789),
+            &HSTRING::from("Carol"),
+        ),
+    ) {
+        (Ok(args), Ok(token)) => {
+            eprintln!("controls-example: RichSuggestTokenPointerOverEventArgs::new OK");
+            let set = args.SetToken(&token);
+            let read = args.Token().map(|_| ());
+            eprintln!(
+                "controls-example: RichSuggestTokenPointerOverEventArgs.SetToken={set:?}, Token={read:?}"
+            );
+            format!("RichSuggestTokenPointerOverEventArgs OK ({set:?}, {read:?})")
+        }
+        (Err(error), _) => {
+            eprintln!(
+                "controls-example: RichSuggestTokenPointerOverEventArgs::new failed: {error:?}"
+            );
+            format!("RichSuggestTokenPointerOverEventArgs failed: {error:?}")
+        }
+        (_, Err(error)) => {
+            eprintln!(
+                "controls-example: RichSuggestTokenPointerOverEventArgs token failed: {error:?}"
+            );
+            format!("RichSuggestTokenPointerOverEventArgs token failed: {error:?}")
+        }
+    }
+}
 fn verify_suggestion_requested_event_args() -> String {
     eprintln!("controls-example: before SuggestionRequestedEventArgs::new");
     match SuggestionRequestedEventArgs::new() {
