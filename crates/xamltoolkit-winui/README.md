@@ -1,68 +1,70 @@
 # xamltoolkit-winui
 
-Minimal Rust projection experiment for `XamlToolkit.WinUI`.
+Rust WinRT projection crate for the root `XamlToolkit.WinUI` native component.
 
-This crate validates the intended Rust support path:
+This crate consumes the checked-in WinMD metadata under `metadata/` and generates Rust bindings with `windows-bindgen` during `cargo check` or `cargo build`. It does not generate WinMD from IDL and does not require `midlrt`.
 
-```text
-IDL -> native C++/WinRT build or MIDL metadata generation -> XamlToolkit.WinUI.winmd -> windows-bindgen -> Rust bindings
-```
+## Metadata source
 
-The default generation target is deliberately small:
+The regular source of `metadata/XamlToolkit.WinUI.winmd` is the native build output from the upstream Toolkit repository:
 
 ```text
-XamlToolkit.WinUI.HslColor
-XamlToolkit.WinUI.HsvColor
+CommunityToolkit.WinUI\x64\Release\XamlToolkit.WinUI\XamlToolkit.WinUI.winmd
 ```
 
-These two structs come from the root `XamlToolkit.WinUI` module and avoid the large WinUI/XAML object dependency graph. This proves that custom toolkit WinMD metadata can be consumed by `windows-rs` before expanding to runtime classes and controls.
-
-## Required metadata
-
-The checked-in experiment expects metadata here:
+The dependency metadata comes from the upstream repository's restored packages, especially:
 
 ```text
-xamltoolkit-rs/metadata/XamlToolkit.WinUI.winmd
-xamltoolkit-rs/metadata/deps/*.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Text.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.UI.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.Foundation.winmd
 ```
 
-`metadata/deps` should contain the WinUI/Windows metadata needed by the toolkit WinMD, for example:
+Run the sync helper after rebuilding upstream metadata:
 
-```text
-Microsoft.Foundation.winmd
-Microsoft.UI.winmd
-Microsoft.UI.Text.winmd
-Microsoft.UI.Xaml.winmd
-Windows.winmd
+```powershell
+cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs\crates\xamltoolkit-winui
+.\sync-metadata.ps1
 ```
 
-Equivalent environment variables are supported:
+`sync-metadata.ps1` only copies produced metadata. It discovers `CommunityToolkit.WinUI` first as a future submodule under `xamltoolkit-rs`, then as the current sibling directory, and it infers Windows App SDK package versions from `CommunityToolkit.WinUI\packages`.
+
+## Projection scope
+
+The default filter covers the root `XamlToolkit.WinUI` public WinRT surface exposed by the produced WinMD, including:
+
+- color structs: `HslColor`, `HsvColor`
+- UI and framework extensions
+- rect, matrix, transform, and visual extensions
+- icon markup extensions
+- state triggers
+- attached shadow and effects contracts
+
+`Windows.*` APIs are referenced from the `windows` crate where available. The generated projection includes only the Toolkit root namespace and the Microsoft WinUI support types needed to compile against the Toolkit WinMD.
+
+## Build
+
+```powershell
+cd C:\Users\kimika\Documents\communitytoolkit\xamltoolkit-rs
+cargo check -p xamltoolkit-winui
+cargo check --example root
+```
+
+Environment overrides are available for metadata experiments:
 
 ```powershell
 $env:XAMLTOOLKIT_WINUI_WINMD = "C:\path\to\XamlToolkit.WinUI.winmd"
 $env:XAMLTOOLKIT_WINUI_METADATA_DEPS = "C:\path\to\metadata-deps"
-cargo check
+$env:XAMLTOOLKIT_WINUI_FILTERS = "XamlToolkit.WinUI.HsvColor;XamlToolkit.WinUI.TextIconExtension"
 ```
 
-## Generate bindings
+## Runtime smoke
 
-From this directory:
+The workspace provides a light root smoke example:
 
 ```powershell
-cargo check
+cargo run --example root
 ```
 
-The generated Rust bindings are written to Cargo's `OUT_DIR` and included by `src/lib.rs`.
-
-To try a broader filter:
-
-```powershell
-$env:XAMLTOOLKIT_WINUI_FILTERS = "XamlToolkit.WinUI"
-cargo check
-```
-
-Expect broader filters to require a more complete strategy for projecting WinUI dependencies. The minimal validation intentionally starts with the pure structs.
-
-## Runtime note
-
-Generating bindings only validates metadata projection. Calling runtime classes at runtime also requires the matching native `XamlToolkit.WinUI.dll` to be deployed next to the Rust executable or otherwise discoverable by the WinRT activation path.
+Runtime activation requires the matching Toolkit DLL/PRI files next to the executable. The workspace `build.rs` copies native outputs from `CommunityToolkit.WinUI\<platform>\Release\<Project>` by default, where `<platform>` follows the Cargo target architecture (`ARM64`, `x64`, or `Win32`). Override with `XAMLTOOLKIT_NATIVE_PLATFORM` and `XAMLTOOLKIT_NATIVE_CONFIGURATION` if needed.

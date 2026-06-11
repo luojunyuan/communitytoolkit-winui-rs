@@ -19,7 +19,7 @@ fn main() {
 
     require_file(
         &toolkit_winmd,
-        "XamlToolkit.WinUI metadata is missing. Build or generate XamlToolkit.WinUI.winmd first, then copy it to xamltoolkit-rs/metadata/.",
+        "XamlToolkit.WinUI metadata is missing. Build CommunityToolkit.WinUI, then run crates/xamltoolkit-winui/sync-metadata.ps1.",
     );
 
     let deps_dir = env::var_os("XAMLTOOLKIT_WINUI_METADATA_DEPS")
@@ -28,20 +28,8 @@ fn main() {
     let deps = collect_winmd_files(&deps_dir);
 
     let filters = env::var("XAMLTOOLKIT_WINUI_FILTERS")
-        .map(|value| {
-            value
-                .split(';')
-                .map(str::trim)
-                .filter(|filter| !filter.is_empty())
-                .map(str::to_string)
-                .collect::<Vec<_>>()
-        })
-        .unwrap_or_else(|_| {
-            vec![
-                "XamlToolkit.WinUI.HslColor".to_string(),
-                "XamlToolkit.WinUI.HsvColor".to_string(),
-            ]
-        });
+        .map(|value| split_filters(&value))
+        .unwrap_or_else(|_| default_filters());
 
     if filters.is_empty() {
         panic!("XAMLTOOLKIT_WINUI_FILTERS did not contain any filters.");
@@ -59,11 +47,32 @@ fn main() {
     args.extend([
         "--out".to_string(),
         out_file.display().to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Foundation".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Foundation.Collections".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Foundation.Numerics".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.Graphics".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI.Composition".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI.Core".to_string(),
+        "--reference".to_string(),
+        "windows,skip-root,Windows.UI.Text".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);
 
-    windows_bindgen::bindgen(args).unwrap();
+    let warnings = windows_bindgen::bindgen(args);
+    if !warnings.is_empty() {
+        println!(
+            "cargo:warning=xamltoolkit-winui generated with skipped inherited or dependency members for the current projection:\n{warnings}"
+        );
+    }
 
     if !out_file.exists() {
         panic!(
@@ -71,6 +80,114 @@ fn main() {
             out_file.display()
         );
     }
+
+    patch_generated_bindings(&out_file);
+}
+
+fn default_filters() -> Vec<String> {
+    [
+        "Microsoft.UI.Input.InputSystemCursorShape",
+        "Microsoft.UI.Xaml.DependencyObject",
+        "Microsoft.UI.Xaml.DependencyProperty",
+        "Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs",
+        "Microsoft.UI.Xaml.FrameworkElement",
+        "Microsoft.UI.Xaml.Markup.MarkupExtension",
+        "Microsoft.UI.Xaml.StateTriggerBase",
+        "Microsoft.UI.Xaml.UIElement",
+        "Microsoft.UI.Xaml.Controls.ContentControl",
+        "Microsoft.UI.Xaml.Controls.Control",
+        "Microsoft.UI.Xaml.Controls.FontIcon",
+        "Microsoft.UI.Xaml.Controls.FontIconSource",
+        "Microsoft.UI.Xaml.Controls.IconElement",
+        "Microsoft.UI.Xaml.Controls.IconSource",
+        "Microsoft.UI.Xaml.Controls.ItemsControl",
+        "Microsoft.UI.Xaml.Controls.ListViewBase",
+        "Microsoft.UI.Xaml.Controls.Symbol",
+        "Microsoft.UI.Xaml.Controls.SymbolIcon",
+        "Microsoft.UI.Xaml.Controls.SymbolIconSource",
+        "Microsoft.UI.Xaml.Controls.TextBlock",
+        "Microsoft.UI.Xaml.DataTemplate",
+        "Microsoft.UI.Xaml.Documents.Hyperlink",
+        "Microsoft.UI.Xaml.Input.ICommand",
+        "Microsoft.UI.Xaml.Media.Brush",
+        "Microsoft.UI.Xaml.Media.FontFamily",
+        "Microsoft.UI.Xaml.Media.GeneralTransform",
+        "Microsoft.UI.Xaml.Media.Matrix",
+        "Microsoft.UI.Xaml.Media.Transform",
+        "Windows.UI.Xaml.Interop.TypeKind",
+        "Windows.UI.Xaml.Interop.TypeName",
+        "XamlToolkit.WinUI.AttachedDropShadow",
+        "XamlToolkit.WinUI.AttachedShadowBase",
+        "XamlToolkit.WinUI.AttachedShadowElementContext",
+        "XamlToolkit.WinUI.ControlSizeTrigger",
+        "XamlToolkit.WinUI.Effects",
+        "XamlToolkit.WinUI.FontIconExtension",
+        "XamlToolkit.WinUI.FontIconSourceExtension",
+        "XamlToolkit.WinUI.FrameworkElementExtensions",
+        "XamlToolkit.WinUI.HslColor",
+        "XamlToolkit.WinUI.HsvColor",
+        "XamlToolkit.WinUI.HyperlinkExtensions",
+        "XamlToolkit.WinUI.IAlphaMaskProvider",
+        "XamlToolkit.WinUI.IAttachedShadow",
+        "XamlToolkit.WinUI.IsEqualStateTrigger",
+        "XamlToolkit.WinUI.IsNullOrEmptyStateTrigger",
+        "XamlToolkit.WinUI.ItemContainerStretchDirection",
+        "XamlToolkit.WinUI.ListViewExtensions",
+        "XamlToolkit.WinUI.MatrixExtensions",
+        "XamlToolkit.WinUI.RectExtensions",
+        "XamlToolkit.WinUI.ScrollItemPlacement",
+        "XamlToolkit.WinUI.SymbolIconExtension",
+        "XamlToolkit.WinUI.SymbolIconSourceExtension",
+        "XamlToolkit.WinUI.TextIconExtension",
+        "XamlToolkit.WinUI.TransformExtensions",
+        "XamlToolkit.WinUI.UIElementExtensions",
+        "XamlToolkit.WinUI.VisualExtensions",
+    ]
+    .into_iter()
+    .map(str::to_string)
+    .collect()
+}
+
+fn patch_generated_bindings(out_file: &Path) {
+    let mut generated = fs::read_to_string(out_file)
+        .unwrap_or_else(|error| panic!("failed to read {}: {error}", out_file.display()));
+
+    if generated.contains("pub struct IReference<T>")
+        && !generated.contains("xamltoolkit_winui_ireference_from_bridge")
+    {
+        generated.push_str(
+            r#"
+
+#[allow(non_snake_case)]
+mod xamltoolkit_winui_ireference_from_bridge {
+    use super::Windows::Foundation::IReference;
+    use windows_core::{Interface, RuntimeType};
+
+    impl<T> From<T> for IReference<T>
+    where
+        T: RuntimeType + Clone + 'static,
+    {
+        fn from(value: T) -> Self {
+            let reference = windows_reference::IReference::<T>::from(value);
+            unsafe { Self::from_raw(reference.into_raw()) }
+        }
+    }
+}
+"#,
+        );
+    }
+
+    fs::write(out_file, generated)
+        .unwrap_or_else(|error| panic!("failed to write {}: {error}", out_file.display()));
+}
+
+fn split_filters(value: &str) -> Vec<String> {
+    value
+        .split(';')
+        .map(str::trim)
+        .filter(|filter| !filter.is_empty())
+        .map(str::to_string)
+        .collect()
 }
 
 fn require_file(path: &Path, message: &str) {
