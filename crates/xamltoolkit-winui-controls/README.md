@@ -2,50 +2,59 @@
 
 Rust WinRT projection crate for `XamlToolkit.WinUI.Controls`.
 
-This crate is generated from `XamlToolkit.WinUI.Controls.winmd` with an intentionally curated `windows-bindgen` filter list. The filter list is broad enough for the current Controls example, but still narrower than the full Toolkit metadata so that inherited WinUI members and media-heavy APIs can be expanded in controlled steps.
+This crate consumes checked-in WinMD metadata under `metadata/` and generates Rust bindings with `windows-bindgen` during `cargo check` or `cargo build`. It does not generate WinMD from IDL and does not require `midlrt`.
 
-## Current Coverage
+## Metadata source
 
-Validated by `examples/controls.rs` smoke tests and visual sample mounts:
+The regular source of `metadata/XamlToolkit.WinUI.Controls.winmd` is the native Release build output from the upstream Toolkit repository:
 
-- Layout / panels: `WrapPanel`, `DockPanel`, `EqualPanel`, `UniformGrid`, `StaggeredPanel`, `StaggeredLayout`.
-- Basic controls: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`; `AspectRatio` constructors/static string conversion are covered by focused smoke.
-- Range / sizers: `RangeSelector`, `RangeChangedEventArgs`, `RangeSelectorProperty`, `SizerBase`, `PropertySizer`, `ContentSizer`, `GridSplitter`.
-- Headered / segmented / settings controls: `HeaderedContentControl`, `HeaderedItemsControl`, `HeaderedTreeView`, `Segmented`, `SegmentedItem`, `SettingsCard`, `SettingsExpander`.
-- Color controls: `ColorPicker`, `ColorPickerButton`, `IColorPalette`, `ColorPreviewer`, `ColorPickerSlider`, color converters, `HsvColor`; the example implements `IColorPalette` in Rust and passes it to `ColorPicker.SetCustomPalette`.
-- Other controls: `RadialGauge`, `TabbedCommandBar`, `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `RichSuggestToken`, RichSuggest event args, `SwitchPresenter`.
-- Image/media-light coverage: `ImageCropper`, `ImageCropperThumb`, `BitmapFileFormat`, `CameraPreview` minimal activation/property surface, `PreviewFailedEventArgs`.
+```text
+CommunityToolkit.WinUI\XamlToolkit.WinUI.Controls\x64\Release\XamlToolkit.WinUI.Controls\XamlToolkit.WinUI.Controls.winmd
+```
 
-## Known Gaps
+Dependency metadata comes from the upstream repository's restored Windows App SDK packages plus the root Toolkit dependency WinMD files:
 
-- `CameraPreview.StartAsync`, `StartAsync(CameraHelper)`, `CameraHelper`, and `FrameEventArgs.VideoFrame` are not part of the default controls projection yet. A first attempt showed that `Windows.Media.VideoFrame` pulls in a deeper `IPropertySet` / imaging / Direct3D type graph, so that should be handled as a dedicated media-camera phase.
-- `RichSuggestBox` now has a visual sample that mounts the RichEditBox/Popup template and item source path. `RichSuggestTokenSelectedEventArgs` and `RichSuggestTokenPointerOverEventArgs` have focused token-property smoke coverage, but real editor selection/range behavior still needs dedicated coverage.
-- `TokenizingTextBox` full control visual mounting is still isolated because the current template path crashes in `Microsoft.UI.Xaml.dll`; `TokenizingTextBoxItem`, `PretokenStringContainer`, `ITokenStringContainer`, and `InterspersedObservableVector` are covered by focused samples/smoke tests.
+```text
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Text.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.UI.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.Foundation.winmd
+CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.Foundation.*\metadata\Microsoft.Windows.ApplicationModel.Resources.winmd
+crates\xamltoolkit-winui\metadata\XamlToolkit.WinUI.winmd
+crates\xamltoolkit-winui-helpers\metadata\XamlToolkit.WinUI.Helpers.winmd
+crates\xamltoolkit-winui-converters\metadata\XamlToolkit.WinUI.Converters.winmd
+```
+
+Run the sync helper after rebuilding upstream metadata:
+
+```powershell
+.\tools\sync-metadata.ps1 -Project Controls -Platform All
+```
+
+By default the sync helper discovers upstream as `xamltoolkit-rs\submodules\CommunityToolkit.WinUI`; use `-SourceRoot` for a different checkout.
+
+## Projection scope
+
+The default filter covers the public `XamlToolkit.WinUI.Controls` surface exposed by the produced WinMD, including:
+
+- Layout/panel controls: `WrapPanel`, `DockPanel`, `EqualPanel`, `UniformGrid`, `StaggeredPanel`, `StaggeredLayout`.
+- Basic controls and helpers: `ConstrainedBox`, `AspectRatio`, `LayoutTransformControl`, `MetadataControl`, `MetadataItem`.
+- Range and sizing controls: `RangeSelector`, `RangeChangedEventArgs`, `RangeSelectorProperty`, `SizerBase`, `PropertySizer`, `ContentSizer`, `GridSplitter`.
+- Headered, segmented, and settings controls: `HeaderedContentControl`, `HeaderedItemsControl`, `HeaderedTreeView`, `Segmented`, `SegmentedItem`, `SettingsCard`, `SettingsExpander`.
+- Color controls: `ColorPicker`, `ColorPickerButton`, `Primitives::ColorPreviewer`, `Primitives::ColorPickerSlider`, `IColorPalette`, color converters, and `HsvColor`-based members.
+- Text/token/suggestion controls: `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `ITokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `RichSuggestToken`, RichSuggest event args.
+- Other controls: `RadialGauge`, `TabbedCommandBar`, `TabbedCommandBarItem`, `SwitchPresenter`, `ImageCropper`, `ImageCropperThumb`, `CameraPreview`, `PreviewFailedEventArgs`, and `XamlMetaDataProvider`.
+
+The crate directly depends on `xamltoolkit-winui`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-converters`. Controls methods that expose root or helper types reuse those crates; for example `HsvColor` comes from `xamltoolkit-winui`, and `CameraPreview::CameraHelper` / `StartAsync` use `xamltoolkit-winui-helpers::XamlToolkit::WinUI::Helpers::CameraHelper`.
+
+`windows-bindgen` may still report skipped inherited members for the supporting `Microsoft.UI.*` projection graph when `XAMLTOOLKIT_WINUI_CONTROLS_BINDGEN_WARNINGS` is set. The build script treats skipped `XamlToolkit.WinUI.*` members as an error so the Toolkit projection surface does not silently regress.
 
 ## Validate
 
 ```powershell
 cargo check -p xamltoolkit-winui-controls
 cargo check --example controls
-cargo build --example controls
-```
-
-Run the example with:
-
-```powershell
 cargo run --example controls
 ```
 
-The example is a GUI process and should remain running. For automated smoke verification, start `target\debug\examples\controls.exe`, wait about 10 seconds, confirm the process is still alive, then stop it and inspect stderr.
-
-The current visual sample set contains 28 mounts: `WrapPanel`, `DockPanel`, `UniformGrid`, `EqualPanel`, `StaggeredPanel`, `ConstrainedBox`, `LayoutTransformControl`, `ImageCropper`, `CameraPreview`, `TabbedCommandBar`, `TabbedCommandBarItem`, `SwitchPresenter`, `MetadataControl`, `ColorPreviewer`, `ColorPickerSlider`, `ColorPickerButton`, `ColorPicker`, `Sizers`, `RangeSelector`, `RichSuggestBox`, `TokenizingTextBoxItem`, `Segmented`, `RadialGauge`, `SettingsCard`, `SettingsExpander`, `HeaderedContentControl`, `HeaderedItemsControl`, and `HeaderedTreeView`.
-
-## Expanding The Projection
-
-Add required runtimeclasses/enums/interfaces to `crates/xamltoolkit-winui-controls/build.rs`, then run:
-
-```powershell
-cargo check -p xamltoolkit-winui-controls
-```
-
-For WinUI controls that inherit from WinUI runtimeclasses, keep the necessary WinUI base class chain in this crate. `windows-bindgen --reference` works for ordinary referenced types, but inherited methods can require access to crate-private vtable fields.
+The `controls` example is a console projection smoke executable and does not start a WinUI application.

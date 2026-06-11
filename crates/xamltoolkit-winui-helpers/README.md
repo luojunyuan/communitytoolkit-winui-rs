@@ -28,7 +28,7 @@ Run the sync helper after rebuilding upstream metadata:
 .\tools\sync-metadata.ps1 -Project Helpers
 ```
 
-`tools\sync-metadata.ps1` copies produced metadata and matching native runtime artifacts into `metadata/native/<platform>`. It discovers `CommunityToolkit.WinUI` first as `xamltoolkit-rs\submodules\CommunityToolkit.WinUI`, then falls back to the old sibling directory layout, and it infers Windows App SDK package versions from the upstream project.
+`tools\sync-metadata.ps1` copies produced metadata and matching native runtime artifacts into `metadata/native/<platform>`. By default it discovers `CommunityToolkit.WinUI` as `xamltoolkit-rs\submodules\CommunityToolkit.WinUI`; use `-SourceRoot` for a different checkout. It infers Windows App SDK package versions from the upstream project.
 
 The checked-in native runtime layout is:
 
@@ -48,11 +48,15 @@ metadata\native\Win32\XamlToolkit.WinUI.Helpers.winmd
 
 The default filter covers the full `XamlToolkit.WinUI.Helpers` WinRT surface exposed by the produced WinMD:
 
+- `CameraHelper`
+- `CameraHelperResult`
+- `ColorHelper`
 - `DesignTimeHelpers`
+- `FrameEventArgs`
 - `ThemeChangedHandler`
 - `ThemeListener`
 
-The upstream native project references the root `XamlToolkit.WinUI` component. This crate depends on `xamltoolkit-winui` and keeps the root WinMD in `metadata/deps`, but the current public Helpers WinMD does not expose root Toolkit types directly. The generated projection therefore avoids duplicating the root namespace.
+The upstream native project references the root `XamlToolkit.WinUI` component. This crate depends on `xamltoolkit-winui` and keeps the root WinMD in `metadata/deps`; `ColorHelper::ToHsl` and `ColorHelper::ToHsv` return the root crate's `XamlToolkit::WinUI::HslColor` and `XamlToolkit::WinUI::HsvColor` types instead of generating duplicate root structs.
 
 ## Validate
 

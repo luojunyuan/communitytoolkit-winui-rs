@@ -1,6 +1,6 @@
 param(
     [string]$SourceRoot,
-    [ValidateSet("All", "Root", "Converters", "Helpers", "XamlToolkit.WinUI", "XamlToolkit.WinUI.Converters", "XamlToolkit.WinUI.Helpers")]
+    [ValidateSet("All", "Root", "Converters", "Helpers", "Controls", "XamlToolkit.WinUI", "XamlToolkit.WinUI.Converters", "XamlToolkit.WinUI.Helpers", "XamlToolkit.WinUI.Controls")]
     [string[]]$Project = @("All"),
     [ValidateSet("All", "x64", "ARM64", "Win32")]
     [string[]]$Platform = @("x64"),
@@ -61,6 +61,15 @@ function Get-ProjectConfigs {
             ProjectFile = "XamlToolkit.WinUI.Helpers.vcxproj"
             Winmd = "XamlToolkit.WinUI.Helpers.winmd"
             DependencyWinmds = @("XamlToolkit.WinUI.winmd")
+        },
+        [pscustomobject]@{
+            Alias = "Controls"
+            Name = "XamlToolkit.WinUI.Controls"
+            Crate = "xamltoolkit-winui-controls"
+            ProjectDir = "XamlToolkit.WinUI.Controls"
+            ProjectFile = "XamlToolkit.WinUI.Controls.vcxproj"
+            Winmd = "XamlToolkit.WinUI.Controls.winmd"
+            DependencyWinmds = @("XamlToolkit.WinUI.winmd", "XamlToolkit.WinUI.Helpers.winmd", "XamlToolkit.WinUI.Converters.winmd")
         }
     )
 }
@@ -177,13 +186,13 @@ function Get-InteractiveMetadataTarget([string]$MetadataRoot, [string]$Preferred
 
 function Get-ProjectOutput($ProjectConfig, [string]$SourceRoot, [string]$PlatformName, [string]$ConfigurationName) {
     $candidates = @(
-        (Join-Path $SourceRoot "$PlatformName\$ConfigurationName\$($ProjectConfig.Name)"),
-        (Join-Path $SourceRoot "$($ProjectConfig.ProjectDir)\$PlatformName\$ConfigurationName\$($ProjectConfig.Name)")
+        (Join-Path $SourceRoot "$($ProjectConfig.ProjectDir)\$PlatformName\$ConfigurationName\$($ProjectConfig.Name)"),
+        (Join-Path $SourceRoot "$PlatformName\$ConfigurationName\$($ProjectConfig.Name)")
     )
 
     if ($PlatformName -eq "Win32") {
-        $candidates += (Join-Path $SourceRoot "$ConfigurationName\$($ProjectConfig.Name)")
         $candidates += (Join-Path $SourceRoot "$($ProjectConfig.ProjectDir)\$ConfigurationName\$($ProjectConfig.Name)")
+        $candidates += (Join-Path $SourceRoot "$ConfigurationName\$($ProjectConfig.Name)")
     }
 
     return Get-ExistingPath $candidates "$($ProjectConfig.Name) $PlatformName|$ConfigurationName build output"
@@ -265,6 +274,11 @@ function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$Wo
         (Join-Path $interactiveTarget "Microsoft.Foundation.winmd")
     )
 
+    if ($ProjectConfig.Alias -eq "Controls") {
+        $foundationPackage = Get-ProjectPackagePath $PackagesRoot $projectRoot $ProjectConfig.ProjectFile "Microsoft.WindowsAppSDK.Foundation"
+        $deps += (Join-Path $foundationPackage "metadata\Microsoft.Windows.ApplicationModel.Resources.winmd")
+    }
+
     foreach ($dep in $deps) {
         if (!(Test-Path -LiteralPath $dep)) {
             throw "Missing dependency metadata: $dep"
@@ -337,8 +351,7 @@ $workspaceRoot = Split-Path -Parent $PSScriptRoot
 
 if (!$SourceRoot) {
     $SourceRoot = Get-ExistingPath @(
-        (Join-Path $workspaceRoot "submodules\CommunityToolkit.WinUI"),
-        (Join-Path (Split-Path -Parent $workspaceRoot) "CommunityToolkit.WinUI")
+        (Join-Path $workspaceRoot "submodules\CommunityToolkit.WinUI")
     ) "CommunityToolkit.WinUI source root"
 } elseif (!(Test-Path -LiteralPath $SourceRoot)) {
     throw "SourceRoot does not exist: $SourceRoot"
