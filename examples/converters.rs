@@ -1,8 +1,8 @@
+use wasdk::Microsoft::UI::Xaml::Data::IValueConverter;
+use wasdk::Microsoft::UI::Xaml::{DependencyObject, Visibility};
+use wasdk::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
 use windows::core::HSTRING;
-use xamltoolkit_winui_converters::Microsoft::UI::Xaml::Data::IValueConverter;
-use xamltoolkit_winui_converters::Microsoft::UI::Xaml::{DependencyObject, Visibility};
-use xamltoolkit_winui_converters::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
-use xamltoolkit_winui_converters::XamlToolkit::WinUI::Converters::{
+use xamltoolkit_winui_converters::{
     BoolNegationConverter, BoolToObjectConverter, BoolToVisibilityConverter,
     CollectionVisibilityConverter, ColorToDisplayNameConverter, DoubleToObjectConverter,
     DoubleToVisibilityConverter, EmptyCollectionToObjectConverter, EmptyObjectToObjectConverter,

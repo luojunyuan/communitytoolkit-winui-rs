@@ -6,6 +6,7 @@ publish = false
 build = "build.rs"
 
 [dependencies]
+wasdk = { path = "../wasdk" }
 xamltoolkit-winui = { path = "../xamltoolkit-winui" }
 xamltoolkit-winui-converters = { path = "../xamltoolkit-winui-converters" }
 xamltoolkit-winui-helpers = { path = "../xamltoolkit-winui-helpers" }

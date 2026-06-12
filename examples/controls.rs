@@ -1,10 +1,8 @@
 use windows::UI::Color;
 use windows::core::{HSTRING, Result};
-use xamltoolkit_winui::XamlToolkit::WinUI::HsvColor;
-use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::Primitives::{
-    ColorPickerSlider, ColorPreviewer,
-};
-use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
+use xamltoolkit_winui::HsvColor;
+use xamltoolkit_winui_controls::Primitives::{ColorPickerSlider, ColorPreviewer};
+use xamltoolkit_winui_controls::{
     AccentColorConverter, AspectRatio, BitmapFileFormat, CameraPreview, Case, CaseCollection,
     ColorChannel, ColorPicker, ColorPickerButton, ColorRepresentation, ColorToHexConverter,
     ConstrainedBox, ContentAlignment, ContentSizer, ContrastBrushConverter, CornerRadiusConverter,
@@ -26,7 +24,7 @@ use xamltoolkit_winui_controls::XamlToolkit::WinUI::Controls::{
     TokenizingTextBoxAutomationPeer, TokenizingTextBoxItem, TokenizingTextBoxStyleSelector,
     UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
-use xamltoolkit_winui_helpers::XamlToolkit::WinUI::Helpers::CameraHelper;
+use xamltoolkit_winui_helpers::CameraHelper;
 
 #[windows::core::implement(IColorPalette)]
 struct SmokeColorPalette;

@@ -208,6 +208,7 @@ fn main() {
                 "XamlToolkit.WinUI.Controls.XamlMetaDataProvider".to_string(),
             ]
         });
+    let filters = without_wasdk_filters(filters);
 
     if filters.is_empty() {
         panic!("XAMLTOOLKIT_WINUI_CONTROLS_FILTERS did not contain any filters.");
@@ -252,13 +253,16 @@ fn main() {
         "--reference".to_string(),
         "windows,skip-root,Windows.Storage.Streams".to_string(),
         "--reference".to_string(),
-        "windows,skip-root,Windows.UI".to_string(),
+        "windows,skip-root,Windows.UI.Color".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.UI.Composition".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.UI.Core".to_string(),
         "--reference".to_string(),
         "windows,skip-root,Windows.UI.Text".to_string(),
+    ]);
+    append_wasdk_references(&mut args);
+    args.extend([
         "--reference".to_string(),
         "xamltoolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
         "--reference".to_string(),
@@ -317,6 +321,47 @@ fn has_toolkit_projection_warning(warnings: &str) -> bool {
         || warnings.contains("XamlToolkit.WinUI.Converters")
         || warnings.contains("XamlToolkit.WinUI.HslColor")
         || warnings.contains("XamlToolkit.WinUI.HsvColor")
+}
+
+fn without_wasdk_filters(filters: Vec<String>) -> Vec<String> {
+    filters
+        .into_iter()
+        .filter(|filter| !is_wasdk_filter(filter))
+        .collect()
+}
+
+fn is_wasdk_filter(filter: &str) -> bool {
+    filter.starts_with("Microsoft.") || filter.starts_with("Windows.UI.Xaml.")
+}
+
+fn append_wasdk_references(args: &mut Vec<String>) {
+    for namespace in [
+        "Microsoft.UI",
+        "Microsoft.UI.Composition",
+        "Microsoft.UI.Dispatching",
+        "Microsoft.UI.Input",
+        "Microsoft.UI.Text",
+        "Microsoft.UI.Xaml",
+        "Microsoft.UI.Xaml.Automation",
+        "Microsoft.UI.Xaml.Automation.Peers",
+        "Microsoft.UI.Xaml.Automation.Provider",
+        "Microsoft.UI.Xaml.Controls",
+        "Microsoft.UI.Xaml.Controls.Primitives",
+        "Microsoft.UI.Xaml.Data",
+        "Microsoft.UI.Xaml.Documents",
+        "Microsoft.UI.Xaml.Input",
+        "Microsoft.UI.Xaml.Interop",
+        "Microsoft.UI.Xaml.Markup",
+        "Microsoft.UI.Xaml.Media",
+        "Microsoft.UI.Xaml.Media.Animation",
+        "Microsoft.UI.Xaml.Media.Imaging",
+        "Microsoft.UI.Xaml.Media.Media3D",
+        "Microsoft.UI.Xaml.Navigation",
+        "Windows.UI.Xaml.Interop",
+    ] {
+        args.push("--reference".to_string());
+        args.push(format!("wasdk,full,{namespace}"));
+    }
 }
 
 fn assert_controls_surface_generated(winmd: &Path, out_file: &Path) {

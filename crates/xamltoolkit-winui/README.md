@@ -54,7 +54,7 @@ The default filter covers the root `XamlToolkit.WinUI` public WinRT surface expo
 - state triggers
 - attached shadow and effects contracts
 
-`Windows.*` APIs are referenced from the `windows` crate where available. The generated projection includes only the Toolkit root namespace and the Microsoft WinUI support types needed to compile against the Toolkit WinMD.
+`Windows.*` APIs are referenced from the `windows` crate where available. WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.*` are referenced from the shared `wasdk` crate instead of being regenerated here. The crate also re-exports its root Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui::HsvColor` in addition to the generated `xamltoolkit_winui::XamlToolkit::WinUI::HsvColor` path.
 
 ## Build
 

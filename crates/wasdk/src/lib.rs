@@ -1,4 +1,4 @@
-//! Rust projection for the native XamlToolkit.WinUI.Helpers WinRT component.
+//! Shared Rust projection for WinAppSDK/WinUI types used by the Toolkit crates.
 
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
@@ -7,6 +7,3 @@
 #![allow(clippy::all)]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-
-pub use XamlToolkit::WinUI::Helpers;
-pub use XamlToolkit::WinUI::Helpers::*;

@@ -1,9 +1,9 @@
+use wasdk::Microsoft::UI::Xaml::Controls::{FontIcon, Symbol};
+use wasdk::Microsoft::UI::Xaml::{DependencyObject, FrameworkElement, UIElement};
+use wasdk::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
 use windows::Foundation::Rect;
 use windows::core::HSTRING;
-use xamltoolkit_winui::Microsoft::UI::Xaml::Controls::{FontIcon, Symbol};
-use xamltoolkit_winui::Microsoft::UI::Xaml::{DependencyObject, FrameworkElement, UIElement};
-use xamltoolkit_winui::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
-use xamltoolkit_winui::XamlToolkit::WinUI::{
+use xamltoolkit_winui::{
     AttachedDropShadow, ControlSizeTrigger, Effects, FontIconExtension, FontIconSourceExtension,
     FrameworkElementExtensions, HslColor, HsvColor, IsEqualStateTrigger, IsNullOrEmptyStateTrigger,
     MatrixExtensions, RectExtensions, SymbolIconExtension, SymbolIconSourceExtension,

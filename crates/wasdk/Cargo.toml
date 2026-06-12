@@ -1,17 +1,27 @@
 [package]
-name = "xamltoolkit-winui-converters"
+name = "wasdk"
 version = "0.1.0"
 edition = "2024"
 publish = false
 build = "build.rs"
 
 [dependencies]
-wasdk = { path = "../wasdk" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation",
     "Foundation_Collections",
     "Foundation_Numerics",
     "Graphics",
+    "Graphics_DirectX",
+    "Graphics_DirectX_Direct3D11",
+    "Graphics_Imaging",
+    "Media",
+    "Media_Capture",
+    "Media_Capture_Frames",
+    "Media_MediaProperties",
+    "Storage",
+    "Storage_FileProperties",
+    "Storage_Search",
+    "Storage_Streams",
     "UI",
     "UI_Composition",
     "UI_Core",

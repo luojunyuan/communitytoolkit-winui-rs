@@ -93,6 +93,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 
 [[package]]
+name = "wasdk"
+version = "0.1.0"
+dependencies = [
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+]
+
+[[package]]
 name = "windows"
 version = "0.62.2"
 source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
@@ -232,6 +246,7 @@ dependencies = [
 name = "xamltoolkit-rs"
 version = "0.1.0"
 dependencies = [
+ "wasdk",
  "windows",
  "windows-core",
  "xamltoolkit-winui",
@@ -244,6 +259,7 @@ dependencies = [
 name = "xamltoolkit-winui"
 version = "0.1.0"
 dependencies = [
+ "wasdk",
  "windows",
  "windows-bindgen",
  "windows-collections",
@@ -258,6 +274,7 @@ dependencies = [
 name = "xamltoolkit-winui-controls"
 version = "0.1.0"
 dependencies = [
+ "wasdk",
  "windows",
  "windows-bindgen",
  "windows-collections",
@@ -276,6 +293,7 @@ dependencies = [
 name = "xamltoolkit-winui-converters"
 version = "0.1.0"
 dependencies = [
+ "wasdk",
  "windows",
  "windows-bindgen",
  "windows-collections",
@@ -290,6 +308,7 @@ dependencies = [
 name = "xamltoolkit-winui-helpers"
 version = "0.1.0"
 dependencies = [
+ "wasdk",
  "windows",
  "windows-bindgen",
  "windows-collections",

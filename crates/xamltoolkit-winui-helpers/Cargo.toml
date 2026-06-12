@@ -6,6 +6,7 @@ publish = false
 build = "build.rs"
 
 [dependencies]
+wasdk = { path = "../wasdk" }
 xamltoolkit-winui = { path = "../xamltoolkit-winui" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation",

@@ -51,7 +51,7 @@ The default filter covers the full `XamlToolkit.WinUI.Converters` WinRT surface 
 - empty object/string/collection converters
 - display/resource/string-format/file-size converters
 
-The Converters project does not depend on the root `XamlToolkit.WinUI` component. The generated projection includes only the Converters namespace and the Microsoft WinUI support types needed to compile against the Converters WinMD. `Windows.*` APIs are referenced from the `windows` crate where available; `Windows.UI.Xaml.Interop.TypeName` is supplied from checked-in metadata because the converters expose that WinRT type directly.
+The Converters project does not depend on the root `XamlToolkit.WinUI` component. The generated projection includes only the Converters namespace. `Windows.*` APIs are referenced from the `windows` crate where available; WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.TypeName` are referenced from the shared `wasdk` crate. The crate also re-exports its Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui_converters::BoolNegationConverter` or `xamltoolkit_winui_converters::Converters::BoolNegationConverter`.
 
 ## Build
 

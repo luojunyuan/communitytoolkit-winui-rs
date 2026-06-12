@@ -56,7 +56,7 @@ The default filter covers the full `XamlToolkit.WinUI.Helpers` WinRT surface exp
 - `ThemeChangedHandler`
 - `ThemeListener`
 
-The upstream native project references the root `XamlToolkit.WinUI` component. This crate depends on `xamltoolkit-winui` and keeps the root WinMD in `metadata/deps`; `ColorHelper::ToHsl` and `ColorHelper::ToHsv` return the root crate's `XamlToolkit::WinUI::HslColor` and `XamlToolkit::WinUI::HsvColor` types instead of generating duplicate root structs.
+The upstream native project references the root `XamlToolkit.WinUI` component. This crate depends on `xamltoolkit-winui` and keeps the root WinMD in `metadata/deps`; `ColorHelper::ToHsl` and `ColorHelper::ToHsv` return the root crate's `HslColor` and `HsvColor` types instead of generating duplicate root structs. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate. The Helpers namespace is re-exported at crate root, so consumers can use `xamltoolkit_winui_helpers::CameraHelper`.
 
 ## Validate
 

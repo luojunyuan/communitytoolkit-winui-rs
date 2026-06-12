@@ -6,6 +6,7 @@ publish = false
 build = "build.rs"
 
 [dependencies]
+wasdk = { path = "../wasdk" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation",
     "Foundation_Collections",

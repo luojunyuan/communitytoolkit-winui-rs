@@ -2,7 +2,7 @@
 
 Rust projection workspace for `CommunityToolkit.WinUI` / `XamlToolkit.WinUI`.
 
-The `xamltoolkit-winui` crate projects the public root `XamlToolkit.WinUI` WinRT surface from the produced Toolkit WinMD. The `xamltoolkit-winui-converters`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-controls` crates project the `XamlToolkit.WinUI.Converters`, `XamlToolkit.WinUI.Helpers`, and `XamlToolkit.WinUI.Controls` WinRT surfaces from their produced WinMD files.
+The `wasdk` crate projects the WinAppSDK/WinUI types needed by this workspace. The `xamltoolkit-winui`, `xamltoolkit-winui-converters`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-controls` crates project their own Toolkit WinRT surfaces from produced Toolkit WinMD files and consume shared `wasdk` types instead of regenerating `Microsoft.UI.*` support bindings.
 
 The source C++/WinRT repository is checked out as a git submodule under this workspace:
 
@@ -13,9 +13,24 @@ xamltoolkit-rs\submodules\CommunityToolkit.WinUI
 
 The Rust Windows projection/runtime crates are pulled from the official `microsoft/windows-rs` git repository.
 
+## Import shape
+
+Each Toolkit crate can be consumed independently. Toolkit types are re-exported at crate root:
+
+```rust
+use xamltoolkit_winui::HsvColor;
+use xamltoolkit_winui_converters::BoolNegationConverter;
+use xamltoolkit_winui_helpers::CameraHelper;
+use xamltoolkit_winui_controls::ColorPicker;
+use xamltoolkit_winui_controls::primitives::ColorPickerSlider;
+```
+
+WinAppSDK types remain under the shared `wasdk` crate, for example `wasdk::Microsoft::UI::Xaml::DependencyObject`.
+
 ## Layout
 
 ```text
+crates/wasdk                         shared WinAppSDK/WinUI projection crate
 crates/xamltoolkit-winui             root XamlToolkit.WinUI projection crate
 crates/xamltoolkit-winui-converters  XamlToolkit.WinUI.Converters projection crate
 crates/xamltoolkit-winui-helpers     XamlToolkit.WinUI.Helpers projection crate
@@ -52,6 +67,7 @@ The sync helper copies produced WinMD/native runtime artifacts from the selected
 
 ```powershell
 cargo fmt --check
+cargo check -p wasdk
 cargo check -p xamltoolkit-winui
 cargo check -p xamltoolkit-winui-converters
 cargo check -p xamltoolkit-winui-helpers

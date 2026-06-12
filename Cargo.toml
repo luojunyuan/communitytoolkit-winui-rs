@@ -8,6 +8,7 @@ autoexamples = false
 
 [workspace]
 members = [
+    "crates/wasdk",
     "crates/xamltoolkit-winui",
     "crates/xamltoolkit-winui-converters",
     "crates/xamltoolkit-winui-helpers",
@@ -16,6 +17,7 @@ members = [
 resolver = "2"
 
 [dependencies]
+wasdk = { path = "crates/wasdk" }
 xamltoolkit-winui = { path = "crates/xamltoolkit-winui" }
 xamltoolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
 xamltoolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }

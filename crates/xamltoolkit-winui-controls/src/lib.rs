@@ -10,3 +10,10 @@
 #![allow(clippy::all)]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+pub use XamlToolkit::WinUI::Controls;
+pub use XamlToolkit::WinUI::Controls::*;
+
+pub mod primitives {
+    pub use crate::XamlToolkit::WinUI::Controls::Primitives::*;
+}

@@ -1,6 +1,6 @@
 use windows::core::HSTRING;
-use xamltoolkit_winui::XamlToolkit::WinUI::{HslColor, HsvColor};
-use xamltoolkit_winui_helpers::XamlToolkit::WinUI::Helpers::{
+use xamltoolkit_winui::{HslColor, HsvColor};
+use xamltoolkit_winui_helpers::{
     CameraHelper, CameraHelperResult, ColorHelper, DesignTimeHelpers, FrameEventArgs,
     ThemeChangedHandler, ThemeListener,
 };
