@@ -212,32 +212,6 @@ function Copy-NativeRuntime($ProjectConfig, [string]$ProjectOutput, [string]$Des
     }
 }
 
-function Get-WindowsWinmdCandidate([string]$WorkspaceRoot, [string]$LocalWindowsWinmd) {
-    $candidates = @(
-        $LocalWindowsWinmd,
-        (Join-Path $WorkspaceRoot "crates\wasdk\metadata\deps\Windows.winmd")
-    )
-
-    foreach ($candidate in $candidates) {
-        if ($candidate -and (Test-Path -LiteralPath $candidate)) {
-            return (Resolve-Path -LiteralPath $candidate).Path
-        }
-    }
-
-    $programFilesX86 = [Environment]::GetFolderPath("ProgramFilesX86")
-    $unionMetadata = Join-Path $programFilesX86 "Windows Kits\10\UnionMetadata"
-    if (Test-Path -LiteralPath $unionMetadata) {
-        $windowsWinmd = Get-ChildItem -LiteralPath $unionMetadata -Recurse -Filter "Windows.winmd" -File |
-            Sort-Object FullName -Descending |
-            Select-Object -First 1
-        if ($windowsWinmd) {
-            return $windowsWinmd.FullName
-        }
-    }
-
-    return $null
-}
-
 function Copy-ToolkitDependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$DepsDir, [string]$MetadataPlatformName, [string]$ConfigurationName) {
     foreach ($dependencyWinmd in $ProjectConfig.DependencyWinmds) {
         $dependencyProject = $AllProjectConfigs | Where-Object { $_.Winmd -eq $dependencyWinmd } | Select-Object -First 1
@@ -283,33 +257,39 @@ function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$Wo
         }
     }
 
-    New-Item -ItemType Directory -Force $DepsDir, $wasdkDepsDir | Out-Null
+    New-Item -ItemType Directory -Force $wasdkDepsDir | Out-Null
     foreach ($dep in $deps) {
         Copy-Item -LiteralPath $dep -Destination (Join-Path $wasdkDepsDir (Split-Path -Leaf $dep)) -Force
     }
 
-    $localWindowsWinmd = Join-Path $wasdkDepsDir "Windows.winmd"
-    $windowsWinmd = Get-WindowsWinmdCandidate $WorkspaceRoot $localWindowsWinmd
-    if ($windowsWinmd -and $windowsWinmd -ne (Resolve-Path -LiteralPath $localWindowsWinmd -ErrorAction SilentlyContinue).Path) {
-        Copy-Item -LiteralPath $windowsWinmd -Destination $localWindowsWinmd -Force
-    } elseif (!$windowsWinmd) {
-        Write-Warning "Windows.winmd was not found. Existing builds may fail for Windows.UI.Xaml.Interop.TypeName."
+    $staleWasdkWindows = Join-Path $wasdkDepsDir "Windows.winmd"
+    if (Test-Path -LiteralPath $staleWasdkWindows) {
+        Remove-Item -LiteralPath $staleWasdkWindows -Force
     }
 
-    Copy-ToolkitDependencyMetadata $ProjectConfig $AllProjectConfigs $WorkspaceRoot $SourceRoot $DepsDir $MetadataPlatformName $ConfigurationName
+    if (@($ProjectConfig.DependencyWinmds).Count -gt 0) {
+        New-Item -ItemType Directory -Force $DepsDir | Out-Null
+        Copy-ToolkitDependencyMetadata $ProjectConfig $AllProjectConfigs $WorkspaceRoot $SourceRoot $DepsDir $MetadataPlatformName $ConfigurationName
+    }
 
-    foreach ($name in @("Microsoft.Foundation.winmd", "Microsoft.UI.Text.winmd", "Microsoft.UI.winmd", "Microsoft.UI.Xaml.winmd", "Microsoft.Windows.ApplicationModel.Resources.winmd", "Windows.winmd")) {
-        $staleDep = Join-Path $DepsDir $name
-        if (Test-Path -LiteralPath $staleDep) {
-            Remove-Item -LiteralPath $staleDep -Force
+    if (Test-Path -LiteralPath $DepsDir) {
+        foreach ($name in @("Microsoft.Foundation.winmd", "Microsoft.UI.Text.winmd", "Microsoft.UI.winmd", "Microsoft.UI.Xaml.winmd", "Microsoft.Windows.ApplicationModel.Resources.winmd", "Windows.winmd")) {
+            $staleDep = Join-Path $DepsDir $name
+            if (Test-Path -LiteralPath $staleDep) {
+                Remove-Item -LiteralPath $staleDep -Force
+            }
         }
-    }
 
-    $keepToolkitDeps = @($ProjectConfig.DependencyWinmds)
-    foreach ($name in @("XamlToolkit.WinUI.winmd", "XamlToolkit.WinUI.Helpers.winmd", "XamlToolkit.WinUI.Converters.winmd")) {
-        $staleDep = Join-Path $DepsDir $name
-        if ((Test-Path -LiteralPath $staleDep) -and !($keepToolkitDeps | Where-Object { $_ -eq $name })) {
-            Remove-Item -LiteralPath $staleDep -Force
+        $keepToolkitDeps = @($ProjectConfig.DependencyWinmds)
+        foreach ($name in @("XamlToolkit.WinUI.winmd", "XamlToolkit.WinUI.Helpers.winmd", "XamlToolkit.WinUI.Converters.winmd")) {
+            $staleDep = Join-Path $DepsDir $name
+            if ((Test-Path -LiteralPath $staleDep) -and !($keepToolkitDeps | Where-Object { $_ -eq $name })) {
+                Remove-Item -LiteralPath $staleDep -Force
+            }
+        }
+
+        if (!(Get-ChildItem -LiteralPath $DepsDir -Force | Select-Object -First 1)) {
+            Remove-Item -LiteralPath $DepsDir -Force
         }
     }
 
@@ -327,7 +307,7 @@ function Sync-ProjectMetadata($ProjectConfig, $AllProjectConfigs, [string]$Works
         throw "Crate path does not exist for $($ProjectConfig.Name): $crateRoot"
     }
 
-    New-Item -ItemType Directory -Force $metadataDir, $depsDir | Out-Null
+    New-Item -ItemType Directory -Force $metadataDir | Out-Null
 
     $topLevelPlatform = if ($Platforms | Where-Object { $_ -eq $MetadataPlatformName }) {
         $MetadataPlatformName

@@ -321,5 +321,5 @@ fn should_include_metadata(path: &Path) -> bool {
         return false;
     };
 
-    name.eq_ignore_ascii_case("Windows.winmd") || name.starts_with("Microsoft.")
+    name.starts_with("Microsoft.")
 }

@@ -43,7 +43,7 @@ examples/controls.rs                 Controls projection smoke executable
 
 ## Metadata
 
-Each active Toolkit crate's `metadata` directory is checked in so the crates can build and run smoke examples without the upstream repository being present. Toolkit crate metadata contains the projection WinMD, Toolkit dependency WinMD files when needed, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). WinAppSDK and Windows metadata is centralized under `crates/wasdk/metadata/deps` and consumed by all Toolkit build scripts through the shared `wasdk` projection crate.
+Each active Toolkit crate's `metadata` directory is checked in so the crates can build and run smoke examples without the upstream repository being present. Toolkit crate metadata contains the projection WinMD, Toolkit dependency WinMD files when needed, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). WinAppSDK metadata is centralized under `crates/wasdk/metadata/deps` and consumed by all Toolkit build scripts through the shared `wasdk` projection crate. Windows SDK metadata comes from windows-rs/default bindgen metadata instead of checked-in `Windows.winmd`.
 
 Use the top-level sync helper to refresh metadata from upstream build output and package metadata:
 
