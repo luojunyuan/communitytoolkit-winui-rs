@@ -17,6 +17,7 @@ fn main() {
 
     let target_dir = target_dir_from_out(&out_dir);
     let examples_dir = target_dir.join("examples");
+    remove_stale_toolkit_winmd(&examples_dir);
     copy_toolkit_native_to_examples(&native_projects, &examples_dir);
 }
 
@@ -97,7 +98,25 @@ fn copy_native_project_to_examples(native_dir: &Path, examples_dir: &Path) {
 
 fn should_copy_toolkit_file(name: &str) -> bool {
     let lower = name.to_ascii_lowercase();
-    lower.ends_with(".dll") || lower.ends_with(".pri") || lower.ends_with(".winmd")
+    lower.ends_with(".dll") || lower.ends_with(".pri")
+}
+
+fn remove_stale_toolkit_winmd(dir: &Path) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let name = entry.file_name();
+        let name = name.to_string_lossy();
+        if path.is_file()
+            && name.starts_with("XamlToolkit.WinUI")
+            && name.to_ascii_lowercase().ends_with(".winmd")
+        {
+            let _ = fs::remove_file(path);
+        }
+    }
 }
 
 fn copy_dir_contents(src: &Path, dest: &Path) {
@@ -109,8 +128,12 @@ fn copy_dir_contents(src: &Path, dest: &Path) {
     for entry in entries.flatten() {
         let path = entry.path();
         let dest_path = dest.join(entry.file_name());
+        let name = entry.file_name();
+        let name = name.to_string_lossy();
         if path.is_file() {
-            copy_file(&path, &dest_path);
+            if should_copy_toolkit_resource_file(&name) {
+                copy_file(&path, &dest_path);
+            }
         } else if path.is_dir() {
             copy_dir_contents(&path, &dest_path);
         }
@@ -122,4 +145,8 @@ fn copy_file(src: &Path, dest: &Path) {
         let _ = fs::create_dir_all(parent);
     }
     let _ = fs::copy(src, dest);
+}
+
+fn should_copy_toolkit_resource_file(name: &str) -> bool {
+    !name.to_ascii_lowercase().ends_with(".winmd")
 }

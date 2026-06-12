@@ -201,6 +201,11 @@ function Get-ProjectOutput($ProjectConfig, [string]$SourceRoot, [string]$Platfor
 function Copy-NativeRuntime($ProjectConfig, [string]$ProjectOutput, [string]$Destination) {
     New-Item -ItemType Directory -Force $Destination | Out-Null
 
+    $resourceDestination = Join-Path $Destination $ProjectConfig.Name
+    if (Test-Path -LiteralPath $resourceDestination) {
+        Remove-Item -LiteralPath $resourceDestination -Recurse -Force
+    }
+
     foreach ($extension in @("dll", "pri", "winmd")) {
         $name = "$($ProjectConfig.Name).$extension"
         $source = Join-Path $ProjectOutput $name
@@ -209,6 +214,11 @@ function Copy-NativeRuntime($ProjectConfig, [string]$ProjectOutput, [string]$Des
         }
 
         Copy-Item -LiteralPath $source -Destination (Join-Path $Destination $name) -Force
+    }
+
+    $resourceSource = Join-Path $ProjectOutput $ProjectConfig.Name
+    if (Test-Path -LiteralPath $resourceSource) {
+        Copy-Item -LiteralPath $resourceSource -Destination $resourceDestination -Recurse -Force
     }
 }
 

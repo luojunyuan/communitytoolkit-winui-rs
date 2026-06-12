@@ -1,3 +1,7 @@
 [submodule "submodules/CommunityToolkit.WinUI"]
 	path = submodules/CommunityToolkit.WinUI
 	url = https://github.com/lgztx96/CommunityToolkit.WinUI.git
+[submodule "submodules/windows-rs-62af965-patched"]
+	path = submodules/windows-rs-62af965-patched
+	url = https://github.com/luojunyuan/windows-rs.git
+	branch = xaml-metadata-provider-hook

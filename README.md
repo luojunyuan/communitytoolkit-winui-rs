@@ -24,6 +24,7 @@ examples/root.rs                     root projection smoke executable
 examples/converters.rs               Converters projection smoke executable
 examples/helpers.rs                  Helpers projection smoke executable
 examples/controls.rs                 Controls projection smoke executable
+examples/demo                        Windows Reactor Controls GUI demo workspace
 ```
 
 ## Metadata
@@ -73,6 +74,14 @@ cargo run --example controls
 ```
 
 The examples are console smoke executables that validate projection type paths and selected interface paths without starting a WinUI application. The workspace `build.rs` still copies checked-in Toolkit native artifacts from each active crate's `metadata\native\<platform>` directory by default, where `<platform>` follows the Cargo target architecture (`ARM64`, `x64`, or `Win32`). Use `XAMLTOOLKIT_NATIVE_PLATFORM`, `XAMLTOOLKIT_WINUI_NATIVE_DIR`, `XAMLTOOLKIT_WINUI_CONVERTERS_NATIVE_DIR`, `XAMLTOOLKIT_WINUI_HELPERS_NATIVE_DIR`, or `XAMLTOOLKIT_WINUI_CONTROLS_NATIVE_DIR` to override that mapping.
+
+Run the GUI demo with:
+
+```powershell
+cargo run --manifest-path examples/demo/Cargo.toml
+```
+
+The GUI demo is isolated under `examples/demo` as a separate workspace. It is the only package that depends on `windows-reactor`.
 
 ## Expansion Plan
 

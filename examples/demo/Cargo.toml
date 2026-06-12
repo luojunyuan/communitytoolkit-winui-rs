@@ -1,0 +1,40 @@
+[package]
+name = "xamltoolkit-controls-demo"
+version = "0.1.0"
+edition = "2024"
+publish = false
+build = "build.rs"
+
+[workspace]
+
+[dependencies]
+xamltoolkit-winui-controls = { path = "../../crates/xamltoolkit-winui-controls" }
+windows = { git = "https://github.com/microsoft/windows-rs", features = [
+    "ApplicationModel_Resources_Core",
+    "Foundation",
+    "Storage",
+    "Storage_Streams",
+] }
+windows-collections = { git = "https://github.com/microsoft/windows-rs" }
+windows-reactor = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/reactor" }
+
+[build-dependencies]
+windows-metadata = { git = "https://github.com/microsoft/windows-rs" }
+windows-reactor-setup = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/reactor-setup" }
+
+# Temporary local override for the demo only. The patched Reactor exposes
+# `register_xaml_metadata_provider_factory`, and the patch keeps all
+# windows-rs crates on the same local source so WinRT types remain identical.
+[patch."https://github.com/microsoft/windows-rs"]
+windows = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/windows" }
+windows-bindgen = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/bindgen" }
+windows-collections = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/collections" }
+windows-core = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/core" }
+windows-future = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/future" }
+windows-metadata = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/metadata" }
+windows-numerics = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/numerics" }
+windows-reference = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/reference" }
+windows-result = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/result" }
+windows-strings = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/strings" }
+windows-threading = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/threading" }
+windows-time = { path = "../../submodules/windows-rs-62af965-patched/crates/libs/time" }
