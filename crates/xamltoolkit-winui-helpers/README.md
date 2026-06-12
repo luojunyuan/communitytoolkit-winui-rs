@@ -12,13 +12,9 @@ The regular source of `metadata/XamlToolkit.WinUI.Helpers.winmd` is the native R
 CommunityToolkit.WinUI\XamlToolkit.WinUI.Helpers\x64\Release\XamlToolkit.WinUI.Helpers\XamlToolkit.WinUI.Helpers.winmd
 ```
 
-Dependency metadata comes from the upstream repository's restored Windows App SDK packages plus the root Toolkit WinMD:
+WinAppSDK dependency metadata is centralized in `crates\wasdk\metadata\deps`. This crate's local dependency metadata only needs Toolkit WinMD dependencies:
 
 ```text
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Text.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.UI.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.Foundation.winmd
 crates\xamltoolkit-winui\metadata\XamlToolkit.WinUI.winmd
 ```
 
@@ -56,7 +52,7 @@ The default filter covers the full `XamlToolkit.WinUI.Helpers` WinRT surface exp
 - `ThemeChangedHandler`
 - `ThemeListener`
 
-The upstream native project references the root `XamlToolkit.WinUI` component. This crate depends on `xamltoolkit-winui` and keeps the root WinMD in `metadata/deps`; `ColorHelper::ToHsl` and `ColorHelper::ToHsv` return the root crate's `HslColor` and `HsvColor` types instead of generating duplicate root structs. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate. The Helpers namespace is re-exported at crate root, so consumers can use `xamltoolkit_winui_helpers::CameraHelper`.
+The upstream native project references the root `XamlToolkit.WinUI` component. This crate depends on `xamltoolkit-winui` and keeps the root WinMD in `metadata/deps`; `ColorHelper::ToHsl` and `ColorHelper::ToHsv` return the root crate's `HslColor` and `HsvColor` types instead of generating duplicate root structs. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate, with WinAppSDK WinMD files coming from `crates\wasdk\metadata\deps`. The Helpers namespace is re-exported at crate root, so consumers can use `xamltoolkit_winui_helpers::CameraHelper`.
 
 ## Validate
 

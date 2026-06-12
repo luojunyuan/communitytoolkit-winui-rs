@@ -215,7 +215,7 @@ function Copy-NativeRuntime($ProjectConfig, [string]$ProjectOutput, [string]$Des
 function Get-WindowsWinmdCandidate([string]$WorkspaceRoot, [string]$LocalWindowsWinmd) {
     $candidates = @(
         $LocalWindowsWinmd,
-        (Join-Path $WorkspaceRoot "crates\xamltoolkit-winui\metadata\deps\Windows.winmd")
+        (Join-Path $WorkspaceRoot "crates\wasdk\metadata\deps\Windows.winmd")
     )
 
     foreach ($candidate in $candidates) {
@@ -262,22 +262,20 @@ function Copy-ToolkitDependencyMetadata($ProjectConfig, $AllProjectConfigs, [str
 function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string]$DepsDir, [string]$MetadataPlatformName, [string]$ConfigurationName) {
     $projectRoot = Join-Path $SourceRoot $ProjectConfig.ProjectDir
     $projectPath = Join-Path $projectRoot $ProjectConfig.ProjectFile
+    $wasdkDepsDir = Join-Path $WorkspaceRoot "crates\wasdk\metadata\deps"
 
     $winuiPackage = Get-ProjectPackagePath $PackagesRoot $projectRoot $ProjectConfig.ProjectFile "Microsoft.WindowsAppSDK.WinUI"
     $interactivePackage = Get-ProjectPackagePath $PackagesRoot $projectRoot $ProjectConfig.ProjectFile "Microsoft.WindowsAppSDK.InteractiveExperiences"
+    $foundationPackage = Get-PackagePath $PackagesRoot "Microsoft.WindowsAppSDK.Foundation"
     $interactiveTarget = Get-InteractiveMetadataTarget (Join-Path $interactivePackage "metadata") (Get-ProjectMinVersion $projectPath)
 
     $deps = @(
         (Join-Path $winuiPackage "metadata\Microsoft.UI.Xaml.winmd"),
         (Join-Path $winuiPackage "metadata\Microsoft.UI.Text.winmd"),
         (Join-Path $interactiveTarget "Microsoft.UI.winmd"),
-        (Join-Path $interactiveTarget "Microsoft.Foundation.winmd")
+        (Join-Path $interactiveTarget "Microsoft.Foundation.winmd"),
+        (Join-Path $foundationPackage "metadata\Microsoft.Windows.ApplicationModel.Resources.winmd")
     )
-
-    if ($ProjectConfig.Alias -eq "Controls") {
-        $foundationPackage = Get-ProjectPackagePath $PackagesRoot $projectRoot $ProjectConfig.ProjectFile "Microsoft.WindowsAppSDK.Foundation"
-        $deps += (Join-Path $foundationPackage "metadata\Microsoft.Windows.ApplicationModel.Resources.winmd")
-    }
 
     foreach ($dep in $deps) {
         if (!(Test-Path -LiteralPath $dep)) {
@@ -285,12 +283,12 @@ function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$Wo
         }
     }
 
-    New-Item -ItemType Directory -Force $DepsDir | Out-Null
+    New-Item -ItemType Directory -Force $DepsDir, $wasdkDepsDir | Out-Null
     foreach ($dep in $deps) {
-        Copy-Item -LiteralPath $dep -Destination (Join-Path $DepsDir (Split-Path -Leaf $dep)) -Force
+        Copy-Item -LiteralPath $dep -Destination (Join-Path $wasdkDepsDir (Split-Path -Leaf $dep)) -Force
     }
 
-    $localWindowsWinmd = Join-Path $DepsDir "Windows.winmd"
+    $localWindowsWinmd = Join-Path $wasdkDepsDir "Windows.winmd"
     $windowsWinmd = Get-WindowsWinmdCandidate $WorkspaceRoot $localWindowsWinmd
     if ($windowsWinmd -and $windowsWinmd -ne (Resolve-Path -LiteralPath $localWindowsWinmd -ErrorAction SilentlyContinue).Path) {
         Copy-Item -LiteralPath $windowsWinmd -Destination $localWindowsWinmd -Force
@@ -300,6 +298,13 @@ function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$Wo
 
     Copy-ToolkitDependencyMetadata $ProjectConfig $AllProjectConfigs $WorkspaceRoot $SourceRoot $DepsDir $MetadataPlatformName $ConfigurationName
 
+    foreach ($name in @("Microsoft.Foundation.winmd", "Microsoft.UI.Text.winmd", "Microsoft.UI.winmd", "Microsoft.UI.Xaml.winmd", "Microsoft.Windows.ApplicationModel.Resources.winmd", "Windows.winmd")) {
+        $staleDep = Join-Path $DepsDir $name
+        if (Test-Path -LiteralPath $staleDep) {
+            Remove-Item -LiteralPath $staleDep -Force
+        }
+    }
+
     $keepToolkitDeps = @($ProjectConfig.DependencyWinmds)
     foreach ($name in @("XamlToolkit.WinUI.winmd", "XamlToolkit.WinUI.Helpers.winmd", "XamlToolkit.WinUI.Converters.winmd")) {
         $staleDep = Join-Path $DepsDir $name
@@ -308,7 +313,8 @@ function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$Wo
         }
     }
 
-    Write-Host "Synced dependency metadata for $($ProjectConfig.Name) from $winuiPackage and $interactiveTarget"
+    Write-Host "Synced wasdk dependency metadata from $winuiPackage, $interactiveTarget, and $foundationPackage"
+    Write-Host "Synced Toolkit dependency metadata for $($ProjectConfig.Name)"
 }
 
 function Sync-ProjectMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string[]]$Platforms, [string]$MetadataPlatformName, [string]$ConfigurationName) {

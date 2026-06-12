@@ -12,14 +12,9 @@ The regular source of `metadata/XamlToolkit.WinUI.Controls.winmd` is the native 
 CommunityToolkit.WinUI\XamlToolkit.WinUI.Controls\x64\Release\XamlToolkit.WinUI.Controls\XamlToolkit.WinUI.Controls.winmd
 ```
 
-Dependency metadata comes from the upstream repository's restored Windows App SDK packages plus the root Toolkit dependency WinMD files:
+WinAppSDK dependency metadata is centralized in `crates\wasdk\metadata\deps`. This crate's local dependency metadata only needs Toolkit WinMD dependencies:
 
 ```text
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Text.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.UI.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.InteractiveExperiences.*\metadata\<target>\Microsoft.Foundation.winmd
-CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.Foundation.*\metadata\Microsoft.Windows.ApplicationModel.Resources.winmd
 crates\xamltoolkit-winui\metadata\XamlToolkit.WinUI.winmd
 crates\xamltoolkit-winui-helpers\metadata\XamlToolkit.WinUI.Helpers.winmd
 crates\xamltoolkit-winui-converters\metadata\XamlToolkit.WinUI.Converters.winmd
@@ -45,7 +40,7 @@ The default filter covers the public `XamlToolkit.WinUI.Controls` surface expose
 - Text/token/suggestion controls: `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `ITokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `RichSuggestToken`, RichSuggest event args.
 - Other controls: `RadialGauge`, `TabbedCommandBar`, `TabbedCommandBarItem`, `SwitchPresenter`, `ImageCropper`, `ImageCropperThumb`, `CameraPreview`, `PreviewFailedEventArgs`, and `XamlMetaDataProvider`.
 
-The crate directly depends on `xamltoolkit-winui`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-converters`. Controls methods that expose root or helper types reuse those crates; for example `HsvColor` comes from `xamltoolkit-winui`, and `CameraPreview::CameraHelper` / `StartAsync` use `xamltoolkit-winui-helpers::CameraHelper`. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate. The Controls namespace is re-exported at crate root, so consumers can use `xamltoolkit_winui_controls::ColorPicker` or `xamltoolkit_winui_controls::primitives::ColorPickerSlider`.
+The crate directly depends on `xamltoolkit-winui`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-converters`. Controls methods that expose root or helper types reuse those crates; for example `HsvColor` comes from `xamltoolkit-winui`, and `CameraPreview::CameraHelper` / `StartAsync` use `xamltoolkit-winui-helpers::CameraHelper`. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate, with WinAppSDK WinMD files coming from `crates\wasdk\metadata\deps`. The Controls namespace is re-exported at crate root, so consumers can use `xamltoolkit_winui_controls::ColorPicker` or `xamltoolkit_winui_controls::primitives::ColorPickerSlider`.
 
 `windows-bindgen` may still report skipped inherited members for dependency projection graphs when `XAMLTOOLKIT_WINUI_CONTROLS_BINDGEN_WARNINGS` is set. The build script treats skipped `XamlToolkit.WinUI.*` members as an error so the Toolkit projection surface does not silently regress.
 

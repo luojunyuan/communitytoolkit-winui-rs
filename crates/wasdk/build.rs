@@ -2,7 +2,7 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const DEFAULT_DEPS_DIR: &str = "../xamltoolkit-winui-controls/metadata/deps";
+const DEFAULT_DEPS_DIR: &str = "metadata/deps";
 const DEFAULT_FILTERS: &str = include_str!("default.filters");
 const BINDGEN_WARNINGS_ENV: &str = "WASDK_BINDGEN_WARNINGS";
 

@@ -43,7 +43,7 @@ examples/controls.rs                 Controls projection smoke executable
 
 ## Metadata
 
-Each active crate's `metadata` directory is checked in so the crates can build and run smoke examples without the upstream repository being present. Each metadata directory contains the projection WinMD, dependency WinMD files, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`).
+Each active Toolkit crate's `metadata` directory is checked in so the crates can build and run smoke examples without the upstream repository being present. Toolkit crate metadata contains the projection WinMD, Toolkit dependency WinMD files when needed, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). WinAppSDK and Windows metadata is centralized under `crates/wasdk/metadata/deps` and consumed by all Toolkit build scripts through the shared `wasdk` projection crate.
 
 Use the top-level sync helper to refresh metadata from upstream build output and package metadata:
 
@@ -51,7 +51,7 @@ Use the top-level sync helper to refresh metadata from upstream build output and
 .\tools\sync-metadata.ps1
 ```
 
-By default this syncs the active Root, Converters, Helpers, and Controls crates for `x64|Release`. Common variants:
+By default this syncs the active Root, Converters, Helpers, Controls, and shared `wasdk` metadata for `x64|Release`. Common variants:
 
 ```powershell
 .\tools\sync-metadata.ps1 -Platform All

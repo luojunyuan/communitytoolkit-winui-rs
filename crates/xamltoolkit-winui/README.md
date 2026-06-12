@@ -12,7 +12,7 @@ The regular source of `metadata/XamlToolkit.WinUI.winmd` is the native Release b
 CommunityToolkit.WinUI\x64\Release\XamlToolkit.WinUI\XamlToolkit.WinUI.winmd
 ```
 
-The dependency metadata comes from the upstream repository's restored packages, especially:
+WinAppSDK dependency metadata is centralized in `crates\wasdk\metadata\deps`. The regular upstream source for those files is the restored package metadata, especially:
 
 ```text
 CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd
@@ -54,7 +54,7 @@ The default filter covers the root `XamlToolkit.WinUI` public WinRT surface expo
 - state triggers
 - attached shadow and effects contracts
 
-`Windows.*` APIs are referenced from the `windows` crate where available. WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.*` are referenced from the shared `wasdk` crate instead of being regenerated here. The crate also re-exports its root Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui::HsvColor` in addition to the generated `xamltoolkit_winui::XamlToolkit::WinUI::HsvColor` path.
+`Windows.*` APIs are referenced from the `windows` crate where available. WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.*` are referenced from the shared `wasdk` crate instead of being regenerated here. This crate's local `metadata\deps` directory does not need Microsoft or Windows WinMD files. The crate also re-exports its root Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui::HsvColor` in addition to the generated `xamltoolkit_winui::XamlToolkit::WinUI::HsvColor` path.
 
 ## Build
 

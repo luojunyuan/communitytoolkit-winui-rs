@@ -4,11 +4,14 @@ use std::path::{Path, PathBuf};
 
 const TOOLKIT_WINMD: &str = "metadata/XamlToolkit.WinUI.winmd";
 const DEFAULT_DEPS_DIR: &str = "metadata/deps";
+const DEFAULT_WASDK_DEPS_DIR: &str = "../wasdk/metadata/deps";
 const BINDGEN_WARNINGS_ENV: &str = "XAMLTOOLKIT_WINUI_BINDGEN_WARNINGS";
 
 fn main() {
     println!("cargo:rerun-if-changed={TOOLKIT_WINMD}");
     println!("cargo:rerun-if-changed={DEFAULT_DEPS_DIR}");
+    println!("cargo:rerun-if-changed={DEFAULT_WASDK_DEPS_DIR}");
+    println!("cargo:rerun-if-env-changed=WASDK_METADATA_DEPS");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_WINMD");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_METADATA_DEPS");
     println!("cargo:rerun-if-env-changed=XAMLTOOLKIT_WINUI_FILTERS");
@@ -24,10 +27,11 @@ fn main() {
         "XamlToolkit.WinUI metadata is missing. Run tools/sync-metadata.ps1 -Project Root to refresh checked-in metadata.",
     );
 
-    let deps_dir = env::var_os("XAMLTOOLKIT_WINUI_METADATA_DEPS")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| manifest_dir.join(DEFAULT_DEPS_DIR));
-    let deps = collect_winmd_files(&deps_dir);
+    let deps = dependency_winmd_files(
+        &manifest_dir,
+        "XAMLTOOLKIT_WINUI_METADATA_DEPS",
+        DEFAULT_DEPS_DIR,
+    );
 
     let filters = env::var("XAMLTOOLKIT_WINUI_FILTERS")
         .map(|value| split_filters(&value))
@@ -257,6 +261,25 @@ fn append_wasdk_references(args: &mut Vec<String>) {
         args.push("--reference".to_string());
         args.push(format!("wasdk,full,{namespace}"));
     }
+}
+
+fn dependency_winmd_files(
+    manifest_dir: &Path,
+    toolkit_deps_env: &str,
+    default_toolkit_deps_dir: &str,
+) -> Vec<PathBuf> {
+    let wasdk_deps_dir = env::var_os("WASDK_METADATA_DEPS")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| manifest_dir.join(DEFAULT_WASDK_DEPS_DIR));
+    let toolkit_deps_dir = env::var_os(toolkit_deps_env)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| manifest_dir.join(default_toolkit_deps_dir));
+
+    let mut files = collect_winmd_files(&wasdk_deps_dir);
+    files.extend(collect_winmd_files(&toolkit_deps_dir));
+    files.sort();
+    files.dedup();
+    files
 }
 
 fn patch_generated_bindings(out_file: &Path) {

@@ -12,7 +12,7 @@ The regular source of `metadata/XamlToolkit.WinUI.Converters.winmd` is the nativ
 CommunityToolkit.WinUI\x64\Release\XamlToolkit.WinUI.Converters\XamlToolkit.WinUI.Converters.winmd
 ```
 
-Dependency metadata comes from the upstream repository's restored Windows App SDK packages:
+WinAppSDK dependency metadata is centralized in `crates\wasdk\metadata\deps`. The regular upstream source for those files is the restored Windows App SDK package metadata:
 
 ```text
 CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd
@@ -51,7 +51,7 @@ The default filter covers the full `XamlToolkit.WinUI.Converters` WinRT surface 
 - empty object/string/collection converters
 - display/resource/string-format/file-size converters
 
-The Converters project does not depend on the root `XamlToolkit.WinUI` component. The generated projection includes only the Converters namespace. `Windows.*` APIs are referenced from the `windows` crate where available; WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.TypeName` are referenced from the shared `wasdk` crate. The crate also re-exports its Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui_converters::BoolNegationConverter` or `xamltoolkit_winui_converters::Converters::BoolNegationConverter`.
+The Converters project does not depend on the root `XamlToolkit.WinUI` component. The generated projection includes only the Converters namespace. `Windows.*` APIs are referenced from the `windows` crate where available; WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.TypeName` are referenced from the shared `wasdk` crate. This crate's local `metadata\deps` directory does not need Microsoft or Windows WinMD files. The crate also re-exports its Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui_converters::BoolNegationConverter` or `xamltoolkit_winui_converters::Converters::BoolNegationConverter`.
 
 ## Build
 
