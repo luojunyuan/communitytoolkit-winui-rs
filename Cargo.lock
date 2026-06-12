@@ -87,6 +87,71 @@ dependencies = [
 ]
 
 [[package]]
+name = "toolkit-winui"
+version = "0.1.0"
+dependencies = [
+ "wasdk",
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+]
+
+[[package]]
+name = "toolkit-winui-controls"
+version = "0.1.0"
+dependencies = [
+ "toolkit-winui",
+ "toolkit-winui-converters",
+ "toolkit-winui-helpers",
+ "wasdk",
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-metadata",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+]
+
+[[package]]
+name = "toolkit-winui-converters"
+version = "0.1.0"
+dependencies = [
+ "wasdk",
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+]
+
+[[package]]
+name = "toolkit-winui-helpers"
+version = "0.1.0"
+dependencies = [
+ "toolkit-winui",
+ "wasdk",
+ "windows",
+ "windows-bindgen",
+ "windows-collections",
+ "windows-core",
+ "windows-future",
+ "windows-numerics",
+ "windows-reference",
+ "windows-time",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -246,78 +311,13 @@ dependencies = [
 name = "xamltoolkit-rs"
 version = "0.1.0"
 dependencies = [
+ "toolkit-winui",
+ "toolkit-winui-controls",
+ "toolkit-winui-converters",
+ "toolkit-winui-helpers",
  "wasdk",
  "windows",
  "windows-core",
- "xamltoolkit-winui",
- "xamltoolkit-winui-controls",
- "xamltoolkit-winui-converters",
- "xamltoolkit-winui-helpers",
-]
-
-[[package]]
-name = "xamltoolkit-winui"
-version = "0.1.0"
-dependencies = [
- "wasdk",
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "windows-reference",
- "windows-time",
-]
-
-[[package]]
-name = "xamltoolkit-winui-controls"
-version = "0.1.0"
-dependencies = [
- "wasdk",
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-metadata",
- "windows-numerics",
- "windows-reference",
- "windows-time",
- "xamltoolkit-winui",
- "xamltoolkit-winui-converters",
- "xamltoolkit-winui-helpers",
-]
-
-[[package]]
-name = "xamltoolkit-winui-converters"
-version = "0.1.0"
-dependencies = [
- "wasdk",
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "windows-reference",
- "windows-time",
-]
-
-[[package]]
-name = "xamltoolkit-winui-helpers"
-version = "0.1.0"
-dependencies = [
- "wasdk",
- "windows",
- "windows-bindgen",
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "windows-reference",
- "windows-time",
- "xamltoolkit-winui",
 ]
 
 [[package]]

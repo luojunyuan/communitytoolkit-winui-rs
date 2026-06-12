@@ -1,9 +1,9 @@
-use windows::core::HSTRING;
-use xamltoolkit_winui::{HslColor, HsvColor};
-use xamltoolkit_winui_helpers::{
+use toolkit_winui::{HslColor, HsvColor};
+use toolkit_winui_helpers::{
     CameraHelper, CameraHelperResult, ColorHelper, DesignTimeHelpers, FrameEventArgs,
     ThemeChangedHandler, ThemeListener,
 };
+use windows::core::HSTRING;
 
 fn main() {
     run_smoke();

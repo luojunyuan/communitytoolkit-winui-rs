@@ -1,14 +1,14 @@
-use wasdk::Microsoft::UI::Xaml::Controls::{FontIcon, Symbol};
-use wasdk::Microsoft::UI::Xaml::{DependencyObject, FrameworkElement, UIElement};
-use wasdk::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
-use windows::Foundation::Rect;
-use windows::core::HSTRING;
-use xamltoolkit_winui::{
+use toolkit_winui::{
     AttachedDropShadow, ControlSizeTrigger, Effects, FontIconExtension, FontIconSourceExtension,
     FrameworkElementExtensions, HslColor, HsvColor, IsEqualStateTrigger, IsNullOrEmptyStateTrigger,
     MatrixExtensions, RectExtensions, SymbolIconExtension, SymbolIconSourceExtension,
     TextIconExtension, UIElementExtensions, VisualExtensions,
 };
+use wasdk::Microsoft::UI::Xaml::Controls::{FontIcon, Symbol};
+use wasdk::Microsoft::UI::Xaml::{DependencyObject, FrameworkElement, UIElement};
+use wasdk::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
+use windows::Foundation::Rect;
+use windows::core::HSTRING;
 
 fn main() {
     run_smoke();

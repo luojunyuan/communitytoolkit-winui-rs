@@ -86,14 +86,14 @@ fn main() {
             .unwrap_or_else(|error| panic!("failed to read {}: {error}", warnings_file.display()));
         if has_toolkit_projection_warning(&warnings_text) {
             panic!(
-                "windows-bindgen skipped Toolkit projection members for xamltoolkit-winui; see {}",
+                "windows-bindgen skipped Toolkit projection members for toolkit-winui; see {}",
                 warnings_file.display()
             );
         }
 
         if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
             println!(
-                "cargo:warning=xamltoolkit-winui bindgen skipped inherited or dependency members; see {}",
+                "cargo:warning=toolkit-winui bindgen skipped inherited or dependency members; see {}",
                 warnings_file.display()
             );
         }
@@ -287,13 +287,13 @@ fn patch_generated_bindings(out_file: &Path) {
         .unwrap_or_else(|error| panic!("failed to read {}: {error}", out_file.display()));
 
     if generated.contains("pub struct IReference<T>")
-        && !generated.contains("xamltoolkit_winui_ireference_from_bridge")
+        && !generated.contains("toolkit_winui_ireference_from_bridge")
     {
         generated.push_str(
             r#"
 
 #[allow(non_snake_case)]
-mod xamltoolkit_winui_ireference_from_bridge {
+mod toolkit_winui_ireference_from_bridge {
     use super::Windows::Foundation::IReference;
     use windows_core::{Interface, RuntimeType};
 

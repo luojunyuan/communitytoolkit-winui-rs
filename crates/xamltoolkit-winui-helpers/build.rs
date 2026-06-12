@@ -77,9 +77,9 @@ fn main() {
     append_wasdk_references(&mut args);
     args.extend([
         "--reference".to_string(),
-        "xamltoolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
+        "toolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
         "--reference".to_string(),
-        "xamltoolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
+        "toolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);
@@ -93,7 +93,7 @@ fn main() {
 
         if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
             println!(
-                "cargo:warning=xamltoolkit-winui-helpers bindgen skipped inherited or dependency members; see {}",
+                "cargo:warning=toolkit-winui-helpers bindgen skipped inherited or dependency members; see {}",
                 warnings_file.display()
             );
         }

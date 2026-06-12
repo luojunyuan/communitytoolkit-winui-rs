@@ -18,10 +18,10 @@ resolver = "2"
 
 [dependencies]
 wasdk = { path = "crates/wasdk" }
-xamltoolkit-winui = { path = "crates/xamltoolkit-winui" }
-xamltoolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
-xamltoolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }
-xamltoolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
+toolkit-winui = { path = "crates/xamltoolkit-winui" }
+toolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
+toolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }
+toolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = ["Foundation", "UI"] }
 windows-core = { git = "https://github.com/microsoft/windows-rs" }
 

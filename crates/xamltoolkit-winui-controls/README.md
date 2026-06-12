@@ -1,4 +1,4 @@
-# xamltoolkit-winui-controls
+# toolkit-winui-controls
 
 Rust WinRT projection crate for `XamlToolkit.WinUI.Controls`.
 
@@ -40,14 +40,14 @@ The default filter covers the public `XamlToolkit.WinUI.Controls` surface expose
 - Text/token/suggestion controls: `TokenizingTextBox`, `TokenizingTextBoxItem`, `PretokenStringContainer`, `ITokenStringContainer`, `InterspersedObservableVector`, `RichSuggestBox`, `RichSuggestToken`, RichSuggest event args.
 - Other controls: `RadialGauge`, `TabbedCommandBar`, `TabbedCommandBarItem`, `SwitchPresenter`, `ImageCropper`, `ImageCropperThumb`, `CameraPreview`, `PreviewFailedEventArgs`, and `XamlMetaDataProvider`.
 
-The crate directly depends on `xamltoolkit-winui`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-converters`. Controls methods that expose root or helper types reuse those crates; for example `HsvColor` comes from `xamltoolkit-winui`, and `CameraPreview::CameraHelper` / `StartAsync` use `xamltoolkit-winui-helpers::CameraHelper`. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate, with WinAppSDK WinMD files coming from `crates\wasdk\metadata\deps`. The Controls namespace is re-exported at crate root, so consumers can use `xamltoolkit_winui_controls::ColorPicker` or `xamltoolkit_winui_controls::primitives::ColorPickerSlider`.
+The crate directly depends on `toolkit-winui`, `toolkit-winui-helpers`, and `toolkit-winui-converters`. Controls methods that expose root or helper types reuse those crates; for example `HsvColor` comes from `toolkit-winui`, and `CameraPreview::CameraHelper` / `StartAsync` use `toolkit_winui_helpers::CameraHelper`. WinAppSDK/WinUI support types are referenced from the shared `wasdk` crate, with WinAppSDK WinMD files coming from `crates\wasdk\metadata\deps`. The Controls namespace is re-exported at crate root, so consumers can use `toolkit_winui_controls::ColorPicker` or `toolkit_winui_controls::primitives::ColorPickerSlider`.
 
 `windows-bindgen` may still report skipped inherited members for dependency projection graphs when `XAMLTOOLKIT_WINUI_CONTROLS_BINDGEN_WARNINGS` is set. The build script treats skipped `XamlToolkit.WinUI.*` members as an error so the Toolkit projection surface does not silently regress.
 
 ## Validate
 
 ```powershell
-cargo check -p xamltoolkit-winui-controls
+cargo check -p toolkit-winui-controls
 cargo check --example controls
 cargo run --example controls
 ```

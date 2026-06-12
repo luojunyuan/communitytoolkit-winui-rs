@@ -1,5 +1,5 @@
 [package]
-name = "xamltoolkit-winui-helpers"
+name = "toolkit-winui-helpers"
 version = "0.1.0"
 edition = "2024"
 publish = false
@@ -7,7 +7,7 @@ build = "build.rs"
 
 [dependencies]
 wasdk = { path = "../wasdk" }
-xamltoolkit-winui = { path = "../xamltoolkit-winui" }
+toolkit-winui = { path = "../xamltoolkit-winui" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation",
     "Foundation_Collections",

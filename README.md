@@ -2,7 +2,7 @@
 
 Rust projection workspace for `CommunityToolkit.WinUI` / `XamlToolkit.WinUI`.
 
-The `wasdk` crate projects the WinAppSDK/WinUI types needed by this workspace. The `xamltoolkit-winui`, `xamltoolkit-winui-converters`, `xamltoolkit-winui-helpers`, and `xamltoolkit-winui-controls` crates project their own Toolkit WinRT surfaces from produced Toolkit WinMD files and consume shared `wasdk` types instead of regenerating `Microsoft.UI.*` support bindings.
+The `wasdk` crate projects the WinAppSDK/WinUI types needed by this workspace. The `toolkit-winui`, `toolkit-winui-converters`, `toolkit-winui-helpers`, and `toolkit-winui-controls` crates project their own Toolkit WinRT surfaces from produced Toolkit WinMD files and consume shared `wasdk` types instead of regenerating `Microsoft.UI.*` support bindings.
 
 The source C++/WinRT repository is checked out as a git submodule under this workspace:
 
@@ -18,11 +18,11 @@ The Rust Windows projection/runtime crates are pulled from the official `microso
 Each Toolkit crate can be consumed independently. Toolkit types are re-exported at crate root:
 
 ```rust
-use xamltoolkit_winui::HsvColor;
-use xamltoolkit_winui_converters::BoolNegationConverter;
-use xamltoolkit_winui_helpers::CameraHelper;
-use xamltoolkit_winui_controls::ColorPicker;
-use xamltoolkit_winui_controls::primitives::ColorPickerSlider;
+use toolkit_winui::HsvColor;
+use toolkit_winui_converters::BoolNegationConverter;
+use toolkit_winui_helpers::CameraHelper;
+use toolkit_winui_controls::ColorPicker;
+use toolkit_winui_controls::primitives::ColorPickerSlider;
 ```
 
 WinAppSDK types remain under the shared `wasdk` crate, for example `wasdk::Microsoft::UI::Xaml::DependencyObject`.
@@ -31,10 +31,10 @@ WinAppSDK types remain under the shared `wasdk` crate, for example `wasdk::Micro
 
 ```text
 crates/wasdk                         shared WinAppSDK/WinUI projection crate
-crates/xamltoolkit-winui             root XamlToolkit.WinUI projection crate
-crates/xamltoolkit-winui-converters  XamlToolkit.WinUI.Converters projection crate
-crates/xamltoolkit-winui-helpers     XamlToolkit.WinUI.Helpers projection crate
-crates/xamltoolkit-winui-controls    XamlToolkit.WinUI.Controls projection crate
+crates/xamltoolkit-winui             toolkit-winui package, root XamlToolkit.WinUI projection crate
+crates/xamltoolkit-winui-converters  toolkit-winui-converters package, XamlToolkit.WinUI.Converters projection crate
+crates/xamltoolkit-winui-helpers     toolkit-winui-helpers package, XamlToolkit.WinUI.Helpers projection crate
+crates/xamltoolkit-winui-controls    toolkit-winui-controls package, XamlToolkit.WinUI.Controls projection crate
 examples/root.rs                     root projection smoke executable
 examples/converters.rs               Converters projection smoke executable
 examples/helpers.rs                  Helpers projection smoke executable
@@ -68,10 +68,10 @@ The sync helper copies produced WinMD/native runtime artifacts from the selected
 ```powershell
 cargo fmt --check
 cargo check -p wasdk
-cargo check -p xamltoolkit-winui
-cargo check -p xamltoolkit-winui-converters
-cargo check -p xamltoolkit-winui-helpers
-cargo check -p xamltoolkit-winui-controls
+cargo check -p toolkit-winui
+cargo check -p toolkit-winui-converters
+cargo check -p toolkit-winui-helpers
+cargo check -p toolkit-winui-controls
 cargo check --example root
 cargo check --example converters
 cargo check --example helpers

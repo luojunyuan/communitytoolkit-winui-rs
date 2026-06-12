@@ -1,4 +1,4 @@
-# xamltoolkit-winui
+# toolkit-winui
 
 Rust WinRT projection crate for the root `XamlToolkit.WinUI` native component.
 
@@ -54,12 +54,12 @@ The default filter covers the root `XamlToolkit.WinUI` public WinRT surface expo
 - state triggers
 - attached shadow and effects contracts
 
-`Windows.*` APIs are referenced from the `windows` crate where available. WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.*` are referenced from the shared `wasdk` crate instead of being regenerated here. This crate's local `metadata\deps` directory does not need Microsoft or Windows WinMD files. The crate also re-exports its root Toolkit namespace at crate root, so consumers can use `xamltoolkit_winui::HsvColor` in addition to the generated `xamltoolkit_winui::XamlToolkit::WinUI::HsvColor` path.
+`Windows.*` APIs are referenced from the `windows` crate where available. WinAppSDK/WinUI support types such as `Microsoft.UI.Xaml.*` and `Windows.UI.Xaml.Interop.*` are referenced from the shared `wasdk` crate instead of being regenerated here. This crate's local `metadata\deps` directory does not need Microsoft or Windows WinMD files. The crate also re-exports its root Toolkit namespace at crate root, so consumers can use `toolkit_winui::HsvColor` in addition to the generated `toolkit_winui::XamlToolkit::WinUI::HsvColor` path.
 
 ## Build
 
 ```powershell
-cargo check -p xamltoolkit-winui
+cargo check -p toolkit-winui
 cargo check --example root
 ```
 

@@ -83,7 +83,7 @@ fn main() {
 
         if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
             println!(
-                "cargo:warning=xamltoolkit-winui-converters bindgen skipped inherited or dependency members; see {}",
+                "cargo:warning=toolkit-winui-converters bindgen skipped inherited or dependency members; see {}",
                 warnings_file.display()
             );
         }

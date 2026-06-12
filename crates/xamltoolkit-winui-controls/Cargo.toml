@@ -1,5 +1,5 @@
 [package]
-name = "xamltoolkit-winui-controls"
+name = "toolkit-winui-controls"
 version = "0.1.0"
 edition = "2024"
 publish = false
@@ -7,9 +7,9 @@ build = "build.rs"
 
 [dependencies]
 wasdk = { path = "../wasdk" }
-xamltoolkit-winui = { path = "../xamltoolkit-winui" }
-xamltoolkit-winui-converters = { path = "../xamltoolkit-winui-converters" }
-xamltoolkit-winui-helpers = { path = "../xamltoolkit-winui-helpers" }
+toolkit-winui = { path = "../xamltoolkit-winui" }
+toolkit-winui-converters = { path = "../xamltoolkit-winui-converters" }
+toolkit-winui-helpers = { path = "../xamltoolkit-winui-helpers" }
 windows = { git = "https://github.com/microsoft/windows-rs", features = [
     "Foundation",
     "Foundation_Collections",

@@ -268,15 +268,15 @@ fn main() {
     append_wasdk_references(&mut args);
     args.extend([
         "--reference".to_string(),
-        "xamltoolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
+        "toolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
         "--reference".to_string(),
-        "xamltoolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
+        "toolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
         "--reference".to_string(),
-        "xamltoolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.CameraHelper".to_string(),
+        "toolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.CameraHelper".to_string(),
         "--reference".to_string(),
-        "xamltoolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.ICameraHelper".to_string(),
+        "toolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.ICameraHelper".to_string(),
         "--reference".to_string(),
-        "xamltoolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.ICameraHelperStatics".to_string(),
+        "toolkit_winui_helpers,full,XamlToolkit.WinUI.Helpers.ICameraHelperStatics".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);
@@ -292,14 +292,14 @@ fn main() {
             .unwrap_or_else(|error| panic!("failed to read {}: {error}", warnings_file.display()));
         if has_toolkit_projection_warning(&warnings_text) {
             panic!(
-                "windows-bindgen skipped Toolkit projection members for xamltoolkit-winui-controls; see {}",
+                "windows-bindgen skipped Toolkit projection members for toolkit-winui-controls; see {}",
                 warnings_file.display()
             );
         }
 
         if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
             println!(
-                "cargo:warning=xamltoolkit-winui-controls bindgen skipped Microsoft supporting projection members; see {}",
+                "cargo:warning=toolkit-winui-controls bindgen skipped Microsoft supporting projection members; see {}",
                 warnings_file.display()
             );
         }
@@ -409,7 +409,7 @@ fn assert_controls_surface_generated(winmd: &Path, out_file: &Path) {
     missing.dedup();
     if !missing.is_empty() {
         panic!(
-            "xamltoolkit-winui-controls generated bindings are missing WinMD Toolkit types:\n{}",
+            "toolkit-winui-controls generated bindings are missing WinMD Toolkit types:\n{}",
             missing.join("\n")
         );
     }
