@@ -1,0 +1,18 @@
+[package]
+name = "toolkit-winui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+build = "build.rs"
+
+[dependencies]
+wasdk = { path = "../wasdk" }
+windows-core = { workspace = true }
+windows-collections = { workspace = true }
+windows-future = { workspace = true }
+windows-numerics = { workspace = true }
+windows-reference = { workspace = true }
+windows-time = { workspace = true }
+
+[build-dependencies]
+windows-bindgen = { workspace = true }

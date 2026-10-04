@@ -3,7 +3,7 @@ use toolkit_winui_helpers::{
     CameraHelper, CameraHelperResult, ColorHelper, DesignTimeHelpers, FrameEventArgs,
     ThemeChangedHandler, ThemeListener,
 };
-use windows::core::HSTRING;
+use windows_core::HSTRING;
 
 fn main() {
     run_smoke();

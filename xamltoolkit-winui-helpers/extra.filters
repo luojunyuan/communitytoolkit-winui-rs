@@ -1,0 +1,7 @@
+# Factory and static interfaces required by windows-bindgen 0.100.
+Microsoft.UI.Dispatching.IDispatcherQueueStatics
+Windows.Media.Capture.Frames.IMediaFrameSourceGroupStatics
+XamlToolkit.WinUI.Helpers.ICameraHelperStatics
+XamlToolkit.WinUI.Helpers.IColorHelperStatics
+XamlToolkit.WinUI.Helpers.IDesignTimeHelpersStatics
+XamlToolkit.WinUI.Helpers.IThemeListenerFactory

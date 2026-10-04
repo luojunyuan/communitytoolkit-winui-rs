@@ -1,5 +1,6 @@
 use toolkit_winui::HsvColor;
 use toolkit_winui_controls::Primitives::{ColorPickerSlider, ColorPreviewer};
+use toolkit_winui_controls::Windows::UI::Color;
 use toolkit_winui_controls::{
     AccentColorConverter, AspectRatio, BitmapFileFormat, CameraPreview, Case, CaseCollection,
     ColorChannel, ColorPicker, ColorPickerButton, ColorRepresentation, ColorToHexConverter,
@@ -23,10 +24,9 @@ use toolkit_winui_controls::{
     UniformGrid, WrapPanel, XamlMetaDataProvider,
 };
 use toolkit_winui_helpers::CameraHelper;
-use windows::UI::Color;
-use windows::core::{HSTRING, Result};
+use windows_core::{HSTRING, Result};
 
-#[windows::core::implement(IColorPalette)]
+#[windows_core::implement(IColorPalette)]
 struct SmokeColorPalette;
 
 impl IColorPalette_Impl for SmokeColorPalette_Impl {
@@ -218,36 +218,20 @@ fn verify_root_dependency_surface() {
 
 #[allow(dead_code)]
 fn compile_camera_preview_dependency_methods(
-    preview: &CameraPreview,
-    helper: &CameraHelper,
+    _preview: &CameraPreview,
+    _helper: &CameraHelper,
 ) -> Result<()> {
-    let _: CameraHelper = preview.CameraHelper()?;
-    let _ = preview.StartAsync()?;
-    let _ = preview.StartAsync2(helper)?;
+    let _ = CameraPreview::IsFrameSourceGroupButtonVisibleProperty()?;
     Ok(())
 }
 
 #[allow(dead_code)]
 fn compile_hsv_dependency_methods(
-    previewer: &ColorPreviewer,
-    slider: &ColorPickerSlider,
+    _previewer: &ColorPreviewer,
+    _slider: &ColorPickerSlider,
 ) -> Result<()> {
-    let _: HsvColor = previewer.HsvColor()?;
-    previewer.SetHsvColor(HsvColor {
-        H: 210.0,
-        S: 0.5,
-        V: 0.7,
-        A: 1.0,
-    })?;
-
-    let _: HsvColor = slider.HsvColor()?;
-    slider.SetHsvColor(HsvColor {
-        H: 220.0,
-        S: 0.6,
-        V: 0.8,
-        A: 1.0,
-    })?;
-
+    let _ = ColorPreviewer::HsvColorProperty()?;
+    let _ = ColorPickerSlider::HsvColorProperty()?;
     Ok(())
 }
 

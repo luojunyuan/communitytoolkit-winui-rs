@@ -6,9 +6,9 @@ use toolkit_winui::{
 };
 use wasdk::Microsoft::UI::Xaml::Controls::{FontIcon, Symbol};
 use wasdk::Microsoft::UI::Xaml::{DependencyObject, FrameworkElement, UIElement};
+use wasdk::Windows::Foundation::Rect;
 use wasdk::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
-use windows::Foundation::Rect;
-use windows::core::HSTRING;
+use windows_core::HSTRING;
 
 fn main() {
     run_smoke();

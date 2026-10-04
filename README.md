@@ -11,7 +11,7 @@ xamltoolkit-rs
 xamltoolkit-rs\submodules\CommunityToolkit.WinUI
 ```
 
-The Rust Windows projection/runtime crates are pulled from the official `microsoft/windows-rs` git repository.
+The Rust Windows projection/runtime crates use the crates.io `0.100` releases of the official `windows-rs` components.
 
 ## Import shape
 
@@ -30,11 +30,11 @@ WinAppSDK types remain under the shared `wasdk` crate, for example `wasdk::Micro
 ## Layout
 
 ```text
-crates/wasdk                         shared WinAppSDK/WinUI projection crate
-crates/xamltoolkit-winui             toolkit-winui package, root XamlToolkit.WinUI projection crate
-crates/xamltoolkit-winui-converters  toolkit-winui-converters package, XamlToolkit.WinUI.Converters projection crate
-crates/xamltoolkit-winui-helpers     toolkit-winui-helpers package, XamlToolkit.WinUI.Helpers projection crate
-crates/xamltoolkit-winui-controls    toolkit-winui-controls package, XamlToolkit.WinUI.Controls projection crate
+wasdk                                 shared WinAppSDK/WinUI projection crate
+xamltoolkit-winui                     toolkit-winui package, root XamlToolkit.WinUI projection crate
+xamltoolkit-winui-converters          toolkit-winui-converters package, XamlToolkit.WinUI.Converters projection crate
+xamltoolkit-winui-helpers             toolkit-winui-helpers package, XamlToolkit.WinUI.Helpers projection crate
+xamltoolkit-winui-controls            toolkit-winui-controls package, XamlToolkit.WinUI.Controls projection crate
 examples/root.rs                     root projection smoke executable
 examples/converters.rs               Converters projection smoke executable
 examples/helpers.rs                  Helpers projection smoke executable
@@ -43,7 +43,7 @@ examples/controls.rs                 Controls projection smoke executable
 
 ## Metadata
 
-Each active Toolkit crate's `metadata` directory is checked in so the crates can build and run smoke examples without the upstream repository being present. Toolkit crate metadata contains the projection WinMD, Toolkit dependency WinMD files when needed, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). WinAppSDK metadata is centralized under `crates/wasdk/metadata/deps` and consumed by all Toolkit build scripts through the shared `wasdk` projection crate. Windows SDK metadata comes from windows-rs/default bindgen metadata instead of checked-in `Windows.winmd`.
+Each active Toolkit crate's `metadata` directory is checked in so the crates can build and run smoke examples without the upstream repository being present. Toolkit crate metadata contains the projection WinMD, Toolkit dependency WinMD files when needed, and `native/<platform>` runtime artifacts (`dll`, `pri`, `winmd`). WinAppSDK metadata is centralized under `wasdk/metadata/deps` and consumed by all Toolkit build scripts through the shared `wasdk` projection crate. Windows SDK metadata comes from windows-rs/default bindgen metadata instead of checked-in `Windows.winmd`.
 
 Use the top-level sync helper to refresh metadata from upstream build output and package metadata:
 

@@ -3,12 +3,14 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 const HELPERS_WINMD: &str = "metadata/XamlToolkit.WinUI.Helpers.winmd";
+const EXTRA_FILTERS: &str = include_str!("extra.filters");
 const DEFAULT_DEPS_DIR: &str = "metadata/deps";
 const DEFAULT_WASDK_DEPS_DIR: &str = "../wasdk/metadata/deps";
 const BINDGEN_WARNINGS_ENV: &str = "XAMLTOOLKIT_WINUI_HELPERS_BINDGEN_WARNINGS";
 
 fn main() {
     println!("cargo:rerun-if-changed={HELPERS_WINMD}");
+    println!("cargo:rerun-if-changed=extra.filters");
     println!("cargo:rerun-if-changed={DEFAULT_DEPS_DIR}");
     println!("cargo:rerun-if-changed={DEFAULT_WASDK_DEPS_DIR}");
     println!("cargo:rerun-if-env-changed=WASDK_METADATA_DEPS");
@@ -35,7 +37,16 @@ fn main() {
     let filters = env::var("XAMLTOOLKIT_WINUI_HELPERS_FILTERS")
         .map(|value| split_filters(&value))
         .unwrap_or_else(|_| default_filters());
-    let filters = without_wasdk_filters(filters);
+    let mut filters = without_wasdk_filters(filters);
+    filters.extend(
+        EXTRA_FILTERS
+            .lines()
+            .map(str::trim)
+            .filter(|filter| !filter.is_empty() && !filter.starts_with('#'))
+            .map(str::to_string),
+    );
+    filters.sort();
+    filters.dedup();
 
     if filters.is_empty() {
         panic!("XAMLTOOLKIT_WINUI_HELPERS_FILTERS did not contain any filters.");
@@ -50,54 +61,11 @@ fn main() {
         helpers_winmd.display().to_string(),
     ];
     args.extend(deps.iter().map(|path| path.display().to_string()));
-    args.extend([
-        "--out".to_string(),
-        out_file.display().to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Foundation".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Foundation.Collections".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Foundation.Numerics".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Graphics".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Media".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Media.Capture.Frames".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Color".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Composition".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Core".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Text".to_string(),
-    ]);
-    append_wasdk_references(&mut args);
-    args.extend([
-        "--reference".to_string(),
-        "toolkit_winui,full,XamlToolkit.WinUI.HslColor".to_string(),
-        "--reference".to_string(),
-        "toolkit_winui,full,XamlToolkit.WinUI.HsvColor".to_string(),
-        "--filter".to_string(),
-    ]);
+    args.extend(["--out".to_string(), out_file.display().to_string()]);
+    args.push("--filter".to_string());
     args.extend(filters);
 
-    let warnings = windows_bindgen::bindgen(args);
-    if !warnings.is_empty() {
-        let warnings_file = out_dir.join("bindgen-warnings.txt");
-        let warnings_text = format!("{warnings}");
-        fs::write(&warnings_file, warnings_text)
-            .unwrap_or_else(|error| panic!("failed to write {}: {error}", warnings_file.display()));
-
-        if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
-            println!(
-                "cargo:warning=toolkit-winui-helpers bindgen skipped inherited or dependency members; see {}",
-                warnings_file.display()
-            );
-        }
-    }
+    windows_bindgen::bindgen(args);
 
     if !out_file.exists() {
         panic!(
@@ -105,6 +73,8 @@ fn main() {
             out_file.display()
         );
     }
+
+    patch_collection_deref(&out_file);
 }
 
 fn default_filters() -> Vec<String> {
@@ -137,38 +107,64 @@ fn without_wasdk_filters(filters: Vec<String>) -> Vec<String> {
         .collect()
 }
 
-fn is_wasdk_filter(filter: &str) -> bool {
-    filter.starts_with("Microsoft.") || filter.starts_with("Windows.UI.Xaml.")
+fn patch_collection_deref(out_file: &Path) {
+    let mut generated = fs::read_to_string(out_file)
+        .unwrap_or_else(|error| panic!("failed to read {}: {error}", out_file.display()));
+
+    let struct_names: Vec<String> = generated
+        .lines()
+        .filter_map(|line| {
+            let line = line.trim();
+            let rest = line.strip_prefix("pub struct ")?;
+            let (name, rest) = rest.split_once("(windows_core::IUnknown)")?;
+            rest.trim_end_matches(';')
+                .is_empty()
+                .then(|| name.to_string())
+        })
+        .collect();
+
+    for name in struct_names {
+        let marker = format!("impl core::ops::Deref for {name} {{");
+        if generated.contains(&marker) {
+            continue;
+        }
+
+        let iterator_marker = format!("impl IntoIterator for &{name} {{");
+        let Some(iterator_start) = generated.find(&iterator_marker) else {
+            continue;
+        };
+        let Some(item_offset) = generated[iterator_start..].find("type Item =") else {
+            continue;
+        };
+        let item_start = iterator_start + item_offset + "type Item =".len();
+        let Some(item_len) = generated[item_start..].find(';') else {
+            continue;
+        };
+        let item = generated[item_start..item_start + item_len]
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+        if item.is_empty() {
+            continue;
+        }
+
+        let deref = format!(
+            "impl core::ops::Deref for {name} {{\n\
+    type Target = windows_collections::IIterable<{item}>;\n\
+    fn deref(&self) -> &Self::Target {{\n\
+        unsafe {{ core::mem::transmute(self) }}\n\
+    }}\n\
+}}\n"
+        );
+        generated.insert_str(iterator_start, &deref);
+    }
+
+    fs::write(out_file, generated)
+        .unwrap_or_else(|error| panic!("failed to write {}: {error}", out_file.display()));
 }
 
-fn append_wasdk_references(args: &mut Vec<String>) {
-    for namespace in [
-        "Microsoft.UI",
-        "Microsoft.UI.Composition",
-        "Microsoft.UI.Dispatching",
-        "Microsoft.UI.Input",
-        "Microsoft.UI.Text",
-        "Microsoft.UI.Xaml",
-        "Microsoft.UI.Xaml.Automation",
-        "Microsoft.UI.Xaml.Automation.Peers",
-        "Microsoft.UI.Xaml.Automation.Provider",
-        "Microsoft.UI.Xaml.Controls",
-        "Microsoft.UI.Xaml.Controls.Primitives",
-        "Microsoft.UI.Xaml.Data",
-        "Microsoft.UI.Xaml.Documents",
-        "Microsoft.UI.Xaml.Input",
-        "Microsoft.UI.Xaml.Interop",
-        "Microsoft.UI.Xaml.Markup",
-        "Microsoft.UI.Xaml.Media",
-        "Microsoft.UI.Xaml.Media.Animation",
-        "Microsoft.UI.Xaml.Media.Imaging",
-        "Microsoft.UI.Xaml.Media.Media3D",
-        "Microsoft.UI.Xaml.Navigation",
-        "Windows.UI.Xaml.Interop",
-    ] {
-        args.push("--reference".to_string());
-        args.push(format!("wasdk,full,{namespace}"));
-    }
+fn is_wasdk_filter(filter: &str) -> bool {
+    filter.starts_with("Microsoft.") || filter.starts_with("Windows.UI.Xaml.")
 }
 
 fn dependency_winmd_files(

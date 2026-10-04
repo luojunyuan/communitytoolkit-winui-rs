@@ -9,7 +9,7 @@ use toolkit_winui_converters::{
 use wasdk::Microsoft::UI::Xaml::Data::IValueConverter;
 use wasdk::Microsoft::UI::Xaml::{DependencyObject, Visibility};
 use wasdk::Windows::UI::Xaml::Interop::{TypeKind, TypeName};
-use windows::core::HSTRING;
+use windows_core::HSTRING;
 
 fn main() {
     run_smoke();

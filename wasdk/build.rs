@@ -4,11 +4,13 @@ use std::path::{Path, PathBuf};
 
 const DEFAULT_DEPS_DIR: &str = "metadata/deps";
 const DEFAULT_FILTERS: &str = include_str!("default.filters");
+const EXTRA_FILTERS: &str = include_str!("extra.filters");
 const BINDGEN_WARNINGS_ENV: &str = "WASDK_BINDGEN_WARNINGS";
 
 fn main() {
     println!("cargo:rerun-if-changed={DEFAULT_DEPS_DIR}");
     println!("cargo:rerun-if-changed=default.filters");
+    println!("cargo:rerun-if-changed=extra.filters");
     println!("cargo:rerun-if-env-changed=WASDK_METADATA_DEPS");
     println!("cargo:rerun-if-env-changed=WASDK_FILTERS");
     println!("cargo:rerun-if-env-changed={BINDGEN_WARNINGS_ENV}");
@@ -40,62 +42,11 @@ fn main() {
     args.extend([
         "--out".to_string(),
         out_file.display().to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Foundation".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Foundation.Collections".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Foundation.Numerics".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Graphics".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Graphics.DirectX".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Graphics.DirectX.Direct3D11".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Graphics.Imaging".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Media".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Media.Capture".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Media.Capture.Frames".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Media.MediaProperties".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Storage".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Storage.FileProperties".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Storage.Search".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.Storage.Streams".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Color".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Composition".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Core".to_string(),
-        "--reference".to_string(),
-        "windows,skip-root,Windows.UI.Text".to_string(),
         "--filter".to_string(),
     ]);
     args.extend(filters);
 
-    let warnings = windows_bindgen::bindgen(args);
-    if !warnings.is_empty() {
-        let warnings_file = out_dir.join("bindgen-warnings.txt");
-        let warnings_text = format!("{warnings}");
-        fs::write(&warnings_file, warnings_text)
-            .unwrap_or_else(|error| panic!("failed to write {}: {error}", warnings_file.display()));
-
-        if env::var_os(BINDGEN_WARNINGS_ENV).is_some() {
-            println!(
-                "cargo:warning=wasdk bindgen skipped inherited or dependency members; see {}",
-                warnings_file.display()
-            );
-        }
-    }
+    windows_bindgen::bindgen(args);
 
     if !out_file.exists() {
         panic!(
@@ -103,6 +54,8 @@ fn main() {
             out_file.display()
         );
     }
+
+    patch_collection_deref(&out_file);
 }
 
 fn default_filters() -> Vec<String> {
@@ -260,6 +213,8 @@ fn default_filters() -> Vec<String> {
         "Microsoft.UI.Xaml.Thickness",
         "Microsoft.UI.Xaml.UIElement",
         "Microsoft.UI.Xaml.Visibility",
+        "Windows.Foundation.Rect",
+        "Windows.UI.Color",
         "Windows.UI.Xaml.Interop.TypeKind",
         "Windows.UI.Xaml.Interop.TypeName",
     ]
@@ -274,9 +229,72 @@ fn default_filters() -> Vec<String> {
             .filter(|filter| !filter.is_empty() && !filter.starts_with('#'))
             .map(str::to_string),
     );
+    filters.extend(
+        EXTRA_FILTERS
+            .lines()
+            .map(str::trim)
+            .filter(|filter| !filter.is_empty() && !filter.starts_with('#'))
+            .map(str::to_string),
+    );
     filters.sort();
     filters.dedup();
     filters
+}
+
+fn patch_collection_deref(out_file: &Path) {
+    let mut generated = fs::read_to_string(out_file)
+        .unwrap_or_else(|error| panic!("failed to read {}: {error}", out_file.display()));
+
+    let struct_names: Vec<String> = generated
+        .lines()
+        .filter_map(|line| {
+            let line = line.trim();
+            let rest = line.strip_prefix("pub struct ")?;
+            let (name, rest) = rest.split_once("(windows_core::IUnknown)")?;
+            rest.trim_end_matches(';')
+                .is_empty()
+                .then(|| name.to_string())
+        })
+        .collect();
+
+    for name in struct_names {
+        let marker = format!("impl core::ops::Deref for {name} {{");
+        if generated.contains(&marker) {
+            continue;
+        }
+
+        let iterator_marker = format!("impl IntoIterator for &{name} {{");
+        let Some(iterator_start) = generated.find(&iterator_marker) else {
+            continue;
+        };
+        let Some(item_offset) = generated[iterator_start..].find("type Item =") else {
+            continue;
+        };
+        let item_start = iterator_start + item_offset + "type Item =".len();
+        let Some(item_len) = generated[item_start..].find(';') else {
+            continue;
+        };
+        let item = generated[item_start..item_start + item_len]
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+        if item.is_empty() {
+            continue;
+        }
+
+        let deref = format!(
+            "impl core::ops::Deref for {name} {{\n\
+    type Target = windows_collections::IIterable<{item}>;\n\
+    fn deref(&self) -> &Self::Target {{\n\
+        unsafe {{ core::mem::transmute(self) }}\n\
+    }}\n\
+}}\n"
+        );
+        generated.insert_str(iterator_start, &deref);
+    }
+
+    fs::write(out_file, generated)
+        .unwrap_or_else(|error| panic!("failed to write {}: {error}", out_file.display()));
 }
 
 fn split_filters(value: &str) -> Vec<String> {

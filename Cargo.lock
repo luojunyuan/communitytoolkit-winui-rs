@@ -3,18 +3,6 @@
 version = 4
 
 [[package]]
-name = "itoa"
-version = "1.0.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
-
-[[package]]
-name = "memchr"
-version = "2.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b947ae49db0d222b1dbc6b113ce7248a3fc3a6ca21b696717bfc000ba4484d8"
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.106"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -33,49 +21,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde"
-version = "1.0.228"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
-dependencies = [
- "serde_core",
- "serde_derive",
-]
-
-[[package]]
-name = "serde_core"
-version = "1.0.228"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
-dependencies = [
- "serde_derive",
-]
-
-[[package]]
-name = "serde_derive"
-version = "1.0.228"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "serde_json"
-version = "1.0.150"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8014e44b4736ed0538adeecded0fce2a272f22dc9578a7eb6b2d9993c74cfb9"
-dependencies = [
- "itoa",
- "memchr",
- "serde",
- "serde_core",
- "zmij",
-]
-
-[[package]]
 name = "syn"
 version = "2.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -91,7 +36,6 @@ name = "toolkit-winui"
 version = "0.1.0"
 dependencies = [
  "wasdk",
- "windows",
  "windows-bindgen",
  "windows-collections",
  "windows-core",
@@ -109,7 +53,6 @@ dependencies = [
  "toolkit-winui-converters",
  "toolkit-winui-helpers",
  "wasdk",
- "windows",
  "windows-bindgen",
  "windows-collections",
  "windows-core",
@@ -125,7 +68,6 @@ name = "toolkit-winui-converters"
 version = "0.1.0"
 dependencies = [
  "wasdk",
- "windows",
  "windows-bindgen",
  "windows-collections",
  "windows-core",
@@ -141,7 +83,6 @@ version = "0.1.0"
 dependencies = [
  "toolkit-winui",
  "wasdk",
- "windows",
  "windows-bindgen",
  "windows-collections",
  "windows-core",
@@ -161,7 +102,6 @@ checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 name = "wasdk"
 version = "0.1.0"
 dependencies = [
- "windows",
  "windows-bindgen",
  "windows-collections",
  "windows-core",
@@ -172,42 +112,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows"
-version = "0.62.2"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
-dependencies = [
- "windows-collections",
- "windows-core",
- "windows-future",
- "windows-numerics",
- "windows-reference",
- "windows-time",
-]
-
-[[package]]
 name = "windows-bindgen"
-version = "0.66.0"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c6bb7c22ca81c6dc1554fd328c12697b4b0ad5c45081df2c3c9a3f89cc467da2"
 dependencies = [
  "proc-macro2",
  "quote",
- "serde",
- "serde_json",
+ "windows-default",
  "windows-metadata",
 ]
 
 [[package]]
 name = "windows-collections"
-version = "0.3.2"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e884f6b14b3c101363efab151e89271b4da599d1e29d945023f92656b23020c2"
 dependencies = [
  "windows-core",
 ]
 
 [[package]]
 name = "windows-core"
-version = "0.62.2"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "803590c6856f51d15fa2e9fabe4f4703122c8737f72ef2741b4ac09d4c2192f5"
 dependencies = [
  "windows-implement",
  "windows-interface",
@@ -217,9 +146,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows-default"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4882bb065b03115aa8891d44d076bbe843d286d8bfd0b55caaa4b049141a712"
+
+[[package]]
 name = "windows-future"
-version = "0.3.2"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a74555161b6c58612bbe052b9964c9c069326c487d24b8f7e77d5a8e83fb81c8"
 dependencies = [
  "windows-core",
  "windows-link",
@@ -228,8 +164,9 @@ dependencies = [
 
 [[package]]
 name = "windows-implement"
-version = "0.60.2"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bc1bc82e5a1b1a4d7255861b07881a0407b552f50a4d8543c0c7276fa96f6e8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -238,8 +175,9 @@ dependencies = [
 
 [[package]]
 name = "windows-interface"
-version = "0.59.3"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3f7005c3b757b9b82c2f40c0e71094ff1080adddaf3e8b6ce99b545d3c48796"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -248,27 +186,30 @@ dependencies = [
 
 [[package]]
 name = "windows-link"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b39de7c7fe78858b0144c50c3fc000bab3be17d5e9b85b1053871693c7f7415"
 
 [[package]]
 name = "windows-metadata"
-version = "0.60.0"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d3a758dc1da4ae61aa7f93afbb505d564c72dd6431e513ed581377857896a72"
 
 [[package]]
 name = "windows-numerics"
-version = "0.3.1"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d9c5500bf6a9098f27922953422ae7324cdd330c868e945801593455a6832701"
 dependencies = [
  "windows-core",
- "windows-link",
 ]
 
 [[package]]
 name = "windows-reference"
-version = "0.1.0"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdfaf342eb9cfa3b519410caa05f8ebd3b20b7e077cdf80d013a5bca4f1b194b"
 dependencies = [
  "windows-core",
  "windows-time",
@@ -276,35 +217,38 @@ dependencies = [
 
 [[package]]
 name = "windows-result"
-version = "0.4.1"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44873a1ef61c85d5e2991db91fe656cfcf0731097e00dff1ac860f1cb3b752a0"
 dependencies = [
  "windows-link",
 ]
 
 [[package]]
 name = "windows-strings"
-version = "0.5.1"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a70b590c684f1d2854f74999896f7c0558f1bdde62f599088599e20ea1d2f60"
 dependencies = [
  "windows-link",
 ]
 
 [[package]]
 name = "windows-threading"
-version = "0.2.1"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cff005f1c94bffb9b073230837d3448d0e0ba3cf11c34b6f1f7d4c3875eded09"
 dependencies = [
  "windows-link",
 ]
 
 [[package]]
 name = "windows-time"
-version = "0.1.0"
-source = "git+https://github.com/microsoft/windows-rs#e18a8542574a13c0ba42dcaa313f391706f1a13e"
+version = "0.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de136aac4d76b9ea94b2589774be8bcd91b31b2dd7dae54abdd63335590095e4"
 dependencies = [
  "windows-core",
- "windows-link",
 ]
 
 [[package]]
@@ -316,12 +260,5 @@ dependencies = [
  "toolkit-winui-converters",
  "toolkit-winui-helpers",
  "wasdk",
- "windows",
  "windows-core",
 ]
-
-[[package]]
-name = "zmij"
-version = "1.0.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"

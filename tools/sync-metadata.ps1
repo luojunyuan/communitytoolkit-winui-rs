@@ -219,7 +219,7 @@ function Copy-ToolkitDependencyMetadata($ProjectConfig, $AllProjectConfigs, [str
             throw "Unknown Toolkit dependency metadata '$dependencyWinmd' for $($ProjectConfig.Name)."
         }
 
-        $source = Join-Path (Join-Path (Join-Path $WorkspaceRoot "crates") $dependencyProject.Crate) "metadata\$dependencyWinmd"
+        $source = Join-Path (Join-Path $WorkspaceRoot $dependencyProject.Crate) "metadata\$dependencyWinmd"
         if (!(Test-Path -LiteralPath $source)) {
             $dependencyOutput = Get-ProjectOutput $dependencyProject $SourceRoot $MetadataPlatformName $ConfigurationName
             $source = Join-Path $dependencyOutput $dependencyWinmd
@@ -236,7 +236,7 @@ function Copy-ToolkitDependencyMetadata($ProjectConfig, $AllProjectConfigs, [str
 function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string]$DepsDir, [string]$MetadataPlatformName, [string]$ConfigurationName) {
     $projectRoot = Join-Path $SourceRoot $ProjectConfig.ProjectDir
     $projectPath = Join-Path $projectRoot $ProjectConfig.ProjectFile
-    $wasdkDepsDir = Join-Path $WorkspaceRoot "crates\wasdk\metadata\deps"
+    $wasdkDepsDir = Join-Path $WorkspaceRoot "wasdk\metadata\deps"
 
     $winuiPackage = Get-ProjectPackagePath $PackagesRoot $projectRoot $ProjectConfig.ProjectFile "Microsoft.WindowsAppSDK.WinUI"
     $interactivePackage = Get-ProjectPackagePath $PackagesRoot $projectRoot $ProjectConfig.ProjectFile "Microsoft.WindowsAppSDK.InteractiveExperiences"
@@ -298,7 +298,7 @@ function Sync-DependencyMetadata($ProjectConfig, $AllProjectConfigs, [string]$Wo
 }
 
 function Sync-ProjectMetadata($ProjectConfig, $AllProjectConfigs, [string]$WorkspaceRoot, [string]$SourceRoot, [string]$PackagesRoot, [string[]]$Platforms, [string]$MetadataPlatformName, [string]$ConfigurationName) {
-    $crateRoot = Join-Path (Join-Path $WorkspaceRoot "crates") $ProjectConfig.Crate
+    $crateRoot = Join-Path $WorkspaceRoot $ProjectConfig.Crate
     $metadataDir = Join-Path $crateRoot "metadata"
     $depsDir = Join-Path $metadataDir "deps"
     $nativeDir = Join-Path $metadataDir "native"

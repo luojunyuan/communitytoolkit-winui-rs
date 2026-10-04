@@ -1,0 +1,14 @@
+# Factory and static interfaces required by windows-bindgen 0.100.
+Microsoft.UI.Xaml.IDependencyObjectFactory
+Microsoft.UI.Xaml.IDependencyPropertyStatics
+Microsoft.UI.Xaml.IPropertyMetadataFactory
+Microsoft.UI.Xaml.IPropertyMetadataStatics
+XamlToolkit.WinUI.Converters.IBoolToObjectConverterFactory
+XamlToolkit.WinUI.Converters.IBoolToObjectConverterStatics
+XamlToolkit.WinUI.Converters.IDoubleToObjectConverterFactory
+XamlToolkit.WinUI.Converters.IDoubleToObjectConverterStatics
+XamlToolkit.WinUI.Converters.IEmptyCollectionToObjectConverterFactory
+XamlToolkit.WinUI.Converters.IEmptyObjectToObjectConverterFactory
+XamlToolkit.WinUI.Converters.IEmptyObjectToObjectConverterStatics
+XamlToolkit.WinUI.Converters.IEmptyStringToObjectConverterFactory
+XamlToolkit.WinUI.Converters.ITypeToObjectConverterStatics

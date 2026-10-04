@@ -8,22 +8,31 @@ autoexamples = false
 
 [workspace]
 members = [
-    "crates/wasdk",
-    "crates/xamltoolkit-winui",
-    "crates/xamltoolkit-winui-converters",
-    "crates/xamltoolkit-winui-helpers",
-    "crates/xamltoolkit-winui-controls",
+    "wasdk",
+    "xamltoolkit-winui",
+    "xamltoolkit-winui-converters",
+    "xamltoolkit-winui-helpers",
+    "xamltoolkit-winui-controls",
 ]
 resolver = "2"
 
+[workspace.dependencies]
+windows-bindgen = "0.100"
+windows-collections = "0.100"
+windows-core = "0.100"
+windows-future = "0.100"
+windows-metadata = "0.100"
+windows-numerics = "0.100"
+windows-reference = "0.100"
+windows-time = "0.100"
+
 [dependencies]
-wasdk = { path = "crates/wasdk" }
-toolkit-winui = { path = "crates/xamltoolkit-winui" }
-toolkit-winui-converters = { path = "crates/xamltoolkit-winui-converters" }
-toolkit-winui-helpers = { path = "crates/xamltoolkit-winui-helpers" }
-toolkit-winui-controls = { path = "crates/xamltoolkit-winui-controls" }
-windows = { git = "https://github.com/microsoft/windows-rs", features = ["Foundation", "UI"] }
-windows-core = { git = "https://github.com/microsoft/windows-rs" }
+wasdk = { path = "wasdk" }
+toolkit-winui = { path = "xamltoolkit-winui" }
+toolkit-winui-converters = { path = "xamltoolkit-winui-converters" }
+toolkit-winui-helpers = { path = "xamltoolkit-winui-helpers" }
+toolkit-winui-controls = { path = "xamltoolkit-winui-controls" }
+windows-core = { workspace = true }
 
 [[example]]
 name = "root"
@@ -40,4 +49,3 @@ path = "examples/helpers.rs"
 [[example]]
 name = "controls"
 path = "examples/controls.rs"
-

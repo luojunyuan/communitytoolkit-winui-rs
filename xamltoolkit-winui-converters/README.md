@@ -12,7 +12,7 @@ The regular source of `metadata/XamlToolkit.WinUI.Converters.winmd` is the nativ
 CommunityToolkit.WinUI\x64\Release\XamlToolkit.WinUI.Converters\XamlToolkit.WinUI.Converters.winmd
 ```
 
-WinAppSDK dependency metadata is centralized in `crates\wasdk\metadata\deps`. The regular upstream source for those files is the restored Windows App SDK package metadata:
+WinAppSDK dependency metadata is centralized in `..\wasdk\metadata\deps`. The regular upstream source for those files is the restored Windows App SDK package metadata:
 
 ```text
 CommunityToolkit.WinUI\packages\Microsoft.WindowsAppSDK.WinUI.*\metadata\Microsoft.UI.Xaml.winmd

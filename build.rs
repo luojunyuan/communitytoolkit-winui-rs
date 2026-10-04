@@ -49,7 +49,6 @@ fn native_projects(manifest_dir: &Path, platform: &str) -> Vec<PathBuf> {
 
 fn toolkit_native_dir(manifest_dir: &Path, crate_name: &str, platform: &str) -> PathBuf {
     manifest_dir
-        .join("crates")
         .join(crate_name)
         .join("metadata")
         .join("native")
